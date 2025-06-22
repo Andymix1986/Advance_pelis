@@ -5,7 +5,7 @@
 <title>King Play - Películas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-/* ==== Estilos igual que tu origina ==== */
+/* ==== Estilos igual que tu original + Ver más ==== */
 body {
   margin: 0;
   background-color: #000;
@@ -110,6 +110,16 @@ body {
   padding: 4px;
 }
 
+.card.ver-mas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  font-size: 1rem;
+  color: #fff;
+  border: 2px dashed #00bfff;
+}
+
 /* Fondo semitransparente */
 .popup-overlay {
   position: fixed;
@@ -124,7 +134,6 @@ body {
   z-index: 9;
 }
 
-/* Pop-up */
 .popup {
   width: 60%;
   aspect-ratio: 16 / 9;
@@ -140,11 +149,7 @@ body {
   z-index: 10;
 }
 
-.popup h2 {
-  color: #fff;
-  font-size: 1.5rem;
-}
-
+.popup h2 { color: #fff; font-size: 1.5rem; }
 .popup button {
   background-color: #00bfff;
   border: none;
@@ -156,37 +161,21 @@ body {
   cursor: pointer;
   outline: none;
 }
+.popup button:hover { background-color: #0099cc; }
 
-.popup button:focus {
-  box-shadow: 0 0 10px 2px #00bfff;
-}
-
-.popup button:hover {
-  background-color: #0099cc;
-}
-
-button:focus {
-  outline: none;
-}
-
-/* Lazy Load - quitar opacidad */
-.slider-row {
-  opacity: 1 !important;
-}
+/* Lazy Load */
+.slider-row { opacity: 1 !important; }
 </style>
 </head>
 <body>
-
-<!-- Carrusel -->
 <div class="carousel-wrapper">
   <div class="carousel-container" id="carousel-container">
-    <img class="carousel-image active" src="https://images2.imgbox.com/41/0a/d5N9fJDY_o.jpg" alt="Carrusel 1" loading="lazy" />
-    <img class="carousel-image" src="https://images2.imgbox.com/51/6e/9xuKLLlO_o.jpg" alt="Carrusel 2" loading="lazy" />
-    <img class="carousel-image" src="https://images2.imgbox.com/87/ce/T0um6IwN_o.jpg" alt="Carrusel 3" loading="lazy" />
+    <img class="carousel-image active" src="https://images2.imgbox.com/41/0a/d5N9fJDY_o.jpg" />
+    <img class="carousel-image" src="https://images2.imgbox.com/51/6e/9xuKLLlO_o.jpg" />
+    <img class="carousel-image" src="https://images2.imgbox.com/87/ce/T0um6IwN_o.jpg" />
   </div>
 </div>
 
-<!-- Pop-up de actualización -->
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup" id="popup">
     <h2>Hay una nueva versión disponible</h2>
@@ -194,16 +183,11 @@ button:focus {
   </div>
 </div>
 
-<!-- Contenedor de sliders -->
 <div id="sliders"></div>
-
-<!-- Banner de OnclickA al final de la página -->
-<div id="banner-onclicka" style="width: 100%; text-align: center; margin-top: 40px;">
+<div id="banner-onclicka" style="text-align:center;margin-top:40px;">
   <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="322235"></script>
 </div>
-
 <script>
-// === Carrusel ===
 let current = 0;
 const images = document.querySelectorAll(".carousel-image");
 setInterval(() => {
@@ -212,69 +196,46 @@ setInterval(() => {
   images[current].classList.add("active");
 }, 4000);
 
-// Funciones XOR + Base64
 function xorDecrypt(input, key) {
   let output = '';
   for (let i = 0; i < input.length; i++) {
-    const charCode = input.charCodeAt(i) ^ key.charCodeAt(i % key.length);
-    output += String.fromCharCode(charCode);
+    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
   }
   return output;
 }
+function decodeBase64(input) { return atob(input); }
 
-function decodeBase64(input) {
-  return atob(input);
-}
-
-// URL JSON
 const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Json-pelis/refs/heads/main/peliculas.json";
 const storedVersion = localStorage.getItem('version') || '1.0.0';
 let newVersionFromJson = storedVersion;
 
-// Compara versiones semánticas
-function compareVersions(currentVersion, newVersion) {
-  const current = currentVersion.split('.').map(Number);
-  const next = newVersion.split('.').map(Number);
-  for (let i = 0; i < 3; i++) {
-    if (next[i] > current[i]) return true;
-    if (next[i] < current[i]) return false;
-  }
-  return false;
+function compareVersions(current, next) {
+  const a = current.split('.').map(Number);
+  const b = next.split('.').map(Number);
+  return b.some((v, i) => v > a[i]);
 }
-
-function showPopup(message) {
-  const popupMessage = document.querySelector("#popup h2");
-  popupMessage.textContent = message;
+function showPopup(msg) {
+  document.querySelector("#popup h2").textContent = msg;
   document.getElementById("popupOverlay").style.display = "flex";
 }
 
-document.getElementById("updateButton").addEventListener("click", () => {
-  localStorage.setItem('version', newVersionFromJson);
-  location.reload();
-});
-
-// Fetch y proceso JSON
 fetch(JSON_URL)
-.then(response => response.text())
+.then(r => r.text())
 .then(data => {
-  const decryptedData = xorDecrypt(decodeBase64(data), "andymix1986");
-  const parsedData = JSON.parse(decryptedData);
-  newVersionFromJson = parsedData.version;
+  const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+  newVersionFromJson = json.version;
+  if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
 
-  if (compareVersions(storedVersion, newVersionFromJson)) showPopup(parsedData.mensaje);
-
-  // Agrupar por categoría
-  const peliculasPorCategoria = {};
-  parsedData.peliculas.forEach(peli => {
-    const cat = peli.categoria || "Sin Categoría";
-    if (!peliculasPorCategoria[cat]) peliculasPorCategoria[cat] = [];
-    peliculasPorCategoria[cat].push(peli);
+  const categorias = {};
+  json.peliculas.forEach(p => {
+    const cat = p.categoria || "Sin Categoría";
+    if (!categorias[cat]) categorias[cat] = [];
+    categorias[cat].unshift(p); // Nueva primero
   });
 
   const container = document.getElementById("sliders");
 
-  // Crear sliders por categoría
-  for (const [categoria, listaPeliculas] of Object.entries(peliculasPorCategoria)) {
+  for (const [categoria, lista] of Object.entries(categorias)) {
     const slider = document.createElement("div");
     slider.className = "slider";
     slider.innerHTML = `<h2>${categoria}</h2>`;
@@ -283,50 +244,56 @@ fetch(JSON_URL)
     row.className = "slider-row";
     row.tabIndex = 0;
 
-    listaPeliculas.forEach(peli => {
+    lista.slice(0, 7).forEach(p => {
       const card = document.createElement("div");
       card.className = "card";
       card.tabIndex = 0;
-      card.setAttribute("data-url", peli.url);
-      card.setAttribute("data-titulo", peli.titulo);
+      card.setAttribute("data-url", p.url);
+      card.setAttribute("data-titulo", p.titulo);
 
       const img = document.createElement("img");
-      img.src = peli.imagen;
-      img.alt = peli.titulo;
+      img.src = p.imagen;
+      img.alt = p.titulo;
       img.loading = "lazy";
 
       const title = document.createElement("div");
       title.className = "card-title";
-      title.textContent = peli.titulo;
+      title.textContent = p.titulo;
 
-      card.appendChild(img);
-      card.appendChild(title);
+      card.append(img, title);
       row.appendChild(card);
     });
 
+    const verMas = document.createElement("div");
+    verMas.className = "card ver-mas";
+    verMas.tabIndex = 0;
+    verMas.textContent = "Ver más";
+    verMas.onclick = () => {
+      location.href = `ver_categoria.html?cat=${encodeURIComponent(categoria)}`;
+    };
+    row.appendChild(verMas);
+
     slider.appendChild(row);
     container.appendChild(slider);
-
     observer.observe(slider);
   }
 })
-.catch(error => console.error("Error cargando el archivo JSON:", error));
+.catch(console.error);
 
-// Al hacer click en tarjeta, redirigir directo al player
-document.addEventListener("click", (e) => {
+document.getElementById("updateButton").onclick = () => {
+  localStorage.setItem('version', newVersionFromJson);
+  location.reload();
+};
+
+document.addEventListener("click", e => {
   const card = e.target.closest('.card');
-  if (card) {
-    const url = card.getAttribute('data-url');
-    const titulo = card.getAttribute('data-titulo');
-    
-    // Redirección usando esquema personalizado para Android WebView
-    const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-    window.location.href = intentUrl;
+  if (card && !card.classList.contains("ver-mas")) {
+    const url = card.getAttribute("data-url");
+    const titulo = card.getAttribute("data-titulo");
+    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
   }
 });
 
-
-// Lazy load con IntersectionObserver
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -334,15 +301,7 @@ const observer = new IntersectionObserver(entries => {
       observer.unobserve(entry.target);
     }
   });
-}, {
-  threshold: 0.1
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  const sliders = document.querySelectorAll(".slider-row");
-  sliders.forEach(slider => observer.observe(slider));
-});
+}, { threshold: 0.1 });
 </script>
-
 </body>
 </html>
