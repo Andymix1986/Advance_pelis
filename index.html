@@ -318,10 +318,13 @@ document.addEventListener("click", (e) => {
   if (card) {
     const url = card.getAttribute('data-url');
     const titulo = card.getAttribute('data-titulo');
-    const playerUrl = `https://andymix1986.github.io/Advance_player/player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-    window.location.href = playerUrl;
+    
+    // Redirección usando esquema personalizado para Android WebView
+    const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    window.location.href = intentUrl;
   }
 });
+
 
 // Lazy load con IntersectionObserver
 const observer = new IntersectionObserver(entries => {
