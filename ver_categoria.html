@@ -102,7 +102,7 @@
       return output;
     }
 
-    fetch("https://raw.githubusercontent.com/Andymix1986/Json-pelis/refs/heads/main/peliculas.json")
+    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/peliculas.json")
       .then(res => res.text())
       .then(data => {
         const desencriptado = xorDecrypt(atob(data), "andymix1986");
