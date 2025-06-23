@@ -1,1 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ver Categoría</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: sans-serif;
+      color: #fff;
+      padding: 20px;
+    }
 
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #00bfff;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      width: 100%;
+      height: 240px;
+      background-color: #222;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-title {
+      position: absolute;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 4px;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+    }
+
+    .volver {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      width: max-content;
+    }
+
+    .volver:hover {
+      background-color: #0099cc;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="titulo-categoria">Cargando categoría...</h1>
+  <div class="grid" id="contenedor"></div>
+  <a class="volver" href="https://andymix1986.github.io/Advance_pelis/index.html">Volver al Inicio</a>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const categoriaSeleccionada = params.get("cat");
+
+    if (!categoriaSeleccionada) {
+      document.body.innerHTML = "<h2 style='text-align:center;color:red;'>❌ Categoría no especificada</h2>";
+      throw new Error("No se encontró la categoría en la URL.");
+    }
+
+    document.getElementById("titulo-categoria").textContent = categoriaSeleccionada;
+
+    function xorDecrypt(input, key) {
+      let output = '';
+      for (let i = 0; i < input.length; i++) {
+        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return output;
+    }
+
+    fetch("https://raw.githubusercontent.com/Andymix1986/Json-pelis/refs/heads/main/peliculas.json")
+      .then(res => res.text())
+      .then(data => {
+        const desencriptado = xorDecrypt(atob(data), "andymix1986");
+        const json = JSON.parse(desencriptado);
+        const lista = json.peliculas.filter(p => p.categoria === categoriaSeleccionada);
+
+        const contenedor = document.getElementById("contenedor");
+        lista.forEach(peli => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.setAttribute("data-url", peli.url);
+          card.setAttribute("data-titulo", peli.titulo);
+
+          const img = document.createElement("img");
+          img.src = peli.imagen;
+          img.alt = peli.titulo;
+          img.loading = "lazy";
+
+          const title = document.createElement("div");
+          title.className = "card-title";
+          title.textContent = peli.titulo;
+
+          card.append(img, title);
+          contenedor.appendChild(card);
+        });
+      })
+      .catch(e => {
+        console.error("Error cargando JSON:", e);
+        document.body.innerHTML += "<p style='color:red;'>Error cargando las películas.</p>";
+      });
+
+    document.addEventListener("click", (e) => {
+      const card = e.target.closest(".card");
+      if (card) {
+        const url = card.getAttribute("data-url");
+        const titulo = card.getAttribute("data-titulo");
+        const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+        window.location.href = intentUrl;
+      }
+    });
+  </script>
+</body>
+</html>
