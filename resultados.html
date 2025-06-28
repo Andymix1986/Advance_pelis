@@ -103,7 +103,7 @@
       ? `Resultados para: "${query}"`
       : 'Resultados';
 
-    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/peliculas.json")
+    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
       .then(res => res.text())
       .then(data => {
         const desencriptado = xorDecrypt(atob(data), "andymix1986");
