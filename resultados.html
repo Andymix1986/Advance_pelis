@@ -20,7 +20,7 @@ body {
 }
 #btnVolver {
   display: block;
-  margin: 10px auto 30px auto;
+  margin: 0 auto 30px auto;
   padding: 8px 20px;
   font-size: 1rem;
   border-radius: 8px;
@@ -104,7 +104,7 @@ function decodeBase64(input) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const query = urlParams.get('q') || '';
-const origen = urlParams.get('origen') || 'peliculas'; // origen puede ser peliculas, series o animes
+const origen = urlParams.get('origen') || 'peliculas';
 
 document.getElementById('tituloResultados').textContent = `Resultados para: "${query}"`;
 
