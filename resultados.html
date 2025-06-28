@@ -1,165 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Resultados</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      margin: 0;
-      background-color: #000;
-      font-family: sans-serif;
-      color: #fff;
-    }
-    h1 {
-      text-align: center;
-      margin: 20px 0;
-      color: #00bfff;
-    }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      padding: 0 16px 40px;
-    }
-    .card {
-      width: 160px;
-      height: 240px;
-      background-color: #222;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-    }
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .card:focus {
-      outline: none;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px 4px #00bfff;
-      z-index: 2;
-    }
-    .card-title {
-      position: absolute;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      padding: 4px;
-    }
-    button#btnVolver {
-      display: block;
-      margin: 20px auto;
-      background: #00bfff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    button#btnVolver:hover {
-      background: #0099cc;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>King Play - Resultados de búsqueda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+body {
+  margin: 0;
+  background-color: #000;
+  font-family: sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+#tituloResultados {
+  color: #00bfff;
+  font-size: 1.8rem;
+  margin: 20px 0 10px;
+  text-align: center;
+}
+#btnVolver {
+  display: block;
+  margin: 10px auto 30px auto;
+  padding: 8px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #00bfff;
+  background: transparent;
+  color: #00bfff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+#btnVolver:hover {
+  background-color: rgba(0, 191, 255, 0.2);
+}
+.resultados-container {
+  width: 95%;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  outline: none;
+}
+.card {
+  width: 160px;
+  height: 240px;
+  background-color: #222;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card:focus {
+  outline: none;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px 4px #00bfff;
+  z-index: 2;
+}
+.card-title {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 4px;
+}
+.no-results {
+  color: #aaa;
+  text-align: center;
+  width: 100%;
+  margin-top: 40px;
+  font-size: 1.2rem;
+}
+</style>
 </head>
 <body>
 
-<h1 id="titulo">Buscando...</h1>
+<h2 id="tituloResultados"></h2>
 <button id="btnVolver">Volver al inicio</button>
-<div class="grid" id="contenedor"></div>
+
+<div class="resultados-container" id="resultadosContainer"></div>
 
 <script>
-  function xorDecrypt(input, key) {
-    let output = '';
-    for (let i = 0; i < input.length; i++) {
-      output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+function xorDecrypt(input, key) {
+  let output = '';
+  for (let i = 0; i < input.length; i++) {
+    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  return output;
+}
+function decodeBase64(input) {
+  return atob(input);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const query = urlParams.get('q') || '';
+const origen = urlParams.get('origen') || 'peliculas'; // origen puede ser peliculas, series o animes
+
+document.getElementById('tituloResultados').textContent = `Resultados para: "${query}"`;
+
+document.getElementById('btnVolver').onclick = () => {
+  if (origen === 'series') {
+    location.href = 'index_series.html';
+  } else if (origen === 'animes') {
+    location.href = 'index_animes.html';
+  } else {
+    location.href = 'index.html';
+  }
+};
+
+fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
+  .then(r => r.text())
+  .then(data => {
+    const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+    const resultados = json.contenidos.filter(item => {
+      return item.titulo.toLowerCase().includes(query.toLowerCase()) && (
+        (origen === 'peliculas' && item.tipo === 'Pelicula') ||
+        (origen === 'series' && item.tipo === 'Serie') ||
+        (origen === 'animes' && item.tipo === 'Anime')
+      );
+    });
+
+    const contenedor = document.getElementById('resultadosContainer');
+    contenedor.innerHTML = '';
+
+    if (resultados.length === 0) {
+      contenedor.innerHTML = '<p class="no-results">No se encontraron resultados.</p>';
+      return;
     }
-    return output;
-  }
 
-  function decodeBase64(input) {
-    return atob(input);
-  }
+    resultados.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.tabIndex = 0;
+      card.setAttribute('data-url', p.url);
+      card.setAttribute('data-titulo', p.titulo);
 
-  function getParam(name) {
-    const url = new URL(window.location.href);
-    return url.searchParams.get(name);
-  }
+      const img = document.createElement('img');
+      img.src = p.imagen;
+      img.alt = p.titulo;
+      img.loading = "lazy";
 
-  const query = (getParam("q") || "").trim().toLowerCase();
-  const origen = (getParam("origen") || "").toLowerCase();
-  const tituloPagina = document.getElementById("titulo");
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = p.titulo;
 
-  if (!query) tituloPagina.textContent = "Sin término de búsqueda";
-  else tituloPagina.textContent = `Resultados para: "${query}"`;
+      card.append(img, title);
+      contenedor.appendChild(card);
+    });
 
-  const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
-
-  fetch(JSON_URL)
-    .then(r => r.text())
-    .then(data => {
-      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const contenedor = document.getElementById("contenedor");
-
-      const filtrados = json.contenidos.filter(p => {
-        if (!p.titulo || !p.tipo) return false;
-
-        const titulo = p.titulo.toLowerCase();
-        if (!titulo.includes(query)) return false;
-
-        if (origen === "series") return p.tipo === "Serie";
-        if (origen === "animes") return p.tipo === "Anime";
-        return p.tipo === "Pelicula";
-      });
-
-      if (filtrados.length === 0) {
-        contenedor.innerHTML = "<p style='text-align:center;width:100%'>No se encontraron resultados.</p>";
-        return;
+    document.addEventListener('click', e => {
+      const card = e.target.closest('.card');
+      if (card) {
+        const url = card.getAttribute('data-url');
+        const titulo = card.getAttribute('data-titulo');
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
       }
-
-      filtrados.reverse().forEach(p => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.tabIndex = 0;
-        card.setAttribute("data-url", p.url);
-        card.setAttribute("data-titulo", p.titulo);
-
-        const img = document.createElement("img");
-        img.src = p.imagen;
-        img.alt = p.titulo;
-        img.loading = "lazy";
-
-        const title = document.createElement("div");
-        title.className = "card-title";
-        title.textContent = p.titulo;
-
-        card.append(img, title);
-        contenedor.appendChild(card);
-      });
-    })
-    .catch(console.error);
-
-  document.getElementById("btnVolver").onclick = () => {
-    if (origen === "series") location.href = "index_series.html";
-    else if (origen === "animes") location.href = "index_animes.html";
-    else location.href = "index.html";
-  };
-
-  document.addEventListener("click", e => {
-    const card = e.target.closest('.card');
-    if (card) {
-      const url = card.getAttribute("data-url");
-      const titulo = card.getAttribute("data-titulo");
-      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-    }
-  });
+    });
+  })
+  .catch(console.error);
 </script>
+
 </body>
 </html>
