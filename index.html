@@ -1,369 +1,364 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>King Play - Películas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>
-/* ==== Estilos igual que tu original + Ver más ==== */
-body {
-  margin: 0;
-  background-color: #000;
-  font-family: sans-serif;
-  color: #fff;
-  overflow-x: hidden;
-}
+  <meta charset="UTF-8" />
+  <title>King Play - Películas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
 
-.carousel-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-.carousel-container {
-  width: 90%;
-  aspect-ratio: 16 / 9;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  background: #000;
-}
+    .carousel-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-.carousel-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-  z-index: 0;
-}
+    .carousel-container {
+      width: 90%;
+      aspect-ratio: 16 / 9;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+    }
 
-.carousel-image.active {
-  opacity: 1;
-  z-index: 1;
-}
+    .carousel-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 0;
+    }
 
-.slider {
-  margin: 30px 0;
-  padding: 0 20px;
-}
+    .carousel-image.active {
+      opacity: 1;
+      z-index: 1;
+    }
 
-.slider h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
+    .slider {
+      margin: 30px 0;
+      padding: 0 20px;
+    }
 
-.slider-row {
-  display: flex;
-  overflow-x: auto;
-  gap: 24px;
-  scroll-behavior: smooth;
-  outline: none;
-}
-.slider-row .card:first-child {
-  margin-left: 20px;
-}
+    .slider h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
 
-.slider-row .card:last-child {
-  margin-right: 20px;
-}
+    .slider-row {
+      display: flex;
+      overflow-x: auto;
+      gap: 24px;
+      scroll-behavior: smooth;
+      outline: none;
+    }
 
-.slider-row .card {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
+    .slider-row .card:first-child {
+      margin-left: 20px;
+    }
 
-.card {
-  flex: 0 0 auto;
-  width: 160px;
-  height: 240px;
-  background-color: #222;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-}
+    .slider-row .card:last-child {
+      margin-right: 20px;
+    }
 
-.card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .card {
+      flex: 0 0 auto;
+      width: 160px;
+      height: 240px;
+      background-color: #222;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
 
-.card:focus {
-  outline: none;
-  transform: scale(1.05);
-  box-shadow: 0 0 20px 4px #00bfff;
-  z-index: 2;
-}
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.card-title {
-  position: absolute;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  width: 100%;
-  text-align: center;
-  font-size: 0.9rem;
-  padding: 4px;
-}
+    .card:focus {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+    }
 
-.card.ver-mas {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.1);
-  font-size: 1rem;
-  color: #fff;
-  border: 2px dashed #00bfff;
-}
+    .card-title {
+      position: absolute;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 4px;
+    }
 
-/* Fondo semitransparente */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9;
-}
+    .card.ver-mas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      font-size: 1rem;
+      color: #fff;
+      box-shadow: 0 0 15px 3px #00bfff80;
+    }
 
-.popup {
-  width: 60%;
-  aspect-ratio: 16 / 9;
-  background-color: rgba(34, 34, 34, 0.85);
-  border-radius: 12px;
-  box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 20px;
-  text-align: center;
-  z-index: 10;
-}
+    .menu-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 20px auto 10px;
+    }
 
-.popup h2 { color: #fff; font-size: 1.5rem; }
-.popup button {
-  background-color: #00bfff;
-  border: none;
-  padding: 10px 20px;
-  font-size: 1rem;
-  color: white;
-  border-radius: 8px;
-  margin-top: 20px;
-  cursor: pointer;
-  outline: none;
-}
-.popup button:hover { background-color: #0099cc; }
+    .menu-bar button {
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 2px solid transparent;
+      color: #00bfff;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 15px 2px #00bfff40;
+    }
 
-/* Lazy Load */
-.slider-row { opacity: 1 !important; }
+    .menu-bar button:hover {
+      background-color: rgba(0, 191, 255, 0.1);
+      transform: scale(1.05);
+    }
 
-.menu-bar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin: 20px auto 10px;
-}
+    .search-bar {
+      text-align: center;
+      margin: 10px 0 30px;
+    }
 
-.menu-bar button {
-  padding: 10px 20px;
-  background-color: transparent;
-  border: 2px solid #00bfff;
-  color: #00bfff;
-  border-radius: 10px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+    .search-bar input {
+      padding: 10px;
+      width: 80%;
+      max-width: 500px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background-color: transparent;
+      color: #fff;
+      outline: none;
+      box-shadow: 0 0 15px 2px #00bfff40;
+    }
 
-.menu-bar button:hover {
-  background-color: rgba(0, 191, 255, 0.1);
-  transform: scale(1.05);
-}
+    .search-bar input::placeholder {
+      color: #aaa;
+    }
 
-.search-bar {
-  text-align: center;
-  margin: 10px 0 30px;
-}
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9;
+    }
 
-.search-bar input {
-  padding: 10px;
-  width: 80%;
-  max-width: 500px;
-  font-size: 1rem;
-  border: 2px solid #00bfff;
-  border-radius: 10px;
-  background-color: transparent;
-  color: #fff;
-  outline: none;
-}
+    .popup {
+      width: 60%;
+      aspect-ratio: 16 / 9;
+      background-color: rgba(34, 34, 34, 0.85);
+      border-radius: 12px;
+      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+      text-align: center;
+      z-index: 10;
+    }
 
-.search-bar input::placeholder {
-  color: #aaa;
-}
+    .popup h2 { color: #fff; font-size: 1.5rem; }
+    .popup button {
+      background-color: #00bfff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      color: white;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+      outline: none;
+    }
 
-</style>
+    .popup button:hover { background-color: #0099cc; }
+
+  </style>
 </head>
 <body>
-<div class="carousel-wrapper">
-  <div class="carousel-container" id="carousel-container">
-    <img class="carousel-image active" src="https://images2.imgbox.com/10/47/jDHk78kx_o.jpg" />
-    <img class="carousel-image" src="https://images2.imgbox.com/96/51/IVfyWVM3_o.jpg" />
-    <img class="carousel-image" src="https://images2.imgbox.com/18/33/3BXP18hp_o.jpg" />
+  <div class="carousel-wrapper">
+    <div class="carousel-container" id="carousel-container">
+      <img class="carousel-image active" src="https://images2.imgbox.com/10/47/jDHk78kx_o.jpg" />
+      <img class="carousel-image" src="https://images2.imgbox.com/96/51/IVfyWVM3_o.jpg" />
+      <img class="carousel-image" src="https://images2.imgbox.com/18/33/3BXP18hp_o.jpg" />
+    </div>
   </div>
-</div>
-<div class="menu-bar">
-  <button onclick="location.href='index.html'">Películas</button>
-  <button onclick="location.href='index_series.html'">Series</button>
-  <button onclick="location.href='index_animes.html'">Animes</button>
-</div>
 
-<div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Buscar por título..." />
-</div>
-
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup" id="popup">
-    <h2>Hay una nueva versión disponible</h2>
-    <button id="updateButton">Actualizar</button>
+  <div class="menu-bar">
+    <button onclick="location.href='index.html'">Películas</button>
+    <button onclick="location.href='index_series.html'">Series</button>
+    <button onclick="location.href='index_animes.html'">Animes</button>
   </div>
-</div>
 
-<div id="sliders"></div>
-<div id="banner-onclicka" style="text-align:center;margin-top:40px;">
-  <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="322235"></script>
-</div>
-<script>
-let current = 0;
-const images = document.querySelectorAll(".carousel-image");
-setInterval(() => {
-  images[current].classList.remove("active");
-  current = (current + 1) % images.length;
-  images[current].classList.add("active");
-}, 4000);
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Buscar por título..." />
+  </div>
 
-function xorDecrypt(input, key) {
-  let output = '';
-  for (let i = 0; i < input.length; i++) {
-    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-  }
-  return output;
-}
-function decodeBase64(input) { return atob(input); }
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup">
+      <h2>Hay una nueva versión disponible</h2>
+      <button id="updateButton">Actualizar</button>
+    </div>
+  </div>
 
-const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/peliculas.json";
-const storedVersion = localStorage.getItem('version') || '1.0.0';
-let newVersionFromJson = storedVersion;
+  <div id="sliders"></div>
 
-function compareVersions(current, next) {
-  const a = current.split('.').map(Number);
-  const b = next.split('.').map(Number);
-  return b.some((v, i) => v > a[i]);
-}
-function showPopup(msg) {
-  document.querySelector("#popup h2").textContent = msg;
-  document.getElementById("popupOverlay").style.display = "flex";
-}
+  <script>
+    let current = 0;
+    const images = document.querySelectorAll(".carousel-image");
+    setInterval(() => {
+      images[current].classList.remove("active");
+      current = (current + 1) % images.length;
+      images[current].classList.add("active");
+    }, 4000);
 
-fetch(JSON_URL)
-.then(r => r.text())
-.then(data => {
-  const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-  newVersionFromJson = json.version;
-  if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
+    function xorDecrypt(input, key) {
+      let output = '';
+      for (let i = 0; i < input.length; i++) {
+        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return output;
+    }
 
-  const categorias = {};
-  json.peliculas.forEach(p => {
-    const cat = p.categoria || "Sin Categoría";
-    if (!categorias[cat]) categorias[cat] = [];
-    categorias[cat].unshift(p); // Nueva primero
-  });
+    function decodeBase64(input) {
+      return atob(input);
+    }
 
-  const container = document.getElementById("sliders");
+    const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/peliculas.json";
+    const storedVersion = localStorage.getItem('version') || '1.0.0';
+    let newVersionFromJson = storedVersion;
 
-  for (const [categoria, lista] of Object.entries(categorias)) {
-    const slider = document.createElement("div");
-    slider.className = "slider";
-    slider.innerHTML = `<h2>${categoria}</h2>`;
+    function compareVersions(current, next) {
+      const a = current.split('.').map(Number);
+      const b = next.split('.').map(Number);
+      return b.some((v, i) => v > a[i]);
+    }
 
-    const row = document.createElement("div");
-    row.className = "slider-row";
-    row.tabIndex = 0;
+    function showPopup(msg) {
+      document.querySelector("#popup h2").textContent = msg;
+      document.getElementById("popupOverlay").style.display = "flex";
+    }
 
-    lista.slice(0, 7).forEach(p => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.tabIndex = 0;
-      card.setAttribute("data-url", p.url);
-      card.setAttribute("data-titulo", p.titulo);
+    fetch(JSON_URL)
+      .then(r => r.text())
+      .then(data => {
+        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+        console.log("JSON cargado:", json);
 
-      const img = document.createElement("img");
-      img.src = p.imagen;
-      img.alt = p.titulo;
-      img.loading = "lazy";
+        newVersionFromJson = json.version;
+        if (compareVersions(storedVersion, newVersionFromJson)) {
+          showPopup(json.mensaje);
+        }
 
-      const title = document.createElement("div");
-      title.className = "card-title";
-      title.textContent = p.titulo;
+        const categorias = {};
+        json.peliculas.forEach(p => {
+          const cat = p.categoria || "Sin Categoría";
+          if (!categorias[cat]) categorias[cat] = [];
+          categorias[cat].push(p);
+        });
 
-      card.append(img, title);
-      row.appendChild(card);
+        const container = document.getElementById("sliders");
+
+        for (const [categoria, lista] of Object.entries(categorias)) {
+          const slider = document.createElement("div");
+          slider.className = "slider";
+          slider.innerHTML = `<h2>${categoria}</h2>`;
+
+          const row = document.createElement("div");
+          row.className = "slider-row";
+          row.tabIndex = 0;
+
+          lista.slice(0, 7).forEach(p => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.tabIndex = 0;
+            card.setAttribute("data-url", p.url);
+            card.setAttribute("data-titulo", p.titulo);
+
+            const img = document.createElement("img");
+            img.src = p.imagen;
+            img.alt = p.titulo;
+            img.loading = "lazy";
+
+            const title = document.createElement("div");
+            title.className = "card-title";
+            title.textContent = p.titulo;
+
+            card.append(img, title);
+            row.appendChild(card);
+          });
+
+          const verMas = document.createElement("div");
+          verMas.className = "card ver-mas";
+          verMas.tabIndex = 0;
+          verMas.textContent = "Ver más";
+          verMas.onclick = () => {
+            location.href = `ver_categoria.html?categoria=${encodeURIComponent(categoria)}`;
+          };
+
+          row.appendChild(verMas);
+          slider.appendChild(row);
+          container.appendChild(slider);
+        }
+      })
+      .catch(error => {
+        console.error("Error al cargar JSON:", error);
+        alert("Error al cargar las películas. Verifica conexión o JSON.");
+      });
+
+    document.getElementById("updateButton").onclick = () => {
+      localStorage.setItem('version', newVersionFromJson);
+      location.reload();
+    };
+
+    document.addEventListener("click", e => {
+      const card = e.target.closest('.card');
+      if (card && !card.classList.contains("ver-mas")) {
+        const url = card.getAttribute("data-url");
+        const titulo = card.getAttribute("data-titulo");
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+      }
     });
 
-    const verMas = document.createElement("div");
-verMas.className = "card ver-mas";
-verMas.tabIndex = 0;
-verMas.textContent = "Ver más";
-verMas.onclick = () => {
-  location.href = `https://andymix1986.github.io/Advance_pelis/ver_categoria.html?cat=${encodeURIComponent(categoria)}`;
-};
-
-    row.appendChild(verMas);
-
-    slider.appendChild(row);
-    container.appendChild(slider);
-    observer.observe(slider);
-  }
-})
-.catch(console.error);
-
-document.getElementById("updateButton").onclick = () => {
-  localStorage.setItem('version', newVersionFromJson);
-  location.reload();
-};
-
-document.addEventListener("click", e => {
-  const card = e.target.closest('.card');
-  if (card && !card.classList.contains("ver-mas")) {
-    const url = card.getAttribute("data-url");
-    const titulo = card.getAttribute("data-titulo");
-    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-  }
-});
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-
-document.getElementById('searchInput').addEventListener('input', function () {
-  const query = this.value.toLowerCase();
-  document.querySelectorAll('.slider-row .card').forEach(card => {
-    const title = card.getAttribute('data-titulo')?.toLowerCase() || '';
-    card.style.display = title.includes(query) ? 'flex' : 'none';
-  });
-</script>
+    document.getElementById('searchInput').addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      document.querySelectorAll('.slider-row .card').forEach(card => {
+        const title = card.getAttribute('data-titulo')?.toLowerCase() || '';
+        card.style.display = title.includes(query) ? 'flex' : 'none';
+      });
+    });
+  </script>
 </body>
 </html>
