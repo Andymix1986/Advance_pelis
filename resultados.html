@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Resultados de búsqueda</title>
+  <title>Resultados</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -10,39 +10,40 @@
       background-color: #000;
       font-family: sans-serif;
       color: #fff;
-      padding: 20px;
     }
-
     h1 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: #00bfff;
       text-align: center;
+      margin: 20px 0;
+      color: #00bfff;
     }
-
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 16px;
+      padding: 0 16px 40px;
     }
-
     .card {
-      width: 100%;
+      width: 160px;
       height: 240px;
       background-color: #222;
       border-radius: 12px;
       overflow: hidden;
       position: relative;
-      cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
-
     .card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-
+    .card:focus {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+    }
     .card-title {
       position: absolute;
       bottom: 0;
@@ -52,102 +53,92 @@
       font-size: 0.9rem;
       padding: 4px;
     }
-
-    .card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px 4px #00bfff;
-    }
-
-    .volver {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      background-color: #00bfff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 1rem;
-      cursor: pointer;
-      text-decoration: none;
-      width: max-content;
-    }
-
-    .volver:hover {
-      background-color: #0099cc;
-    }
   </style>
 </head>
 <body>
-  <h1 id="titulo-resultado">Resultados</h1>
-  <div class="grid" id="contenedor"></div>
-  <a class="volver" href="index.html">Volver al Inicio</a>
 
-  <script>
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+<h1 id="titulo">Buscando...</h1>
+<div class="grid" id="contenedor"></div>
+
+<script>
+  function xorDecrypt(input, key) {
+    let output = '';
+    for (let i = 0; i < input.length; i++) {
+      output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
     }
+    return output;
+  }
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        const charCode = input.charCodeAt(i) ^ key.charCodeAt(i % key.length);
-        output += String.fromCharCode(charCode);
+  function decodeBase64(input) {
+    return atob(input);
+  }
+
+  function getParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
+
+  const query = (getParam("q") || "").trim().toLowerCase();
+  const origen = (getParam("origen") || "").toLowerCase();
+  const tituloPagina = document.getElementById("titulo");
+
+  if (!query) tituloPagina.textContent = "Sin término de búsqueda";
+  else tituloPagina.textContent = `Resultados para: "${query}"`;
+
+  const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
+
+  fetch(JSON_URL)
+    .then(r => r.text())
+    .then(data => {
+      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+      const contenedor = document.getElementById("contenedor");
+
+      const filtrados = json.contenidos.filter(p => {
+        if (!p.titulo || !p.tipo) return false;
+
+        const titulo = p.titulo.toLowerCase();
+        if (!titulo.includes(query)) return false;
+
+        if (origen === "series") return p.tipo === "Serie";
+        if (origen === "animes") return p.tipo === "Anime";
+        return p.tipo === "Pelicula";
+      });
+
+      if (filtrados.length === 0) {
+        contenedor.innerHTML = "<p style='text-align:center;width:100%'>No se encontraron resultados.</p>";
+        return;
       }
-      return output;
+
+      filtrados.reverse().forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-url", p.url);
+        card.setAttribute("data-titulo", p.titulo);
+
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+        img.loading = "lazy";
+
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+
+        card.append(img, title);
+        contenedor.appendChild(card);
+      });
+    })
+    .catch(console.error);
+
+  document.addEventListener("click", e => {
+    const card = e.target.closest('.card');
+    if (card) {
+      const url = card.getAttribute("data-url");
+      const titulo = card.getAttribute("data-titulo");
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
     }
-
-    const query = decodeURIComponent(getQueryParam('q') || '').toLowerCase();
-    document.getElementById("titulo-resultado").textContent = query
-      ? `Resultados para: "${query}"`
-      : 'Resultados';
-
-    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
-      .then(res => res.text())
-      .then(data => {
-        const desencriptado = xorDecrypt(atob(data), "andymix1986");
-        const json = JSON.parse(desencriptado);
-        const coincidencias = json.peliculas.filter(p => 
-          p.titulo.toLowerCase().includes(query)
-        );
-
-        const contenedor = document.getElementById("contenedor");
-        if (coincidencias.length === 0) {
-          contenedor.innerHTML = "<p style='text-align:center;'>No se encontraron resultados.</p>";
-        } else {
-          coincidencias.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.setAttribute("data-url", p.url);
-            card.setAttribute("data-titulo", p.titulo);
-
-            const img = document.createElement("img");
-            img.src = p.imagen;
-            img.alt = p.titulo;
-            img.loading = "lazy";
-
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-
-            card.appendChild(img);
-            card.appendChild(title);
-            contenedor.appendChild(card);
-          });
-        }
-      })
-      .catch(e => console.error("Error cargando JSON:", e));
-
-    document.addEventListener("click", (e) => {
-      const card = e.target.closest(".card");
-      if (card) {
-        const url = card.getAttribute("data-url");
-        const titulo = card.getAttribute("data-titulo");
-        const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-        window.location.href = intentUrl;
-      }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
