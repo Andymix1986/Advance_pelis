@@ -1,63 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Categoría</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      background-color: #000;
-      font-family: sans-serif;
-      color: #fff;
-    }
-    h1 {
-      text-align: center;
-      margin: 20px 0;
-      color: #00bfff;
-    }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      padding: 0 16px 40px;
-    }
-    .card {
-      width: 160px;
-      height: 240px;
-      background-color: #222;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-    }
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .card:focus {
-      outline: none;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px 4px #00bfff;
-      z-index: 2;
-    }
-    .card-title {
-      position: absolute;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      padding: 4px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Ver Categoría</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  body {
+    margin: 0;
+    background-color: #000;
+    font-family: sans-serif;
+    color: #fff;
+  }
+  h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #00bfff;
+  }
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 16px 40px;
+  }
+  .card {
+    width: 160px;
+    height: 240px;
+    background-color: #222;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card:focus {
+    outline: none;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 4px #00bfff;
+    z-index: 2;
+  }
+  .card-title {
+    position: absolute;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 4px;
+  }
+  button#btnVolver {
+    display: block;
+    margin: 20px auto;
+    background: #00bfff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  button#btnVolver:hover {
+    background: #0099cc;
+  }
+</style>
 </head>
 <body>
 
-<h1 id="categoriaTitulo">Cargando...</h1>
+<h1 id="titulo">Categoría</h1>
+<button id="btnVolver">Volver al inicio</button>
 <div class="grid" id="contenedor"></div>
 
 <script>
@@ -78,8 +93,14 @@
     return url.searchParams.get(name);
   }
 
-  const categoria = getParam("cat") || "Sin Categoría";
-  document.getElementById("categoriaTitulo").textContent = categoria;
+  const cat = getParam("cat");
+  const esEstreno = getParam("estreno") === "1";
+  const origen = (getParam("origen") || "").toLowerCase();
+
+  const tituloElem = document.getElementById("titulo");
+  if (esEstreno) tituloElem.textContent = "Estrenos";
+  else if (cat) tituloElem.textContent = cat;
+  else tituloElem.textContent = "Categoría";
 
   const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
 
@@ -88,22 +109,27 @@
     .then(data => {
       const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
       const contenedor = document.getElementById("contenedor");
-      const invertidos = json.contenidos.slice().reverse();
 
-      const filtrados = invertidos.filter(p => {
-        if (categoria === "Series") return p.tipo === "Serie";
-        if (categoria === "Animes") return p.tipo === "Anime";
-        if (p.tipo !== "Pelicula") return false;
-        const categorias = (p.categoria || "").split(",").map(c => c.trim());
-        return categorias.includes(categoria);
-      });
+      let filtrados;
+
+      if (esEstreno) {
+        filtrados = json.contenidos.filter(p => p.estreno === "Estreno" && p.tipo === "Pelicula");
+      } else if (cat) {
+        filtrados = json.contenidos.filter(p => {
+          if (!p.categoria) return false;
+          return p.categoria.toLowerCase() === cat.toLowerCase() && p.tipo === "Pelicula";
+        });
+      } else {
+        filtrados = [];
+      }
 
       if (filtrados.length === 0) {
-        contenedor.innerHTML = "<p style='text-align:center;width:100%'>No hay resultados.</p>";
+        contenedor.innerHTML = "<p style='text-align:center;width:100%'>No se encontraron resultados.</p>";
         return;
       }
 
-      filtrados.forEach(p => {
+      // Mostrar en orden inverso (últimos primeros)
+      filtrados.reverse().forEach(p => {
         const card = document.createElement("div");
         card.className = "card";
         card.tabIndex = 0;
@@ -124,6 +150,12 @@
       });
     })
     .catch(console.error);
+
+  document.getElementById("btnVolver").onclick = () => {
+    if (origen === "series") location.href = "index_series.html";
+    else if (origen === "animes") location.href = "index_animes.html";
+    else location.href = "index.html";
+  };
 
   document.addEventListener("click", e => {
     const card = e.target.closest('.card');
