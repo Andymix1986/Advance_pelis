@@ -46,7 +46,7 @@
     }
 
     .slider {
-      margin: 30px 0;
+      margin: 40px 0;
       padding: 0 20px;
     }
 
@@ -63,12 +63,9 @@
       outline: none;
     }
 
-    .slider-row .card:first-child {
-      margin-left: 20px;
-    }
-
-    .slider-row .card:last-child {
-      margin-right: 20px;
+    .slider-row .card {
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     .card {
@@ -110,10 +107,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: rgba(255, 255, 255, 0.1);
       font-size: 1rem;
       color: #fff;
-      box-shadow: 0 0 15px 3px #00bfff80;
+      border: 2px dashed #00bfff;
     }
 
     .menu-bar {
@@ -132,7 +129,7 @@
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 0 15px 2px #00bfff40;
+      box-shadow: 0 0 12px rgba(0, 191, 255, 0.4);
     }
 
     .menu-bar button:hover {
@@ -155,59 +152,17 @@
       background-color: transparent;
       color: #fff;
       outline: none;
-      box-shadow: 0 0 15px 2px #00bfff40;
+      box-shadow: 0 0 12px rgba(0, 191, 255, 0.5);
     }
 
     .search-bar input::placeholder {
       color: #aaa;
     }
-
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9;
-    }
-
-    .popup {
-      width: 60%;
-      aspect-ratio: 16 / 9;
-      background-color: rgba(34, 34, 34, 0.85);
-      border-radius: 12px;
-      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      padding: 20px;
-      text-align: center;
-      z-index: 10;
-    }
-
-    .popup h2 { color: #fff; font-size: 1.5rem; }
-    .popup button {
-      background-color: #00bfff;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1rem;
-      color: white;
-      border-radius: 8px;
-      margin-top: 20px;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .popup button:hover { background-color: #0099cc; }
-
   </style>
 </head>
 <body>
+
+  <!-- Carrusel -->
   <div class="carousel-wrapper">
     <div class="carousel-container" id="carousel-container">
       <img class="carousel-image active" src="https://images2.imgbox.com/10/47/jDHk78kx_o.jpg" />
@@ -216,28 +171,24 @@
     </div>
   </div>
 
+  <!-- Botones -->
   <div class="menu-bar">
     <button onclick="location.href='index.html'">Películas</button>
     <button onclick="location.href='index_series.html'">Series</button>
     <button onclick="location.href='index_animes.html'">Animes</button>
   </div>
 
+  <!-- Buscador -->
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Buscar por título..." />
   </div>
 
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup" id="popup">
-      <h2>Hay una nueva versión disponible</h2>
-      <button id="updateButton">Actualizar</button>
-    </div>
-  </div>
-
+  <!-- Sliders -->
   <div id="sliders"></div>
 
   <script>
-    let current = 0;
     const images = document.querySelectorAll(".carousel-image");
+    let current = 0;
     setInterval(() => {
       images[current].classList.remove("active");
       current = (current + 1) % images.length;
@@ -252,97 +203,91 @@
       return output;
     }
 
-    function decodeBase64(input) {
-      return atob(input);
-    }
-
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/peliculas.json";
-    const storedVersion = localStorage.getItem('version') || '1.0.0';
-    let newVersionFromJson = storedVersion;
-
-    function compareVersions(current, next) {
-      const a = current.split('.').map(Number);
-      const b = next.split('.').map(Number);
-      return b.some((v, i) => v > a[i]);
-    }
-
-    function showPopup(msg) {
-      document.querySelector("#popup h2").textContent = msg;
-      document.getElementById("popupOverlay").style.display = "flex";
-    }
 
     fetch(JSON_URL)
-      .then(r => r.text())
+      .then(res => res.text())
       .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        console.log("JSON cargado:", json);
-
-        newVersionFromJson = json.version;
-        if (compareVersions(storedVersion, newVersionFromJson)) {
-          showPopup(json.mensaje);
-        }
+        const json = JSON.parse(xorDecrypt(atob(data), "andymix1986"));
+        const peliculas = json.peliculas;
 
         const categorias = {};
-        json.peliculas.forEach(p => {
-          const cat = p.categoria || "Sin Categoría";
-          if (!categorias[cat]) categorias[cat] = [];
-          categorias[cat].push(p);
+        const estrenos = [];
+
+        peliculas.forEach(p => {
+          const catRaw = p.categoria || "Sin Categoría";
+          const catSplit = catRaw.split(',').map(c => c.trim());
+
+          // Si tiene Estreno, añadir a slider especial
+          if (catSplit.some(c => c.toLowerCase() === "estreno")) {
+            estrenos.unshift(p);
+          }
+
+          // Añadir a cada categoría que tenga
+          catSplit.forEach(cat => {
+            if (!categorias[cat]) categorias[cat] = [];
+            categorias[cat].unshift(p); // Agrega al principio
+          });
         });
 
         const container = document.getElementById("sliders");
 
-        for (const [categoria, lista] of Object.entries(categorias)) {
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          slider.innerHTML = `<h2>${categoria}</h2>`;
-
-          const row = document.createElement("div");
-          row.className = "slider-row";
-          row.tabIndex = 0;
-
-          lista.slice(0, 7).forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-            card.setAttribute("data-url", p.url);
-            card.setAttribute("data-titulo", p.titulo);
-
-            const img = document.createElement("img");
-            img.src = p.imagen;
-            img.alt = p.titulo;
-            img.loading = "lazy";
-
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-
-            card.append(img, title);
-            row.appendChild(card);
-          });
-
-          const verMas = document.createElement("div");
-          verMas.className = "card ver-mas";
-          verMas.tabIndex = 0;
-          verMas.textContent = "Ver más";
-          verMas.onclick = () => {
-            location.href = `ver_categoria.html?categoria=${encodeURIComponent(categoria)}`;
-          };
-
-          row.appendChild(verMas);
-          slider.appendChild(row);
-          container.appendChild(slider);
+        // Primero el slider de Estrenos
+        if (estrenos.length > 0) {
+          crearSlider("Estrenos", estrenos, container);
         }
-      })
-      .catch(error => {
-        console.error("Error al cargar JSON:", error);
-        alert("Error al cargar las películas. Verifica conexión o JSON.");
+
+        // Luego las demás categorías
+        for (const [categoria, lista] of Object.entries(categorias)) {
+          if (categoria.toLowerCase() !== "estreno") {
+            crearSlider(categoria, lista, container);
+          }
+        }
       });
 
-    document.getElementById("updateButton").onclick = () => {
-      localStorage.setItem('version', newVersionFromJson);
-      location.reload();
-    };
+    function crearSlider(nombre, lista, container) {
+      const slider = document.createElement("div");
+      slider.className = "slider";
+      slider.innerHTML = `<h2>${nombre}</h2>`;
 
+      const row = document.createElement("div");
+      row.className = "slider-row";
+      row.tabIndex = 0;
+
+      lista.slice(0, 7).forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-url", p.url);
+        card.setAttribute("data-titulo", p.titulo);
+
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+
+        card.appendChild(img);
+        card.appendChild(title);
+        row.appendChild(card);
+      });
+
+      const verMas = document.createElement("div");
+      verMas.className = "card ver-mas";
+      verMas.tabIndex = 0;
+      verMas.textContent = "Ver más";
+      verMas.onclick = () => {
+        location.href = `ver_categoria.html?cat=${encodeURIComponent(nombre)}`;
+      };
+      row.appendChild(verMas);
+
+      slider.appendChild(row);
+      container.appendChild(slider);
+    }
+
+    // Navegar al reproductor
     document.addEventListener("click", e => {
       const card = e.target.closest('.card');
       if (card && !card.classList.contains("ver-mas")) {
@@ -352,12 +297,14 @@
       }
     });
 
-    document.getElementById('searchInput').addEventListener('input', function () {
-      const query = this.value.toLowerCase();
-      document.querySelectorAll('.slider-row .card').forEach(card => {
-        const title = card.getAttribute('data-titulo')?.toLowerCase() || '';
-        card.style.display = title.includes(query) ? 'flex' : 'none';
-      });
+    // Buscador (redirige a otro HTML más adelante)
+    document.getElementById("searchInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        const query = this.value.trim();
+        if (query.length > 0) {
+          location.href = `resultados.html?query=${encodeURIComponent(query)}`;
+        }
+      }
     });
   </script>
 </body>
