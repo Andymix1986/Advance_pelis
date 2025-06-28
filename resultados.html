@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Resultados</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
@@ -53,11 +53,26 @@
       font-size: 0.9rem;
       padding: 4px;
     }
+    button#btnVolver {
+      display: block;
+      margin: 20px auto;
+      background: #00bfff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button#btnVolver:hover {
+      background: #0099cc;
+    }
   </style>
 </head>
 <body>
 
 <h1 id="titulo">Buscando...</h1>
+<button id="btnVolver">Volver al inicio</button>
 <div class="grid" id="contenedor"></div>
 
 <script>
@@ -130,6 +145,12 @@
       });
     })
     .catch(console.error);
+
+  document.getElementById("btnVolver").onclick = () => {
+    if (origen === "series") location.href = "index_series.html";
+    else if (origen === "animes") location.href = "index_animes.html";
+    else location.href = "index.html";
+  };
 
   document.addEventListener("click", e => {
     const card = e.target.closest('.card');
