@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Ver Categoría</title>
+  <title>Categoría</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -10,39 +10,40 @@
       background-color: #000;
       font-family: sans-serif;
       color: #fff;
-      padding: 20px;
     }
-
     h1 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: #00bfff;
       text-align: center;
+      margin: 20px 0;
+      color: #00bfff;
     }
-
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 16px;
+      padding: 0 16px 40px;
     }
-
     .card {
-      width: 100%;
+      width: 160px;
       height: 240px;
       background-color: #222;
       border-radius: 12px;
       overflow: hidden;
       position: relative;
-      cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
-
     .card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-
+    .card:focus {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+    }
     .card-title {
       position: absolute;
       bottom: 0;
@@ -52,97 +53,86 @@
       font-size: 0.9rem;
       padding: 4px;
     }
-
-    .card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px 4px #00bfff;
-    }
-
-    .volver {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      background-color: #00bfff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 1rem;
-      cursor: pointer;
-      text-decoration: none;
-      width: max-content;
-    }
-
-    .volver:hover {
-      background-color: #0099cc;
-    }
   </style>
 </head>
 <body>
-  <h1 id="titulo-categoria">Cargando categoría...</h1>
-  <div class="grid" id="contenedor"></div>
-  <a class="volver" href="https://andymix1986.github.io/Advance_pelis/index.html">Volver al Inicio</a>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const categoriaSeleccionada = params.get("cat");
+<h1 id="categoriaTitulo">Cargando...</h1>
+<div class="grid" id="contenedor"></div>
 
-    if (!categoriaSeleccionada) {
-      document.body.innerHTML = "<h2 style='text-align:center;color:red;'>❌ Categoría no especificada</h2>";
-      throw new Error("No se encontró la categoría en la URL.");
+<script>
+  function xorDecrypt(input, key) {
+    let output = '';
+    for (let i = 0; i < input.length; i++) {
+      output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
     }
+    return output;
+  }
 
-    document.getElementById("titulo-categoria").textContent = categoriaSeleccionada;
+  function decodeBase64(input) {
+    return atob(input);
+  }
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return output;
-    }
+  function getParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
 
-    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
-      .then(res => res.text())
-      .then(data => {
-        const desencriptado = xorDecrypt(atob(data), "andymix1986");
-        const json = JSON.parse(desencriptado);
-        const lista = json.peliculas.filter(p => p.categoria === categoriaSeleccionada);
+  const categoria = getParam("cat") || "Sin Categoría";
+  document.getElementById("categoriaTitulo").textContent = categoria;
 
-        const contenedor = document.getElementById("contenedor");
-        lista.forEach(peli => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.setAttribute("data-url", peli.url);
-          card.setAttribute("data-titulo", peli.titulo);
+  const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
 
-          const img = document.createElement("img");
-          img.src = peli.imagen;
-          img.alt = peli.titulo;
-          img.loading = "lazy";
+  fetch(JSON_URL)
+    .then(r => r.text())
+    .then(data => {
+      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+      const contenedor = document.getElementById("contenedor");
+      const invertidos = json.contenidos.slice().reverse();
 
-          const title = document.createElement("div");
-          title.className = "card-title";
-          title.textContent = peli.titulo;
-
-          card.append(img, title);
-          contenedor.appendChild(card);
-        });
-      })
-      .catch(e => {
-        console.error("Error cargando JSON:", e);
-        document.body.innerHTML += "<p style='color:red;'>Error cargando las películas.</p>";
+      const filtrados = invertidos.filter(p => {
+        if (categoria === "Series") return p.tipo === "Serie";
+        if (categoria === "Animes") return p.tipo === "Anime";
+        if (p.tipo !== "Pelicula") return false;
+        const categorias = (p.categoria || "").split(",").map(c => c.trim());
+        return categorias.includes(categoria);
       });
 
-    document.addEventListener("click", (e) => {
-      const card = e.target.closest(".card");
-      if (card) {
-        const url = card.getAttribute("data-url");
-        const titulo = card.getAttribute("data-titulo");
-        const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-        window.location.href = intentUrl;
+      if (filtrados.length === 0) {
+        contenedor.innerHTML = "<p style='text-align:center;width:100%'>No hay resultados.</p>";
+        return;
       }
-    });
-  </script>
+
+      filtrados.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-url", p.url);
+        card.setAttribute("data-titulo", p.titulo);
+
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+        img.loading = "lazy";
+
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+
+        card.append(img, title);
+        contenedor.appendChild(card);
+      });
+    })
+    .catch(console.error);
+
+  document.addEventListener("click", e => {
+    const card = e.target.closest('.card');
+    if (card) {
+      const url = card.getAttribute("data-url");
+      const titulo = card.getAttribute("data-titulo");
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    }
+  });
+</script>
 </body>
 </html>
