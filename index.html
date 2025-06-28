@@ -13,14 +13,11 @@ body {
   color: #fff;
   overflow-x: hidden;
 }
-
-/* === Carrusel === */
 .carousel-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 20px;
 }
-
 .carousel-container {
   width: 90%;
   aspect-ratio: 16 / 9;
@@ -29,7 +26,6 @@ body {
   position: relative;
   background: #000;
 }
-
 .carousel-image {
   position: absolute;
   top: 0;
@@ -41,20 +37,16 @@ body {
   transition: opacity 1s ease-in-out;
   z-index: 0;
 }
-
 .carousel-image.active {
   opacity: 1;
   z-index: 1;
 }
-
-/* === Menú de botones === */
 .menu-bar {
   display: flex;
   justify-content: center;
   gap: 16px;
   margin: 20px auto 10px;
 }
-
 .menu-bar button {
   padding: 10px 20px;
   background-color: transparent;
@@ -66,18 +58,14 @@ body {
   transition: all 0.2s ease;
   box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
 }
-
 .menu-bar button:hover {
   background-color: rgba(0, 191, 255, 0.1);
   transform: scale(1.05);
 }
-
-/* === Buscador === */
 .search-bar {
   text-align: center;
   margin: 10px 0 30px;
 }
-
 .search-bar input {
   padding: 10px;
   width: 80%;
@@ -90,21 +78,16 @@ body {
   outline: none;
   box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
 }
-
 .search-bar input::placeholder {
   color: #aaa;
 }
-
-/* === Sliders === */
 .slider {
   margin-bottom: 40px;
 }
-
 .slider h2 {
   font-size: 1.5rem;
   margin-left: 20px;
 }
-
 .slider-row {
   display: flex;
   overflow-x: auto;
@@ -112,7 +95,6 @@ body {
   padding: 0 24px;
   outline: none;
 }
-
 .slider-row .card {
   flex: 0 0 auto;
   width: 160px;
@@ -125,20 +107,17 @@ body {
   cursor: pointer;
   margin: 20px 12px;
 }
-
 .card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .card:focus {
   outline: none;
   transform: scale(1.05);
   box-shadow: 0 0 20px 4px #00bfff;
   z-index: 2;
 }
-
 .card-title {
   position: absolute;
   bottom: 0;
@@ -148,7 +127,6 @@ body {
   font-size: 0.9rem;
   padding: 4px;
 }
-
 .card.ver-mas {
   display: flex;
   align-items: center;
@@ -158,7 +136,6 @@ body {
   color: #fff;
   border: 2px dashed #00bfff;
 }
-
 /* === Popup === */
 .popup-overlay {
   position: fixed;
@@ -172,7 +149,6 @@ body {
   align-items: center;
   z-index: 9;
 }
-
 .popup {
   width: 60%;
   aspect-ratio: 16 / 9;
@@ -187,7 +163,6 @@ body {
   text-align: center;
   z-index: 10;
 }
-
 .popup h2 { color: #fff; font-size: 1.5rem; }
 .popup button {
   background-color: #00bfff;
@@ -214,7 +189,7 @@ body {
   </div>
 </div>
 
-<!-- Botones -->
+<!-- Menú -->
 <div class="menu-bar">
   <button onclick="location.href='index.html'">Películas</button>
   <button onclick="location.href='index_series.html'">Series</button>
@@ -226,7 +201,7 @@ body {
   <input type="text" id="searchInput" placeholder="Buscar por título..." />
 </div>
 
-<!-- Popup actualización -->
+<!-- Popup de actualización -->
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup" id="popup">
     <h2>Hay una nueva versión disponible</h2>
@@ -242,6 +217,7 @@ body {
   <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="322235"></script>
 </div>
 
+<!-- Script -->
 <script>
 let current = 0;
 const images = document.querySelectorAll(".carousel-image");
@@ -285,9 +261,13 @@ fetch(JSON_URL)
     if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
 
     const categorias = {};
+    const estrenos = [];
 
-    json.peliculas.slice().reverse().forEach(p => {
+    json.contenidos.forEach(p => {
+      if (p.tipo !== "Pelicula") return;
+
       const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
+      if (p.estreno === "Estreno") estrenos.push(p);
 
       tags.forEach(cat => {
         if (!categorias[cat]) categorias[cat] = [];
@@ -297,15 +277,12 @@ fetch(JSON_URL)
 
     const container = document.getElementById("sliders");
 
-    const orden = ["Estreno", ...Object.keys(categorias).filter(c => c !== "Estreno")];
-
-    for (const categoria of orden) {
-      const lista = categorias[categoria];
-      if (!lista || lista.length === 0) continue;
+    function crearSlider(titulo, lista) {
+      if (!lista || lista.length === 0) return;
 
       const slider = document.createElement("div");
       slider.className = "slider";
-      slider.innerHTML = `<h2>${categoria}</h2>`;
+      slider.innerHTML = `<h2>${titulo}</h2>`;
 
       const row = document.createElement("div");
       row.className = "slider-row";
@@ -336,7 +313,7 @@ fetch(JSON_URL)
       verMas.tabIndex = 0;
       verMas.textContent = "Ver más";
       verMas.onclick = () => {
-        location.href = `https://andymix1986.github.io/Advance_pelis/ver_categoria.html?cat=${encodeURIComponent(categoria)}`;
+        location.href = `https://andymix1986.github.io/Advance_pelis/ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
       };
 
       row.appendChild(verMas);
@@ -344,6 +321,12 @@ fetch(JSON_URL)
       container.appendChild(slider);
       observer.observe(slider);
     }
+
+    if (estrenos.length > 0) crearSlider("Estrenos", estrenos);
+
+    Object.entries(categorias).forEach(([cat, lista]) => {
+      crearSlider(cat, lista);
+    });
   })
   .catch(console.error);
 
