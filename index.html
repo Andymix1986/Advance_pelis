@@ -333,15 +333,19 @@ fetch(JSON_URL)
 
     // Set initial focus on first slider's first card
     const firstSliderRow = container.querySelector(".slider-row");
-    if (firstSliderRow) {
-      const firstCard = firstSliderRow.querySelector(".card");
-      if (firstCard) {
-        firstCard.tabIndex = 0;
-        firstCard.focus();
-        focusedSliderIndex = 0;
-        focusedCardIndex = 0;
-      }
-    }
+if (firstSliderRow) {
+  const firstCard = firstSliderRow.querySelector(".card");
+  if (firstCard) {
+    firstCard.tabIndex = 0;
+    focusedSliderIndex = 0;
+    focusedCardIndex = 0;
+
+    // Deshabilitar scroll automático
+    setTimeout(() => {
+      firstCard.focus({ preventScroll: true });
+    }, 100); // Leve retraso para evitar conflictos con layout inicial
+  }
+}
   })
   .catch(console.error);
 
