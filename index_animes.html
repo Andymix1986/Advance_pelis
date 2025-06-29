@@ -416,11 +416,12 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener("click", e => {
   const card = e.target.closest('.card');
   if (card && !card.classList.contains("ver-mas")) {
-    const url = card.getAttribute("data-url");
     const titulo = card.getAttribute("data-titulo");
-    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    const tipo = "Amine"; // Cambiar a "Anime" en index_animes
+    location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
   }
 });
+
 </script>
 
 </body>
