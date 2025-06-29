@@ -207,7 +207,9 @@
 </div>
 
 <div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Buscar animes por título..." />
+  <form id="searchForm" onsubmit="handleSearch(event)">
+    <input type="text" id="searchInput" placeholder="Buscar series por título..." />
+  </form>
 </div>
 
 <div class="popup-overlay" id="popupOverlay">
@@ -326,14 +328,14 @@ document.getElementById("updateButton").onclick = () => {
   location.reload();
 };
 
-document.getElementById('searchInput').addEventListener('keydown', function (e) {
-  if (e.key === "Enter") {
-    const query = this.value.trim();
-    if (query) {
-      location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=animes`;
-    }
+function handleSearch(event) {
+  event.preventDefault();
+  const query = document.getElementById("searchInput").value.trim();
+  if (query) {
+    location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
   }
-});
+}
+
 
 document.addEventListener('keydown', (e) => {
   const focusableCards = Array.from(document.querySelectorAll('.slider-row .card, .card.ver-mas'));
