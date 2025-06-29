@@ -381,8 +381,11 @@ body {
 
 <!-- Buscador -->
 <div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Buscar series por título..." />
+  <form id="searchForm" onsubmit="handleSearch(event)">
+    <input type="text" id="searchInput" placeholder="Buscar series por título..." />
+  </form>
 </div>
+
 
 <!-- Popup de actualización -->
 <div class="popup-overlay" id="popupOverlay">
@@ -519,14 +522,14 @@ document.getElementById("updateButton").onclick = () => {
   location.reload();
 };
 
-document.getElementById('searchInput').addEventListener('keydown', function (e) {
-  if (e.key === "Enter") {
-    const query = this.value.trim();
-    if (query) {
-      location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
-    }
+function handleSearch(event) {
+  event.preventDefault();
+  const query = document.getElementById("searchInput").value.trim();
+  if (query) {
+    location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
   }
-});
+}
+
 
 // Navegación con control remoto - navegación por filas y foco visible
 document.addEventListener('keydown', (e) => {
