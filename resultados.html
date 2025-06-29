@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <title>King Play - Resultados de búsqueda</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>.
+<style>
 body {
   margin: 0;
   background-color: #000;
@@ -31,10 +31,12 @@ body {
   box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
   transition: all 0.2s ease;
 }
-#btnVolver:hover {
+#btnVolver:hover,
+#btnVolver:focus {
   background-color: rgba(0, 191, 255, 0.1);
   border-color: #00bfff;
   box-shadow: 0 0 20px 6px rgba(0,191,255,0.8);
+  outline: none;
 }
 
 .resultados-container {
@@ -57,6 +59,7 @@ body {
   position: relative;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
 }
 .card img {
   width: 100%;
@@ -90,9 +93,9 @@ body {
 <body>
 
 <h2 id="tituloResultados"></h2>
-<button id="btnVolver">Volver al inicio</button>
+<button id="btnVolver" tabindex="0">Volver al inicio</button>
 
-<div class="resultados-container" id="resultadosContainer"></div>
+<div class="resultados-container" id="resultadosContainer" tabindex="0"></div>
 
 <script>
 function xorDecrypt(input, key) {
@@ -145,7 +148,7 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
     resultados.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.tabIndex = 0;
+      card.tabIndex = -1;
       card.setAttribute('data-url', p.url);
       card.setAttribute('data-titulo', p.titulo);
 
@@ -162,7 +165,8 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
       contenedor.appendChild(card);
     });
 
-    document.addEventListener('click', e => {
+    // Click handler para reproducir video
+    contenedor.addEventListener('click', e => {
       const card = e.target.closest('.card');
       if (card) {
         const url = card.getAttribute('data-url');
@@ -170,6 +174,78 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
         location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
       }
     });
+
+    // --- Soporte para navegación con control remoto ---
+
+    // Foco inicial
+    let focusedIndex = 0;
+    const cards = contenedor.querySelectorAll('.card');
+    if(cards.length > 0) {
+      cards[0].tabIndex = 0;
+      cards[0].focus();
+    }
+
+    // Navegación fila por fila (por filas de 6 tarjetas)
+    const cols = 6; // cantidad de columnas aproximadas en la fila
+    function focusCard(index) {
+      if (index < 0 || index >= cards.length) return;
+      cards[focusedIndex].tabIndex = -1;
+      focusedIndex = index;
+      cards[focusedIndex].tabIndex = 0;
+      cards[focusedIndex].focus();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (document.activeElement === document.getElementById('btnVolver')) {
+        // Si el botón volver está enfocado y presionan flechas, mover al primer card o nada
+        if(e.key === 'ArrowDown' || e.key === 'Enter') {
+          e.preventDefault();
+          if(cards.length > 0) {
+            cards[0].tabIndex = 0;
+            cards[0].focus();
+            focusedIndex = 0;
+          }
+        }
+        return;
+      }
+
+      if(cards.length === 0) return;
+
+      switch(e.key) {
+        case 'ArrowRight':
+          e.preventDefault();
+          if(focusedIndex < cards.length - 1) {
+            focusCard(focusedIndex + 1);
+          }
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          if(focusedIndex > 0) {
+            focusCard(focusedIndex - 1);
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if(focusedIndex + cols < cards.length) {
+            focusCard(focusedIndex + cols);
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if(focusedIndex - cols >= 0) {
+            focusCard(focusedIndex - cols);
+          } else {
+            // Subir a botón volver
+            document.getElementById('btnVolver').focus();
+          }
+          break;
+        case 'Enter':
+          e.preventDefault();
+          cards[focusedIndex].click();
+          break;
+      }
+    });
+
   })
   .catch(console.error);
 </script>
