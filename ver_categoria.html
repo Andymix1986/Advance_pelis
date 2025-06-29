@@ -31,10 +31,11 @@ body {
   box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
   transition: all 0.2s ease;
 }
-#btnVolver:hover {
+#btnVolver:hover, #btnVolver:focus {
   background-color: rgba(0, 191, 255, 0.1);
   border-color: #00bfff;
   box-shadow: 0 0 20px 6px rgba(0,191,255,0.8);
+  outline: none;
 }
 
 .slider-row {
@@ -90,7 +91,7 @@ body {
 <body>
 
 <h2 id="tituloCategoria"></h2>
-<button id="btnVolver">Volver al inicio</button>
+<button id="btnVolver" tabindex="0">Volver al inicio</button>
 
 <div class="slider-row" id="cardsContainer"></div>
 
@@ -152,7 +153,7 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
     lista.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.tabIndex = 0;
+      card.tabIndex = -1;
       card.setAttribute('data-url', p.url);
       card.setAttribute('data-titulo', p.titulo);
 
@@ -169,6 +170,106 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
       contenedor.appendChild(card);
     });
 
+    // Variables de navegación
+    const cards = Array.from(contenedor.querySelectorAll('.card'));
+    const btnVolver = document.getElementById('btnVolver');
+
+    // Detectar cantidad de columnas por fila dinámicamente
+    function calcularColumnas() {
+      if (cards.length < 2) return 1;
+      const cardRect = cards[0].getBoundingClientRect();
+      const nextCardRect = cards[1].getBoundingClientRect();
+      const gap = 16; // el gap definido en CSS
+      const totalWidth = nextCardRect.left - cardRect.left;
+      return Math.round(totalWidth / (cardRect.width + gap));
+    }
+
+    let colCount = calcularColumnas();
+
+    // Si no detecta bien, al menos 1 columna para evitar NaN
+    if (!colCount || colCount < 1) colCount = 1;
+
+    // Foco inicial en la primera tarjeta o en botón Volver si no hay tarjetas
+    let focusedIndex = 0;
+    let focusOnVolver = false;
+
+    if (cards.length > 0) {
+      cards[0].tabIndex = 0;
+      cards[0].focus();
+      focusedIndex = 0;
+      focusOnVolver = false;
+    } else {
+      btnVolver.tabIndex = 0;
+      btnVolver.focus();
+      focusOnVolver = true;
+    }
+
+    // Función para cambiar foco entre tarjetas
+    function setFocus(index) {
+      if (index < 0 || index >= cards.length) return false;
+      cards[focusedIndex].tabIndex = -1;
+      focusedIndex = index;
+      cards[focusedIndex].tabIndex = 0;
+      cards[focusedIndex].focus();
+      focusOnVolver = false;
+      return true;
+    }
+
+    // Manejo de teclado para navegación control remoto
+    document.addEventListener('keydown', e => {
+      if (focusOnVolver) {
+        if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+          e.preventDefault();
+          if (cards.length > 0) {
+            setFocus(0);
+          }
+        } else if (e.key === "Enter" || e.key === "OK") {
+          e.preventDefault();
+          btnVolver.click();
+        }
+        return;
+      }
+
+      switch(e.key) {
+        case "ArrowRight":
+          e.preventDefault();
+          if (focusedIndex < cards.length - 1) setFocus(focusedIndex + 1);
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          if (focusedIndex > 0) setFocus(focusedIndex - 1);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          // Bajar una fila (sumar columnas)
+          const nextIndex = focusedIndex + colCount;
+          if (nextIndex < cards.length) {
+            setFocus(nextIndex);
+          }
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          // Subir una fila (restar columnas)
+          const prevIndex = focusedIndex - colCount;
+          if (prevIndex >= 0) {
+            setFocus(prevIndex);
+          } else {
+            // Si se pasa arriba, foco al botón volver
+            cards[focusedIndex].tabIndex = -1;
+            btnVolver.tabIndex = 0;
+            btnVolver.focus();
+            focusOnVolver = true;
+          }
+          break;
+        case "Enter":
+        case "OK":
+          e.preventDefault();
+          cards[focusedIndex].click();
+          break;
+      }
+    });
+
+    // Click en tarjeta para abrir player
     document.addEventListener('click', e => {
       const card = e.target.closest('.card');
       if (card) {
