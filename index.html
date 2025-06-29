@@ -135,6 +135,16 @@ body {
   font-size: 1rem;
   color: #fff;
   border: 2px dashed #00bfff;
+  margin: 20px auto 40px;
+  width: 160px;
+  height: 240px;
+  cursor: pointer;
+}
+.card.ver-mas:focus {
+  outline: none;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px 6px #00bfff;
+  z-index: 3;
 }
 /* === Popup === */
 .popup-overlay {
@@ -266,11 +276,11 @@ fetch(JSON_URL)
       if (p.tipo !== "Pelicula") return;
 
       const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
-      if (p.estreno === "Estreno") estrenos.unshift(p);  // Más nuevo primero
+      if (p.estreno === "Estreno") estrenos.unshift(p);
 
       tags.forEach(cat => {
         if (!categorias[cat]) categorias[cat] = [];
-        categorias[cat].unshift(p);  // Más nuevo primero
+        categorias[cat].unshift(p);
       });
     });
 
@@ -287,7 +297,7 @@ fetch(JSON_URL)
       row.className = "slider-row";
       row.tabIndex = 0;
 
-      lista.slice(0, 7).forEach((p, i) => {
+      lista.slice(0, 7).forEach(p => {
         const card = document.createElement("div");
         card.className = "card";
         card.tabIndex = -1;
@@ -326,13 +336,10 @@ fetch(JSON_URL)
     }
 
     if (estrenos.length > 0) crearSlider("Estrenos", estrenos);
+    Object.entries(categorias).forEach(([cat, lista]) => crearSlider(cat, lista));
+  }); // ✅ ← aquí estaba faltando esta llave
 
-    Object.entries(categorias).forEach(([cat, lista]) => {
-      crearSlider(cat, lista);
-    });
-
-    
-
+// ✅ Eventos que estaban dentro del fetch por error
 document.getElementById("updateButton").onclick = () => {
   localStorage.setItem('version', newVersionFromJson);
   location.reload();
@@ -356,83 +363,6 @@ const observer = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.1 });
 
-// Navegación con control remoto
-let focusedSliderIndex = 0;
-let focusedCardIndex = 0;
-
-function focusCard(sliderIdx, cardIdx) {
-  const sliders = document.querySelectorAll(".slider-row");
-  if (sliderIdx < 0 || sliderIdx >= sliders.length) return;
-  const slider = sliders[sliderIdx];
-  const cards = slider.querySelectorAll(".card");
-  if (cardIdx < 0 || cardIdx >= cards.length) return;
-
-  // Ajustar tabindex
-  cards.forEach((c, i) => c.tabIndex = -1);
-  cards[cardIdx].tabIndex = 0;
-  cards[cardIdx].focus();
-
-  // Scroll para centrar tarjeta en el slider
-  const card = cards[cardIdx];
-  const sliderRect = slider.getBoundingClientRect();
-  const cardRect = card.getBoundingClientRect();
-  const scrollLeft = slider.scrollLeft;
-  const offset = cardRect.left - sliderRect.left - (sliderRect.width / 2) + (cardRect.width / 2);
-  slider.scrollTo({ left: scrollLeft + offset, behavior: 'smooth' });
-
-  focusedSliderIndex = sliderIdx;
-  focusedCardIndex = cardIdx;
-}
-
-document.addEventListener("keydown", e => {
-  const sliders = document.querySelectorAll(".slider-row");
-  if (sliders.length === 0) return;
-
-  switch(e.key) {
-    case "ArrowRight":
-      e.preventDefault();
-      if (focusedCardIndex + 1 < sliders[focusedSliderIndex].children.length) {
-        focusCard(focusedSliderIndex, focusedCardIndex + 1);
-      }
-      break;
-    case "ArrowLeft":
-      e.preventDefault();
-      if (focusedCardIndex - 1 >= 0) {
-        focusCard(focusedSliderIndex, focusedCardIndex - 1);
-      }
-      break;
-    case "ArrowDown":
-      e.preventDefault();
-      if (focusedSliderIndex + 1 < sliders.length) {
-        // Mover a mismo índice de tarjeta si existe, sino al último disponible
-        const nextSlider = sliders[focusedSliderIndex + 1];
-        const nextCardIndex = Math.min(focusedCardIndex, nextSlider.children.length - 1);
-        focusCard(focusedSliderIndex + 1, nextCardIndex);
-      }
-      break;
-    case "ArrowUp":
-      e.preventDefault();
-      if (focusedSliderIndex - 1 >= 0) {
-        const prevSlider = sliders[focusedSliderIndex - 1];
-        const prevCardIndex = Math.min(focusedCardIndex, prevSlider.children.length - 1);
-        focusCard(focusedSliderIndex - 1, prevCardIndex);
-      }
-      break;
-    case "Enter":
-    case "OK": // Algunos controles usan OK
-      e.preventDefault();
-      const slidersNow = document.querySelectorAll(".slider-row");
-      if (focusedSliderIndex < slidersNow.length) {
-        const cards = slidersNow[focusedSliderIndex].querySelectorAll(".card");
-        if (focusedCardIndex < cards.length) {
-          cards[focusedCardIndex].click();
-        }
-      }
-      break;
-  }
-});
-
-// Buscador - Enter para lanzar búsqueda
 document.getElementById('searchInput').addEventListener('keydown', function (e) {
   if (e.key === "Enter") {
     const query = this.value.trim();
