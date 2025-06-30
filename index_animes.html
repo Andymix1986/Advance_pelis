@@ -273,7 +273,7 @@ fetch(JSON_URL)
     newVersionFromJson = json.version;
     if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
 
-    const series = json.contenidos.filter(p => p.tipo === "Serie");
+    const animes = json.contenidos.filter(p => p.tipo === "Anime");
     const container = document.getElementById("sliders");
     container.innerHTML = '';
 
@@ -288,7 +288,7 @@ fetch(JSON_URL)
 
       const slider = document.createElement("div");
       slider.className = "slider";
-      slider.innerHTML = `<h2>Series</h2>`;
+      slider.innerHTML = `<h2>Animes</h2>`;
 
       const row = document.createElement("div");
       row.className = "slider-row";
@@ -323,7 +323,7 @@ fetch(JSON_URL)
     verMas.tabIndex = 0;
     verMas.textContent = "Ver más";
     verMas.onclick = () => {
-      location.href = "ver_categoria.html?tipo=serie&origen=series";
+      location.href = "ver_categoria.html?tipo=anime&origen=series";
     };
     container.appendChild(verMas);
   })
@@ -338,7 +338,7 @@ function handleSearch(event) {
   event.preventDefault();
   const query = document.getElementById("searchInput").value.trim();
   if (query) {
-    location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
+    location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=animes`;
   }
 }
 
