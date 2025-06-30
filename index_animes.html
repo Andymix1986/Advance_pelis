@@ -175,7 +175,10 @@
       text-align: center;
       z-index: 10;
     }
-    .popup h2 { color: #fff; font-size: 1.5rem; }
+    .popup h2 {
+      color: #fff;
+      font-size: 1.5rem;
+    }
     .popup button {
       background-color: #00bfff;
       border: none;
@@ -187,11 +190,14 @@
       cursor: pointer;
       outline: none;
     }
-    .popup button:hover { background-color: #0099cc; }
+    .popup button:hover {
+      background-color: #0099cc;
+    }
   </style>
 </head>
 <body>
 
+<!-- Carrusel -->
 <div class="carousel-wrapper">
   <div class="carousel-container" id="carousel-container">
     <img class="carousel-image active" src="https://images2.imgbox.com/87/ce/T0um6IwN_o.jpg" />
@@ -200,18 +206,21 @@
   </div>
 </div>
 
+<!-- Menú -->
 <div class="menu-bar">
   <button onclick="location.href='index.html'">Películas</button>
   <button onclick="location.href='index_series.html'">Series</button>
   <button onclick="location.href='index_animes.html'">Animes</button>
 </div>
 
+<!-- Buscador -->
 <div class="search-bar">
   <form id="searchForm" onsubmit="handleSearch(event)">
     <input type="text" id="searchInput" placeholder="Buscar series por título..." />
   </form>
 </div>
 
+<!-- Popup de actualización -->
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup" id="popup">
     <h2>Hay una nueva versión disponible</h2>
@@ -219,11 +228,8 @@
   </div>
 </div>
 
+<!-- Sliders dinámicos -->
 <div id="sliders"></div>
-
-<div id="banner-onclicka" style="text-align:center;margin-top:40px;">
-  <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="322235"></script>
-</div>
 
 <script>
 let current = 0;
@@ -267,7 +273,7 @@ fetch(JSON_URL)
     newVersionFromJson = json.version;
     if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
 
-    const animes = json.contenidos.filter(p => p.tipo === "Anime");
+    const series = json.contenidos.filter(p => p.tipo === "Serie");
     const container = document.getElementById("sliders");
     container.innerHTML = '';
 
@@ -277,12 +283,12 @@ fetch(JSON_URL)
     for (let i = 0; i < slidersCount; i++) {
       const start = i * cardsPerSlider;
       const end = start + cardsPerSlider;
-      const slice = animes.slice(start, end);
+      const slice = series.slice(start, end);
       if (slice.length === 0) break;
 
       const slider = document.createElement("div");
       slider.className = "slider";
-      slider.innerHTML = `<h2>Animes</h2>`;
+      slider.innerHTML = `<h2>Series</h2>`;
 
       const row = document.createElement("div");
       row.className = "slider-row";
@@ -317,7 +323,7 @@ fetch(JSON_URL)
     verMas.tabIndex = 0;
     verMas.textContent = "Ver más";
     verMas.onclick = () => {
-      location.href = "ver_categoria.html?tipo=anime&origen=animes";
+      location.href = "ver_categoria.html?tipo=serie&origen=series";
     };
     container.appendChild(verMas);
   })
@@ -336,8 +342,14 @@ function handleSearch(event) {
   }
 }
 
-
+// Navegación por control remoto y compatibilidad móvil
 document.addEventListener('keydown', (e) => {
+  const searchInput = document.getElementById('searchInput');
+  const isInputFocused = document.activeElement === searchInput;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouchDevice && isInputFocused) return;
+
+  const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
   const focusableCards = Array.from(document.querySelectorAll('.slider-row .card, .card.ver-mas'));
   if (focusableCards.length === 0) return;
 
@@ -351,25 +363,44 @@ document.addEventListener('keydown', (e) => {
   let index = focusableCards.indexOf(active);
   if (index === -1) return;
 
-  const slidersCount = 5;
   const cardsPerSlider = 7;
 
   switch (e.keyCode) {
-    case 37: if (index % cardsPerSlider > 0) focusableCards[index - 1].focus(); e.preventDefault(); break;
-    case 39: if (index % cardsPerSlider < cardsPerSlider - 1 && index < focusableCards.length - 2) focusableCards[index + 1].focus(); e.preventDefault(); break;
-    case 38: if (index - cardsPerSlider >= 0) focusableCards[index - cardsPerSlider].focus(); e.preventDefault(); break;
-    case 40:
+    case KEY_LEFT:
+      if (index % cardsPerSlider > 0) {
+        focusableCards[index - 1].focus();
+        e.preventDefault();
+      }
+      break;
+    case KEY_RIGHT:
+      if (index % cardsPerSlider < cardsPerSlider - 1 && index < focusableCards.length - 2) {
+        focusableCards[index + 1].focus();
+        e.preventDefault();
+      }
+      break;
+    case KEY_UP:
+      if (index - cardsPerSlider >= 0) {
+        focusableCards[index - cardsPerSlider].focus();
+        e.preventDefault();
+      }
+      break;
+    case KEY_DOWN:
       if (index + cardsPerSlider < focusableCards.length - 1) {
         focusableCards[index + cardsPerSlider].focus();
+        e.preventDefault();
       } else if (index + cardsPerSlider === focusableCards.length - 1) {
         focusableCards[focusableCards.length - 1].focus();
+        e.preventDefault();
       }
+      break;
+    case KEY_ENTER:
+      active.click();
       e.preventDefault();
       break;
-    case 13: active.click(); e.preventDefault(); break;
   }
 });
 
+// Lanzar reproductor al hacer clic
 document.addEventListener("click", e => {
   const card = e.target.closest('.card');
   if (card && !card.classList.contains("ver-mas")) {
@@ -379,6 +410,5 @@ document.addEventListener("click", e => {
   }
 });
 </script>
-
 </body>
 </html>
