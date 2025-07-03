@@ -207,9 +207,9 @@
   <button tabindex="0" onclick="location.href='index_animes.html'">Animes</button>
 </div>
 
-<!-- Buscador focable pero readonly -->
+<!-- Buscador -->
 <div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Buscar por título..." tabindex="0" readonly />
+  <input type="text" id="searchInput" placeholder="Buscar por título..." tabindex="0" />
 </div>
 
 <!-- Sliders -->
@@ -224,6 +224,7 @@
 </div>
 
 <script>
+// Carrusel automático
 const images = document.querySelectorAll(".carousel-image");
 let current = 0;
 setInterval(() => {
@@ -232,7 +233,7 @@ setInterval(() => {
   images[current].classList.add("active");
 }, 4000);
 
-// Al cargar, enfocar primer botón sin hacer scroll
+// Foco inicial sin scroll automático
 window.addEventListener('load', () => {
   setTimeout(() => {
     const primerBoton = document.querySelector('.menu-bar button');
@@ -240,12 +241,30 @@ window.addEventListener('load', () => {
   }, 100);
 });
 
-// Evitar teclado en TV Box
-const input = document.getElementById("searchInput");
-input.addEventListener("keydown", e => {
+// Detectar si es móvil para habilitar teclado
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+const searchInput = document.getElementById("searchInput");
+
+if (!isMobile) {
+  // Smart TV o TV Box: bloquear teclado táctil automático
+  searchInput.setAttribute("readonly", "true");
+} else {
+  // Móviles: permitir teclado táctil
+  searchInput.removeAttribute("readonly");
+}
+
+// Permitir entrada al presionar OK en TV
+searchInput.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    input.removeAttribute("readonly");
-    input.focus();
+    if (!isMobile) {
+      searchInput.removeAttribute("readonly");
+      searchInput.focus();
+    } else {
+      const query = searchInput.value.trim();
+      if (query) {
+        location.href = `https://andymix1986.github.io/Advance_pelis/resultados.html?q=${encodeURIComponent(query)}`;
+      }
+    }
   }
 });
 
@@ -325,7 +344,11 @@ fetch(JSON_URL)
     Object.entries(categorias).forEach(([cat, lista]) => crearSlider(cat, lista));
   });
 
-// Evento OK/click para tarjetas
+document.getElementById("updateButton").onclick = () => {
+  localStorage.setItem('version', newVersionFromJson);
+  location.reload();
+};
+
 document.addEventListener("click", e => {
   const card = e.target.closest('.card');
   if (card && !card.classList.contains("ver-mas")) {
@@ -335,12 +358,7 @@ document.addEventListener("click", e => {
   }
 });
 
-document.getElementById("updateButton").onclick = () => {
-  localStorage.setItem('version', newVersionFromJson);
-  location.reload();
-};
-
-// Navegación por control remoto completa
+// Navegación por control remoto
 let sliders = [];
 let currentSliderIndex = 0;
 let currentCardIndex = 0;
@@ -354,9 +372,6 @@ function updateFocus() {
     cards[currentCardIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
   }
 }
-
-const menuButtons = Array.from(document.querySelectorAll('.menu-bar button'));
-const searchInput = document.getElementById('searchInput');
 
 document.addEventListener("keydown", function (e) {
   sliders = Array.from(document.querySelectorAll(".slider-row"));
@@ -398,7 +413,7 @@ document.addEventListener("keydown", function (e) {
       break;
     case "Enter":
     case "OK":
-      if (document.activeElement === searchInput) {
+      if (document.activeElement === searchInput && !isMobile) {
         searchInput.removeAttribute("readonly");
         searchInput.focus();
       } else if (document.activeElement.classList.contains("card")) {
