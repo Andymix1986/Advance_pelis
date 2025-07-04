@@ -5,8 +5,9 @@
   <title>King Play - Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background-color: #000;
       font-family: sans-serif;
       color: #fff;
@@ -78,9 +79,9 @@
     }
     .search-popup {
       position: fixed;
-      top: 50%;
+      top: 10%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       background: #111;
       padding: 20px;
       border-radius: 12px;
@@ -114,13 +115,13 @@
     }
     .slider h2 {
       font-size: 1.5rem;
-      margin-left: 20px;
+      margin-left: 24px;
     }
     .slider-row {
       display: flex;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      padding: 0 24px;
+      padding-left: 24px;
     }
     .slider-row .card {
       flex: 0 0 auto;
@@ -155,6 +156,27 @@
       font-size: 0.9rem;
       padding: 4px;
     }
+    .card.ver-mas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.1);
+      font-size: 1rem;
+      color: #fff;
+      border: 2px dashed #00bfff;
+      border-radius: 12px;
+      margin: 20px auto 40px;
+      width: 160px;
+      height: 240px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .card.ver-mas:focus-visible {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 25px 6px #00bfff;
+      z-index: 3;
+    }
   </style>
 </head>
 <body>
@@ -176,7 +198,7 @@
   </div>
 
   <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar series..." autofocus />
+    <input type="text" id="searchInput" placeholder="Buscar series..." autofocus onkeydown="if(event.key === 'Enter'){submitSearch()}"/>
     <button onclick="submitSearch()">Buscar</button>
   </div>
 
@@ -246,6 +268,15 @@
           slider.appendChild(row);
           container.appendChild(slider);
         }
+        // Botón Ver más
+        const verMas = document.createElement("div");
+        verMas.className = "card ver-mas";
+        verMas.tabIndex = 0;
+        verMas.textContent = "Ver más";
+        verMas.onclick = () => {
+          location.href = "ver_categoria.html?tipo=serie&origen=series";
+        };
+        container.appendChild(verMas);
       });
 
     document.addEventListener("focusin", (e) => {
@@ -262,7 +293,7 @@
 
     document.addEventListener("click", (e) => {
       const card = e.target.closest(".card");
-      if (card) {
+      if (card && !card.classList.contains("ver-mas")) {
         const titulo = card.getAttribute("data-titulo");
         const tipo = "Serie";
         location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
