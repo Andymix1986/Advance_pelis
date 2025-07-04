@@ -77,7 +77,6 @@
       width: 24px;
       height: 24px;
       filter: invert(48%) sepia(80%) saturate(540%) hue-rotate(175deg) brightness(95%) contrast(85%);
-      /* filtro para color celeste */
     }
     .search-popup {
       position: fixed;
@@ -102,15 +101,27 @@
       background-color: #222;
       color: #fff;
     }
-    .search-popup button {
+    .search-popup .buttons-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
       margin-top: 10px;
+    }
+    .search-popup button {
       padding: 10px;
       font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+    }
+    .search-popup button:first-child {
       background-color: #00bfff;
       color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+    }
+    .search-popup button:last-child {
+      background-color: #555;
+      color: white;
     }
     .slider {
       margin-bottom: 40px;
@@ -193,67 +204,83 @@
     <button onclick="location.href='index.html'">Películas</button>
     <button onclick="location.href='index_series.html'">Series</button>
     <button onclick="location.href='index_animes.html'">Animes</button>
-    <button class="search-button" id="searchIcon" tabindex="0" aria-label="Abrir búsqueda">
+    <button class="search-button" id="searchIcon" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
   </div>
 
-  <div class="search-popup" id="searchPopup" role="dialog" aria-modal="true" aria-labelledby="searchLabel">
-    <input type="text" id="searchInput" placeholder="Buscar series..." aria-label="Buscar series" />
-    <button onclick="submitSearch()" aria-label="Buscar">Buscar</button>
-    <button id="closeSearch" aria-label="Cerrar búsqueda" style="margin-top: 10px; padding: 10px; font-size: 1rem; border-radius: 10px; border: none; cursor: pointer; background-color: #555; color: white;">Cerrar</button>
+  <div class="search-popup" id="searchPopup">
+    <input type="text" id="searchInput" placeholder="Buscar series..." />
+    <div class="buttons-row">
+      <button onclick="submitSearch()">Buscar</button>
+      <button id="closeSearch">Cerrar</button>
+    </div>
   </div>
 
   <div id="sliders"></div>
 
   <script>
-    // Carrusel automático
-    let current = 0;
-    const images = document.querySelectorAll(".carousel-image");
-    setInterval(() => {
-      images[current].classList.remove("active");
-      current = (current + 1) % images.length;
-      images[current].classList.add("active");
-    }, 4000);
+    const isSmartTV = !("ontouchstart" in window || navigator.maxTouchPoints);
+    const searchPopup = document.getElementById("searchPopup");
+    const searchInput = document.getElementById("searchInput");
 
-    // Función para enviar búsqueda
     function submitSearch() {
-      const query = document.getElementById("searchInput").value.trim();
+      const query = searchInput.value.trim();
       if (query) {
         window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
       }
     }
 
-    // Mostrar popup búsqueda
     document.getElementById("searchIcon").addEventListener("click", () => {
-      const popup = document.getElementById("searchPopup");
-      popup.style.display = "flex";
-      setTimeout(() => document.getElementById("searchInput").focus(), 100);
+      searchPopup.style.display = "flex";
+      setTimeout(() => searchInput.focus(), 100);
     });
 
-    // Cerrar popup búsqueda con botón cerrar
     document.getElementById("closeSearch").addEventListener("click", () => {
-      document.getElementById("searchPopup").style.display = "none";
+      searchPopup.style.display = "none";
     });
 
-    // Cerrar popup búsqueda con tecla ESC
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
-        document.getElementById("searchPopup").style.display = "none";
+        searchPopup.style.display = "none";
       }
     });
 
-    // Cerrar popup búsqueda al perder foco (ej: botón volver móvil)
-    window.addEventListener('popstate', () => {
-      document.getElementById("searchPopup").style.display = "none";
+    searchInput.addEventListener("focus", () => {
+      if (isSmartTV) {
+        searchInput.blur();
+      }
     });
 
-    // Manejadores para Enter en búsqueda
-    document.getElementById("searchInput").addEventListener("keydown", function (e) {
+    searchInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") submitSearch();
     });
 
-    // XOR decrypt y base64 decode
+    document.addEventListener("keydown", function (e) {
+      const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
+      const focusables = Array.from(document.querySelectorAll(".menu-bar button, .search-button, .card"));
+      const current = document.activeElement;
+      let index = focusables.indexOf(current);
+
+      switch (e.keyCode) {
+        case KEY_LEFT:
+          if (index > 0) focusables[index - 1].focus();
+          break;
+        case KEY_RIGHT:
+          if (index < focusables.length - 1) focusables[index + 1].focus();
+          break;
+        case KEY_UP:
+          if (index >= 8) focusables[index - 7]?.focus();
+          break;
+        case KEY_DOWN:
+          if (index < focusables.length - 7) focusables[index + 7]?.focus();
+          break;
+        case KEY_ENTER:
+          current.click();
+          break;
+      }
+    });
+
     function xorDecrypt(input, key) {
       let output = '';
       for (let i = 0; i < input.length; i++) {
@@ -265,7 +292,6 @@
       return atob(input);
     }
 
-    // Carga y renderiza series
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
 
     fetch(JSON_URL)
@@ -308,12 +334,10 @@
         container.appendChild(verMas);
       });
 
-    // Auto-scroll slider al enfocar tarjeta
     document.addEventListener("focusin", (e) => {
       const card = e.target.closest(".card");
       if (card) {
         const parent = card.closest(".slider-row");
-        if (!parent) return;
         const rect = card.getBoundingClientRect();
         const parentRect = parent.getBoundingClientRect();
         const offset = rect.left - parentRect.left;
@@ -322,99 +346,12 @@
       }
     });
 
-    // Al hacer click o enter en tarjeta activa reproductor
     document.addEventListener("click", (e) => {
       const card = e.target.closest(".card");
       if (card && !card.classList.contains("ver-mas")) {
         const titulo = card.getAttribute("data-titulo");
         const tipo = "Serie";
         location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
-      }
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const active = document.activeElement;
-        if (active && active.classList.contains("card") && !active.classList.contains("ver-mas")) {
-          active.click();
-          e.preventDefault();
-        }
-      }
-    });
-
-    // Navegación con control remoto (flechas entre botones y tarjetas)
-    document.addEventListener('keydown', (e) => {
-      const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40;
-      const menuButtons = Array.from(document.querySelectorAll('.menu-bar button, .search-button'));
-      const cards = Array.from(document.querySelectorAll('.slider-row .card, .card.ver-mas'));
-      const focusable = [...menuButtons, ...cards];
-      if (focusable.length === 0) return;
-
-      let index = focusable.indexOf(document.activeElement);
-      if (index === -1) {
-        focusable[0].focus();
-        e.preventDefault();
-        return;
-      }
-
-      switch (e.keyCode) {
-        case KEY_LEFT:
-          // Left moves within same group (menu or slider)
-          if (menuButtons.includes(document.activeElement)) {
-            if (index > 0) {
-              focusable[index - 1].focus();
-              e.preventDefault();
-            }
-          } else {
-            if (index > menuButtons.length) {
-              focusable[index - 1].focus();
-              e.preventDefault();
-            }
-          }
-          break;
-        case KEY_RIGHT:
-          // Right moves within same group (menu or slider)
-          if (menuButtons.includes(document.activeElement)) {
-            if (index < menuButtons.length - 1) {
-              focusable[index + 1].focus();
-              e.preventDefault();
-            }
-          } else {
-            if (index < focusable.length - 1) {
-              focusable[index + 1].focus();
-              e.preventDefault();
-            }
-          }
-          break;
-        case KEY_UP:
-          // Up moves from sliders to menu or slider above
-          if (!menuButtons.includes(document.activeElement)) {
-            const pos = index - menuButtons.length;
-            const prevRowIndex = pos - 7; // assuming 7 cards per row
-            if (prevRowIndex >= 0) {
-              focusable[menuButtons.length + prevRowIndex].focus();
-              e.preventDefault();
-            } else {
-              // Move focus to last menu button
-              focusable[menuButtons.length - 1].focus();
-              e.preventDefault();
-            }
-          }
-          break;
-        case KEY_DOWN:
-          // Down moves from menu to first slider card or slider below
-          if (menuButtons.includes(document.activeElement)) {
-            focusable[menuButtons.length].focus();
-            e.preventDefault();
-          } else {
-            const pos = index - menuButtons.length;
-            const nextRowIndex = pos + 7; // assuming 7 cards per row
-            if (nextRowIndex < cards.length) {
-              focusable[menuButtons.length + nextRowIndex].focus();
-              e.preventDefault();
-            }
-          }
-          break;
       }
     });
   </script>
