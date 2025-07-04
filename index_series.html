@@ -1,177 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>King Play - Series</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background-color: #000;
       font-family: sans-serif;
       color: #fff;
       overflow-x: hidden;
-      -webkit-user-select: none;
-         -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none;
+      user-select: none;
     }
-    .carousel-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
+    input, textarea { user-select: text; }
+    .carousel-wrapper { display: flex; justify-content: center; margin-top: 20px; }
     .carousel-container {
-      width: 90%;
-      aspect-ratio: 16 / 9;
-      border-radius: 20px;
-      overflow: hidden;
-      position: relative;
-      background: #000;
+      width: 90%; aspect-ratio: 16/9;
+      border-radius: 20px; overflow: hidden;
+      position: relative; background: #000;
     }
-    .carousel-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-      z-index: 0;
+    .carousel-image { position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transition: opacity 1s ease-in-out;
     }
-    .carousel-image.active {
-      opacity: 1;
-      z-index: 1;
-    }
-    .menu-bar {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin: 20px auto 10px;
-    }
+    .carousel-image.active { opacity: 1; }
+    .menu-bar { display: flex; justify-content: center; gap: 24px;
+      margin: 20px auto 10px; }
     .menu-bar button, .search-button {
-      padding: 14px 28px;
-      background-color: transparent;
-      border: 2px solid transparent;
-      border-radius: 12px;
-      font-size: 1.2rem;
-      color: #00bfff;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
+      padding: 14px 28px; background: transparent;
+      border: 2px solid transparent; border-radius: 12px;
+      font-size: 1.2rem; color: #00bfff; cursor: pointer;
+      transition: all 0.2s; box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
     }
-    .menu-bar button:hover, .menu-bar button:focus, .search-button:hover, .search-button:focus {
-      background-color: rgba(0, 191, 255, 0.1);
-      transform: scale(1.05);
-      outline: none;
+    .menu-bar button:hover, .menu-bar button:focus,
+    .search-button:hover, .search-button:focus {
+      background-color: rgba(0,191,255,0.1);
+      transform: scale(1.05); outline: none;
       box-shadow: 0 0 20px 5px #00bfff;
     }
-    .search-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .search-button img {
-      width: 24px;
-      height: 24px;
-    }
+    .search-button img { width: 24px; height: 24px; }
     .search-popup {
-      position: fixed;
-      top: 10%;
-      left: 50%;
+      position: fixed; top: 10%; left: 50%;
       transform: translateX(-50%);
-      background: #111;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-      display: none;
-      flex-direction: column;
-      z-index: 99;
+      background: #111; padding: 20px; border-radius: 12px;
+      box-shadow: 0 0 20px 5px rgba(0,191,255,0.5);
+      display: none; flex-direction: column; z-index: 99;
+    }
+    .search-popup .close-btn {
+      align-self: flex-end; background: none; border: none;
+      font-size: 1.2rem; color: #fff; cursor: pointer;
     }
     .search-popup input {
-      padding: 10px;
-      width: 300px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #222;
-      color: #fff;
+      padding: 10px; width: 300px; font-size: 1rem;
+      border-radius: 10px; border: none; outline: none;
+      background: #222; color: #fff;
     }
-    .search-popup button {
-      margin-top: 10px;
-      padding: 10px;
-      font-size: 1rem;
-      background-color: #00bfff;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+    .search-popup button.search-go {
+      margin-top: 10px; padding: 10px; font-size: 1rem;
+      background-color: #00bfff; color: #fff; border: none;
+      border-radius: 10px; cursor: pointer;
     }
-    .slider {
-      margin-bottom: 40px;
-    }
-    .slider h2 {
-      font-size: 1.5rem;
-      margin: 0 24px;
-    }
+    .slider { margin-bottom: 40px; }
+    .slider h2 { font-size: 1.5rem; margin: 0 24px; }
     .slider-row {
-      display: flex;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-      padding: 0 24px;
+      display: flex; overflow-x: hidden;
+      scroll-behavior: smooth; padding: 0 24px;
     }
     .slider-row .card {
-      flex: 0 0 auto;
-      width: 160px;
-      height: 240px;
-      background-color: #222;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
+      flex: 0 0 auto; width: 160px; height: 240px;
+      background: #222; border-radius: 12px;
+      overflow: hidden; position: relative;
       transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      margin: 20px 12px;
-      outline: none;
+      cursor: pointer; margin: 20px 12px; outline: none;
     }
     .slider-row .card:focus {
       transform: scale(1.05);
       box-shadow: 0 0 20px 4px #00bfff !important;
       z-index: 10;
     }
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .card img { width: 100%; height: 100%; object-fit: cover; }
     .card-title {
-      position: absolute;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      padding: 4px;
+      position: absolute; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      width: 100%; text-align: center;
+      font-size: 0.9rem; padding: 4px;
     }
     .card.ver-mas {
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       justify-content: center;
-      background-color: rgba(255, 255, 255, 0.1);
-      font-size: 1rem;
-      color: #fff;
+      background: rgba(255,255,255,0.1);
+      font-size: 1rem; color: #fff;
       border: 2px dashed #00bfff;
       border-radius: 12px;
       margin: 20px auto 40px;
-      width: 160px;
-      height: 240px;
-      cursor: pointer;
-      overflow: hidden;
+      width: 160px; height: 240px;
+      cursor: pointer; overflow: hidden;
     }
     .card.ver-mas:focus {
-      outline: none;
       transform: scale(1.05);
       box-shadow: 0 0 25px 6px #00bfff;
       z-index: 3;
@@ -179,14 +105,16 @@
   </style>
 </head>
 <body>
+  <!-- Carrusel -->
   <div class="carousel-wrapper">
     <div class="carousel-container" id="carousel-container">
-      <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
-      <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
-      <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
+      <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg">
+      <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg">
+      <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg">
     </div>
   </div>
 
+  <!-- Menú -->
   <div class="menu-bar">
     <button onclick="location.href='index.html'">Películas</button>
     <button onclick="location.href='index_series.html'">Series</button>
@@ -196,107 +124,78 @@
     </button>
   </div>
 
+  <!-- Popup Búsqueda -->
   <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar series..." />
-    <button onclick="submitSearch()">Buscar</button>
+    <button class="close-btn" id="closeSearch">×</button>
+    <input type="text" id="searchInput" placeholder="Buscar series...">
+    <button class="search-go" id="goSearch">Buscar</button>
   </div>
 
+  <!-- Sliders -->
   <div id="sliders"></div>
 
   <script>
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
 
+    // Popup búsqueda
+    const searchIcon = document.getElementById('searchIcon');
+    const searchPopup = document.getElementById('searchPopup');
+    const closeSearch = document.getElementById('closeSearch');
+    const goSearch = document.getElementById('goSearch');
+    const searchInput = document.getElementById('searchInput');
+
+    searchIcon.addEventListener('click', () => {
+      searchPopup.style.display = 'flex';
+      setTimeout(() => searchInput.focus(), 100);
+    });
+    closeSearch.addEventListener('click', () => searchPopup.style.display = 'none');
+    goSearch.addEventListener('click', () => submitSearch());
+    searchInput.addEventListener('keydown', e => { if (e.key==='Enter') submitSearch(); });
+    window.addEventListener('blur', () => { if (document.activeElement !== searchInput) searchPopup.style.display = 'none'; });
+
     function submitSearch() {
-      const query = document.getElementById("searchInput").value.trim();
-      if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
-      }
+      const q = searchInput.value.trim();
+      if (!q) return;
+      location.href = `resultados.html?q=${encodeURIComponent(q)}&origen=series`;
     }
 
-    document.getElementById("searchIcon").addEventListener("click", () => {
-      document.getElementById("searchPopup").style.display = "flex";
-      setTimeout(() => document.getElementById("searchInput").focus(), 100);
-    });
+    // Carrusel
+    let cur=0; const imgs=document.querySelectorAll('.carousel-image');
+    setInterval(()=>{ imgs[cur].classList.remove('active'); cur=(cur+1)%imgs.length; imgs[cur].classList.add('active'); },4000);
 
-    document.getElementById("searchInput").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") submitSearch();
-    });
-
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        document.getElementById("searchPopup").style.display = "none";
+    // Fetch series y generar sliders
+    function xorDecrypt(input,key){let out='';for(let i=0;i<input.length;i++)out+=String.fromCharCode(input.charCodeAt(i)^key.charCodeAt(i%key.length));return out;}
+    function decodeBase64(i){return atob(i);}    
+    fetch(JSON_URL).then(r=>r.text()).then(d=>{
+      const data=JSON.parse(xorDecrypt(decodeBase64(d),'andymix1986'));
+      const series=data.contenidos.filter(x=>x.tipo==='Serie');
+      const cont=document.getElementById('sliders'); const per=7;
+      for(let i=0;i<series.length;i+=per){
+        const slice=series.slice(i,i+per);
+        const sl=document.createElement('div'); sl.className='slider'; sl.innerHTML=`<h2>Series</h2>`;
+        const row=document.createElement('div'); row.className='slider-row';
+        slice.forEach(it=>{
+          const c=document.createElement('div'); c.className='card'; c.tabIndex=0; c.setAttribute('data-titulo',it.titulo);
+          c.innerHTML=`<img src="${it.imagen}"><div class="card-title">${it.titulo}</div>`;
+          row.appendChild(c);
+        }); sl.appendChild(row); cont.appendChild(sl);
       }
+      const vm=document.createElement('div'); vm.className='card ver-mas'; vm.tabIndex=0; vm.textContent='Ver más';
+      vm.onclick=_=>location.href='ver_categoria.html?tipo=serie&origen=series'; cont.appendChild(vm);
     });
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return output;
-    }
-    function decodeBase64(input) {
-      return atob(input);
-    }
-
-    fetch(JSON_URL)
-      .then(r => r.text())
-      .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        const series = json.contenidos.filter(p => p.tipo === "Serie");
-        const container = document.getElementById("sliders");
-        const cardsPerSlider = 7;
-        for (let i = 0; i < series.length; i += cardsPerSlider) {
-          const slice = series.slice(i, i + cardsPerSlider);
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          slider.innerHTML = `<h2>Series</h2>`;
-          const row = document.createElement("div");
-          row.className = "slider-row";
-          slice.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-            card.setAttribute("data-titulo", p.titulo);
-            const img = document.createElement("img");
-            img.src = p.imagen;
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-            card.append(img, title);
-            row.appendChild(card);
-          });
-          slider.appendChild(row);
-          container.appendChild(slider);
-        }
-        const verMas = document.createElement("div");
-        verMas.className = "card ver-mas";
-        verMas.tabIndex = 0;
-        verMas.textContent = "Ver más";
-        verMas.onclick = () => {
-          location.href = "ver_categoria.html?tipo=serie&origen=series";
-        };
-        container.appendChild(verMas);
-      });
-
-    document.addEventListener("focusin", (e) => {
-      const card = e.target.closest(".card");
-      if (card) {
-        const parent = card.closest(".slider-row");
-        const rect = card.getBoundingClientRect();
-        const parentRect = parent.getBoundingClientRect();
-        const offset = rect.left - parentRect.left;
-        const scrollCenter = offset - (parentRect.width / 2) + (rect.width / 2);
-        parent.scrollTo({ left: scrollCenter, behavior: "smooth" });
-      }
+    // Auto-scroll al enfocar cards
+    document.addEventListener('focusin',e=>{
+      const c=e.target.closest('.card'); if(!c) return;
+      const p=c.closest('.slider-row'); const r=c.getBoundingClientRect(),pr=p.getBoundingClientRect();
+      const off=r.left-pr.left; const sc=off-(pr.width/2)+(r.width/2);
+      p.scrollTo({left:sc,behavior:'smooth'});
     });
 
-    document.addEventListener("click", (e) => {
-      const card = e.target.closest(".card");
-      if (card && !card.classList.contains("ver-mas")) {
-        const titulo = card.getAttribute("data-titulo");
-        const tipo = "Serie";
-        location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+    // Click o Enter abre player
+    document.addEventListener('click',e=>{
+      const c=e.target.closest('.card'); if(c&& !c.classList.contains('ver-mas')){
+        const t=c.getAttribute('data-titulo'); location.href=`advancepelis://playerUniversal?titulo=${encodeURIComponent(t)}&tipo=Serie`;
       }
     });
   </script>
