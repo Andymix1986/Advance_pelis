@@ -7,7 +7,7 @@
   <style>
     body {
       margin: 0;
-      background-color: #000;
+      background-color: #000 !important;
       font-family: sans-serif;
       color: #fff;
       overflow-x: hidden;
@@ -76,7 +76,7 @@
       height: 100%;
       filter: invert(53%) sepia(95%) saturate(3469%) hue-rotate(169deg) brightness(95%) contrast(102%);
     }
-    /* Popup de búsqueda igual que index_series */
+    /* Popup de búsqueda */
     .search-popup {
       position: fixed;
       top: 10%;
@@ -237,6 +237,10 @@
       -ms-user-select: text;
       user-select: text;
     }
+    /* Espacio para evitar que carrusel quede pegado al menu */
+    .spacer {
+      height: 40px;
+    }
   </style>
 </head>
 <body>
@@ -258,6 +262,9 @@
     <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar" />
   </button>
 </div>
+
+<!-- Espaciador para separar menú y carrusel -->
+<div class="spacer"></div>
 
 <!-- Popup de búsqueda -->
 <div class="search-popup" id="searchPopup">
@@ -344,7 +351,7 @@ let newVersionFromJson = storedVersion;
 function xorDecrypt(input, key) {
   let output = '';
   for (let i = 0; i < input.length; i++) {
-    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    output += String.fromCharCode(input.charCodeAt(i) ^ key.charAt(i % key.length));
   }
   return output;
 }
@@ -427,7 +434,7 @@ document.addEventListener("click", e => {
   }
 });
 
-// Navegación por control remoto
+// Navegación control remoto y teclado
 let sliders = [];
 let currentSliderIndex = 0;
 let currentCardIndex = 0;
@@ -461,7 +468,7 @@ document.addEventListener("keydown", function (e) {
       }
       break;
     case "ArrowDown":
-      if (document.activeElement === searchInput) {
+      if (document.activeElement === searchIcon) {
         currentSliderIndex = 0;
         currentCardIndex = 0;
         updateFocus();
