@@ -12,12 +12,9 @@
       color: #fff;
       overflow-x: hidden;
       -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    input, textarea {
-      user-select: text;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
     }
     .carousel-wrapper {
       display: flex;
@@ -53,7 +50,7 @@
       gap: 24px;
       margin: 20px auto 10px;
     }
-    .menu-bar button {
+    .menu-bar button, .search-button {
       padding: 14px 28px;
       background-color: transparent;
       border: 2px solid transparent;
@@ -64,32 +61,53 @@
       transition: all 0.2s ease;
       box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
     }
-    .menu-bar button:hover,
-    .menu-bar button:focus {
+    .menu-bar button:hover, .menu-bar button:focus, .search-button:hover, .search-button:focus {
       background-color: rgba(0, 191, 255, 0.1);
       transform: scale(1.05);
       outline: none;
       box-shadow: 0 0 20px 5px #00bfff;
     }
-    .search-bar {
-      text-align: center;
-      margin: 10px 0 30px;
+    .search-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .search-bar input {
-      padding: 12px;
-      width: 80%;
-      max-width: 500px;
+    .search-button img {
+      width: 24px;
+      height: 24px;
+    }
+    .search-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
+      display: none;
+      flex-direction: column;
+      z-index: 99;
+    }
+    .search-popup input {
+      padding: 10px;
+      width: 300px;
       font-size: 1rem;
-      border: 2px solid transparent;
       border-radius: 10px;
-      background-color: transparent;
-      color: #fff;
+      border: none;
       outline: none;
-      box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
-      caret-color: transparent;
+      background-color: #222;
+      color: #fff;
     }
-    .search-bar input::placeholder {
-      color: #aaa;
+    .search-popup button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1rem;
+      background-color: #00bfff;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
     }
     .slider {
       margin-bottom: 40px;
@@ -100,10 +118,9 @@
     }
     .slider-row {
       display: flex;
-      overflow-x: hidden; /* oculta barras scroll horizontales */
+      overflow-x: hidden;
       scroll-behavior: smooth;
       padding: 0 24px;
-      outline: none;
     }
     .slider-row .card {
       flex: 0 0 auto;
@@ -118,8 +135,7 @@
       margin: 20px 12px;
       outline: none;
     }
-    /* Agregamos foco visible y efecto */
-    .card:focus-visible {
+    .slider-row .card:focus-visible {
       outline: 3px solid #00bfff;
       transform: scale(1.07);
       box-shadow: 0 0 25px 6px #00bfff;
@@ -138,413 +154,120 @@
       text-align: center;
       font-size: 0.9rem;
       padding: 4px;
-      user-select: none;
-    }
-    .card.ver-mas {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(255, 255, 255, 0.1);
-      font-size: 1rem;
-      color: #fff;
-      border: 2px dashed #00bfff;
-      border-radius: 12px;
-      margin: 20px auto 40px;
-      width: 160px;
-      height: 240px;
-      cursor: pointer;
-      overflow: hidden;
-      outline: none;
-    }
-    .card.ver-mas:focus-visible {
-      outline: 3px solid #00bfff;
-      transform: scale(1.07);
-      box-shadow: 0 0 30px 7px #00bfff;
-      z-index: 11;
-    }
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9;
-    }
-    .popup {
-      width: 60%;
-      aspect-ratio: 16 / 9;
-      background-color: rgba(34, 34, 34, 0.85);
-      border-radius: 12px;
-      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      padding: 20px;
-      text-align: center;
-      z-index: 10;
-    }
-    .popup h2 {
-      color: #fff;
-      font-size: 1.5rem;
-    }
-    .popup button {
-      background-color: #00bfff;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1rem;
-      color: white;
-      border-radius: 8px;
-      margin-top: 20px;
-      cursor: pointer;
-      outline: none;
-    }
-    .popup button:hover {
-      background-color: #0099cc;
     }
   </style>
 </head>
 <body>
-
-<!-- Carrusel -->
-<div class="carousel-wrapper">
-  <div class="carousel-container" id="carousel-container">
-    <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
-    <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
-    <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
+  <div class="carousel-wrapper">
+    <div class="carousel-container" id="carousel-container">
+      <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
+      <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
+      <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
+    </div>
   </div>
-</div>
 
-<!-- Menú -->
-<div class="menu-bar">
-  <button onclick="location.href='index.html'">Películas</button>
-  <button onclick="location.href='index_series.html'">Series</button>
-  <button onclick="location.href='index_animes.html'">Animes</button>
-</div>
-
-<!-- Buscador -->
-<div class="search-bar">
-  <form id="searchForm" onsubmit="handleSearch(event)">
-    <input type="text" id="searchInput" placeholder="Buscar series por título..." autocomplete="off" />
-  </form>
-</div>
-
-<!-- Popup de actualización -->
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup" id="popup">
-    <h2>Hay una nueva versión disponible</h2>
-    <button id="updateButton">Actualizar</button>
+  <div class="menu-bar">
+    <button onclick="location.href='index.html'">Películas</button>
+    <button onclick="location.href='index_series.html'">Series</button>
+    <button onclick="location.href='index_animes.html'">Animes</button>
+    <button class="search-button" id="searchIcon" tabindex="0">
+      <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
+    </button>
   </div>
-</div>
 
-<!-- Sliders dinámicos -->
-<div id="sliders"></div>
+  <div class="search-popup" id="searchPopup">
+    <input type="text" id="searchInput" placeholder="Buscar series..." autofocus />
+    <button onclick="submitSearch()">Buscar</button>
+  </div>
 
-<script>
-let current = 0;
-const images = document.querySelectorAll(".carousel-image");
-setInterval(() => {
-  images[current].classList.remove("active");
-  current = (current + 1) % images.length;
-  images[current].classList.add("active");
-}, 4000);
+  <div id="sliders"></div>
 
-function xorDecrypt(input, key) {
-  let output = '';
-  for (let i = 0; i < input.length; i++) {
-    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-  }
-  return output;
-}
-function decodeBase64(input) {
-  return atob(input);
-}
+  <script>
+    const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
 
-const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
-const storedVersion = localStorage.getItem('version') || '1.0.0';
-let newVersionFromJson = storedVersion;
+    function submitSearch() {
+      const query = document.getElementById("searchInput").value.trim();
+      if (query) {
+        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
+      }
+    }
 
-function compareVersions(current, next) {
-  const a = current.split('.').map(Number);
-  const b = next.split('.').map(Number);
-  return b.some((v, i) => v > a[i]);
-}
+    document.getElementById("searchIcon").addEventListener("keydown", function(e) {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        document.getElementById("searchPopup").style.display = "flex";
+        document.getElementById("searchInput").focus();
+      }
+    });
 
-function showPopup(msg) {
-  document.querySelector("#popup h2").textContent = msg;
-  document.getElementById("popupOverlay").style.display = "flex";
-}
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        document.getElementById("searchPopup").style.display = "none";
+      }
+    });
 
-fetch(JSON_URL)
-  .then(r => r.text())
-  .then(data => {
-    const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-    newVersionFromJson = json.version;
-    if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
+    function xorDecrypt(input, key) {
+      let output = '';
+      for (let i = 0; i < input.length; i++) {
+        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return output;
+    }
+    function decodeBase64(input) {
+      return atob(input);
+    }
 
-    const series = json.contenidos.filter(p => p.tipo === "Serie");
-    const container = document.getElementById("sliders");
-    container.innerHTML = '';
-
-    const slidersCount = 5;
-    const cardsPerSlider = 7;
-
-    for (let i = 0; i < slidersCount; i++) {
-      const start = i * cardsPerSlider;
-      const end = start + cardsPerSlider;
-      const slice = series.slice(start, end);
-      if (slice.length === 0) break;
-
-      const slider = document.createElement("div");
-      slider.className = "slider";
-      slider.innerHTML = `<h2>Series</h2>`;
-
-      const row = document.createElement("div");
-      row.className = "slider-row";
-      row.tabIndex = 0;
-
-      slice.forEach(p => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.tabIndex = 0;
-        card.setAttribute("data-url", p.url);
-        card.setAttribute("data-titulo", p.titulo);
-
-        const img = document.createElement("img");
-        img.src = p.imagen;
-        img.alt = p.titulo;
-        img.loading = "lazy";
-
-        const title = document.createElement("div");
-        title.className = "card-title";
-        title.textContent = p.titulo;
-
-        card.append(img, title);
-        row.appendChild(card);
+    fetch(JSON_URL)
+      .then(r => r.text())
+      .then(data => {
+        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+        const series = json.contenidos.filter(p => p.tipo === "Serie");
+        const container = document.getElementById("sliders");
+        const cardsPerSlider = 7;
+        for (let i = 0; i < series.length; i += cardsPerSlider) {
+          const slice = series.slice(i, i + cardsPerSlider);
+          const slider = document.createElement("div");
+          slider.className = "slider";
+          slider.innerHTML = `<h2>Series</h2>`;
+          const row = document.createElement("div");
+          row.className = "slider-row";
+          slice.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.tabIndex = 0;
+            card.setAttribute("data-titulo", p.titulo);
+            const img = document.createElement("img");
+            img.src = p.imagen;
+            const title = document.createElement("div");
+            title.className = "card-title";
+            title.textContent = p.titulo;
+            card.append(img, title);
+            row.appendChild(card);
+          });
+          slider.appendChild(row);
+          container.appendChild(slider);
+        }
       });
 
-      slider.appendChild(row);
-      container.appendChild(slider);
-    }
-
-    const verMas = document.createElement("div");
-    verMas.className = "card ver-mas";
-    verMas.tabIndex = 0;
-    verMas.textContent = "Ver más";
-    verMas.onclick = () => {
-      location.href = "ver_categoria.html?tipo=serie&origen=series";
-    };
-    container.appendChild(verMas);
-  })
-  .catch(console.error);
-
-document.getElementById("updateButton").onclick = () => {
-  localStorage.setItem('version', newVersionFromJson);
-  location.reload();
-};
-
-function handleSearch(event) {
-  event.preventDefault();
-  const query = document.getElementById("searchInput").value.trim();
-  if (query) {
-    location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
-  }
-}
-
-// Detectar SmartTV/TV Box para control de teclado y navegación
-const isSmartTV = /SmartTV|TV|Tizen|Web0S|NetCast|HbbTV|DTV|AOSP/i.test(navigator.userAgent);
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("searchInput");
-
-  if (isSmartTV) {
-    input.setAttribute("readonly", true);
-    input.setAttribute("inputmode", "none");
-    input.style.caretColor = "transparent";
-
-    // Prevenir teclado virtual automático al enfocar
-    input.addEventListener("focus", (e) => {
-      if (input.hasAttribute("readonly")) {
-        // Fuerza que no se quede en focus para que no aparezca teclado
-        setTimeout(() => input.blur(), 10);
-        setTimeout(() => input.focus(), 50);
+    document.addEventListener("focusin", (e) => {
+      const card = e.target.closest(".card");
+      if (card) {
+        const parent = card.closest(".slider-row");
+        const rect = card.getBoundingClientRect();
+        const parentRect = parent.getBoundingClientRect();
+        const offset = rect.left - parentRect.left;
+        const scrollCenter = offset - (parentRect.width / 2) + (rect.width / 2);
+        parent.scrollTo({ left: scrollCenter, behavior: "smooth" });
       }
     });
 
-    // Permitir habilitar el input con Enter (OK)
-    input.addEventListener("keydown", (e) => {
-      if (e.keyCode === 13) { // Enter
-        if (input.hasAttribute("readonly")) {
-          input.removeAttribute("readonly");
-          input.removeAttribute("inputmode");
-          input.style.caretColor = "white";
-          setTimeout(() => input.focus(), 50);
-          e.preventDefault();
-        } else {
-          // Ya editable, si tiene texto hacer búsqueda
-          if (input.value.trim() !== "") {
-            document.getElementById("searchForm").dispatchEvent(new Event('submit'));
-          }
-        }
+    document.addEventListener("click", (e) => {
+      const card = e.target.closest(".card");
+      if (card) {
+        const titulo = card.getAttribute("data-titulo");
+        const tipo = "Serie";
+        location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
       }
     });
-
-    // Al perder foco, volvemos a modo solo lectura
-    input.addEventListener("blur", () => {
-      input.setAttribute("readonly", true);
-      input.setAttribute("inputmode", "none");
-      input.style.caretColor = "transparent";
-    });
-
-  } else {
-    // En móvil y desktop: input normal
-    input.removeAttribute("readonly");
-    input.removeAttribute("inputmode");
-    input.style.caretColor = "white";
-  }
-});
-
-// Scroll horizontal automático y centrado al enfocar tarjeta
-document.addEventListener("focusin", (e) => {
-  const card = e.target.closest(".card");
-  if (card) {
-    const parent = card.closest(".slider-row");
-    if (parent) {
-      const cardRect = card.getBoundingClientRect();
-      const parentRect = parent.getBoundingClientRect();
-      const offset = cardRect.left - parentRect.left;
-      const scrollCenter = offset - (parentRect.width / 2) + (cardRect.width / 2);
-      parent.scrollTo({ left: scrollCenter, behavior: "smooth" });
-    }
-  }
-});
-
-// Navegación por control remoto y compatibilidad móvil
-document.addEventListener('keydown', (e) => {
-  const searchInput = document.getElementById('searchInput');
-  const isInputFocused = document.activeElement === searchInput;
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if (isTouchDevice && isInputFocused) return;
-
-  const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
-
-  // Focusables: menú botones + barra búsqueda + tarjetas + ver más
-  const menuButtons = Array.from(document.querySelectorAll('.menu-bar button'));
-  const sliderCards = Array.from(document.querySelectorAll('.slider-row .card'));
-  const verMasCard = document.querySelector('.card.ver-mas');
-  const focusableElements = [...menuButtons, searchInput, ...sliderCards];
-  if (verMasCard) focusableElements.push(verMasCard);
-  if (focusableElements.length === 0) return;
-
-  const active = document.activeElement;
-  if (!focusableElements.includes(active)) {
-    focusableElements[0].focus();
-    e.preventDefault();
-    return;
-  }
-
-  let index = focusableElements.indexOf(active);
-  if (index === -1) return;
-
-  const cardsPerSlider = 7;
-  const menuCount = menuButtons.length;
-
-  switch (e.keyCode) {
-    case KEY_LEFT:
-      if (index >= menuCount + 1) { // Dentro de sliders
-        if ((index - menuCount - 1) % cardsPerSlider > 0) {
-          focusableElements[index - 1].focus();
-          e.preventDefault();
-        }
-      } else if (index > 0 && index < menuCount) { // entre botones menú
-        focusableElements[index - 1].focus();
-        e.preventDefault();
-      }
-      break;
-    case KEY_RIGHT:
-      if (index >= menuCount + 1) {
-        if ((index - menuCount - 1) % cardsPerSlider < cardsPerSlider - 1 && index < focusableElements.length - 2) {
-          focusableElements[index + 1].focus();
-          e.preventDefault();
-        }
-      } else if (index >= 0 && index < menuCount - 1) {
-        focusableElements[index + 1].focus();
-        e.preventDefault();
-      }
-      break;
-    case KEY_UP:
-      if (index === menuCount) { // Desde barra búsqueda sube a menú
-        focusableElements[menuCount - 1].focus();
-        e.preventDefault();
-      } else if (index > menuCount) { // Desde sliders a barra búsqueda
-        if (index - cardsPerSlider === menuCount) {
-          focusableElements[menuCount].focus();
-          e.preventDefault();
-        } else if (index - cardsPerSlider >= menuCount + 1) {
-          focusableElements[index - cardsPerSlider].focus();
-          e.preventDefault();
-        } else if (index - cardsPerSlider < menuCount) {
-          focusableElements[menuCount].focus();
-          e.preventDefault();
-        }
-      } else if (index > 0 && index < menuCount) { // Dentro menú
-        focusableElements[index - 1].focus();
-        e.preventDefault();
-      }
-      break;
-    case KEY_DOWN:
-      if (index < menuCount - 1) { // Desde menú a barra búsqueda
-        focusableElements[index + 1].focus();
-        e.preventDefault();
-      } else if (index === menuCount - 1) {
-        focusableElements[menuCount].focus();
-        e.preventDefault();
-      } else if (index === menuCount) { // Desde barra búsqueda a primer slider
-        focusableElements[menuCount + 1].focus();
-        e.preventDefault();
-      } else if (index >= menuCount + 1) { // Dentro sliders
-        if (index + cardsPerSlider < focusableElements.length - 1) {
-          focusableElements[index + cardsPerSlider].focus();
-          e.preventDefault();
-        } else if (index + cardsPerSlider === focusableElements.length - 1) {
-          focusableElements[focusableElements.length - 1].focus();
-          e.preventDefault();
-        }
-      }
-      break;
-    case KEY_ENTER:
-      if (active === searchInput) {
-        if (active.hasAttribute("readonly")) {
-          active.removeAttribute("readonly");
-          active.removeAttribute("inputmode");
-          active.style.caretColor = "white";
-          setTimeout(() => active.focus(), 50);
-          e.preventDefault();
-        } else if (active.value.trim() !== "") {
-          document.getElementById("searchForm").dispatchEvent(new Event('submit'));
-          e.preventDefault();
-        }
-      } else {
-        active.click();
-        e.preventDefault();
-      }
-      break;
-  }
-});
-
-// Lanzar reproductor al hacer clic o Enter en tarjeta
-document.addEventListener("click", e => {
-  const card = e.target.closest('.card');
-  if (card && !card.classList.contains("ver-mas")) {
-    const titulo = card.getAttribute("data-titulo");
-    const tipo = "Serie";
-    location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
-  }
-});
-</script>
+  </script>
 </body>
 </html>
