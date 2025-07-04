@@ -86,6 +86,7 @@
       color: #fff;
       outline: none;
       box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
+      caret-color: transparent;
     }
     .search-bar input::placeholder {
       color: #aaa;
@@ -204,165 +205,309 @@
   </style>
 </head>
 <body>
-  <div class="carousel-wrapper">
-    <div class="carousel-container" id="carousel-container">
-      <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
-      <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
-      <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
-    </div>
-  </div>
-  <div class="menu-bar">
-    <button onclick="location.href='index.html'">Películas</button>
-    <button onclick="location.href='index_series.html'">Series</button>
-    <button onclick="location.href='index_animes.html'">Animes</button>
-  </div>
-  <div class="search-bar">
-    <form id="searchForm" onsubmit="handleSearch(event)">
-      <input type="text" id="searchInput" placeholder="Buscar series por título..." />
-    </form>
-  </div>
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup" id="popup">
-      <h2>Hay una nueva versión disponible</h2>
-      <button id="updateButton">Actualizar</button>
-    </div>
-  </div>
-  <div id="sliders"></div>
-  <script>
-    const images = document.querySelectorAll(".carousel-image");
-    let current = 0;
-    setInterval(() => {
-      images[current].classList.remove("active");
-      current = (current + 1) % images.length;
-      images[current].classList.add("active");
-    }, 4000);
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return output;
-    }
-    function decodeBase64(input) {
-      return atob(input);
-    }
-    const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
-    const storedVersion = localStorage.getItem('version') || '1.0.0';
-    let newVersionFromJson = storedVersion;
-    function compareVersions(current, next) {
-      const a = current.split('.').map(Number);
-      const b = next.split('.').map(Number);
-      return b.some((v, i) => v > a[i]);
-    }
-    function showPopup(msg) {
-      document.querySelector("#popup h2").textContent = msg;
-      document.getElementById("popupOverlay").style.display = "flex";
-    }
-    fetch(JSON_URL)
-      .then(r => r.text())
-      .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        newVersionFromJson = json.version;
-        if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
-        const series = json.contenidos.filter(p => p.tipo === "Serie");
-        const container = document.getElementById("sliders");
-        container.innerHTML = '';
-        const slidersCount = 5;
-        const cardsPerSlider = 7;
-        for (let i = 0; i < slidersCount; i++) {
-          const start = i * cardsPerSlider;
-          const end = start + cardsPerSlider;
-          const slice = series.slice(start, end);
-          if (slice.length === 0) break;
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          slider.innerHTML = `<h2>Series</h2>`;
-          const row = document.createElement("div");
-          row.className = "slider-row";
-          row.tabIndex = 0;
-          slice.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-            card.setAttribute("data-url", p.url);
-            card.setAttribute("data-titulo", p.titulo);
-            const img = document.createElement("img");
-            img.src = p.imagen;
-            img.alt = p.titulo;
-            img.loading = "lazy";
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-            card.append(img, title);
-            row.appendChild(card);
-          });
-          slider.appendChild(row);
-          container.appendChild(slider);
-        }
-        const verMas = document.createElement("div");
-        verMas.className = "card ver-mas";
-        verMas.tabIndex = 0;
-        verMas.textContent = "Ver más";
-        verMas.onclick = () => {
-          location.href = "ver_categoria.html?tipo=serie&origen=series";
-        };
-        container.appendChild(verMas);
-      })
-      .catch(console.error);
+<!-- Carrusel -->
+<div class="carousel-wrapper">
+  <div class="carousel-container" id="carousel-container">
+    <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
+    <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
+    <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
+  </div>
+</div>
 
-    document.getElementById("updateButton").onclick = () => {
-      localStorage.setItem('version', newVersionFromJson);
-      location.reload();
+<!-- Menú -->
+<div class="menu-bar">
+  <button onclick="location.href='index.html'">Películas</button>
+  <button onclick="location.href='index_series.html'">Series</button>
+  <button onclick="location.href='index_animes.html'">Animes</button>
+</div>
+
+<!-- Buscador -->
+<div class="search-bar">
+  <form id="searchForm" onsubmit="handleSearch(event)">
+    <input type="text" id="searchInput" placeholder="Buscar series por título..." autocomplete="off" />
+  </form>
+</div>
+
+<!-- Popup de actualización -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup" id="popup">
+    <h2>Hay una nueva versión disponible</h2>
+    <button id="updateButton">Actualizar</button>
+  </div>
+</div>
+
+<!-- Sliders dinámicos -->
+<div id="sliders"></div>
+
+<script>
+let current = 0;
+const images = document.querySelectorAll(".carousel-image");
+setInterval(() => {
+  images[current].classList.remove("active");
+  current = (current + 1) % images.length;
+  images[current].classList.add("active");
+}, 4000);
+
+function xorDecrypt(input, key) {
+  let output = '';
+  for (let i = 0; i < input.length; i++) {
+    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  return output;
+}
+function decodeBase64(input) {
+  return atob(input);
+}
+
+const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
+const storedVersion = localStorage.getItem('version') || '1.0.0';
+let newVersionFromJson = storedVersion;
+
+function compareVersions(current, next) {
+  const a = current.split('.').map(Number);
+  const b = next.split('.').map(Number);
+  return b.some((v, i) => v > a[i]);
+}
+
+function showPopup(msg) {
+  document.querySelector("#popup h2").textContent = msg;
+  document.getElementById("popupOverlay").style.display = "flex";
+}
+
+fetch(JSON_URL)
+  .then(r => r.text())
+  .then(data => {
+    const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+    newVersionFromJson = json.version;
+    if (compareVersions(storedVersion, newVersionFromJson)) showPopup(json.mensaje);
+
+    const series = json.contenidos.filter(p => p.tipo === "Serie");
+    const container = document.getElementById("sliders");
+    container.innerHTML = '';
+
+    const slidersCount = 5;
+    const cardsPerSlider = 7;
+
+    for (let i = 0; i < slidersCount; i++) {
+      const start = i * cardsPerSlider;
+      const end = start + cardsPerSlider;
+      const slice = series.slice(start, end);
+      if (slice.length === 0) break;
+
+      const slider = document.createElement("div");
+      slider.className = "slider";
+      slider.innerHTML = `<h2>Series</h2>`;
+
+      const row = document.createElement("div");
+      row.className = "slider-row";
+      row.tabIndex = 0;
+
+      slice.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-url", p.url);
+        card.setAttribute("data-titulo", p.titulo);
+
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+        img.loading = "lazy";
+
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+
+        card.append(img, title);
+        row.appendChild(card);
+      });
+
+      slider.appendChild(row);
+      container.appendChild(slider);
+    }
+
+    const verMas = document.createElement("div");
+    verMas.className = "card ver-mas";
+    verMas.tabIndex = 0;
+    verMas.textContent = "Ver más";
+    verMas.onclick = () => {
+      location.href = "ver_categoria.html?tipo=serie&origen=series";
     };
+    container.appendChild(verMas);
+  })
+  .catch(console.error);
 
-    function handleSearch(event) {
-      event.preventDefault();
-      const query = document.getElementById("searchInput").value.trim();
-      if (query) {
-        location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
-      }
-    }
+document.getElementById("updateButton").onclick = () => {
+  localStorage.setItem('version', newVersionFromJson);
+  location.reload();
+};
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const input = document.getElementById("searchInput");
-      const isSmartTV = /SmartTV|TV|Tizen|Web0S|NetCast|HbbTV|DTV/i.test(navigator.userAgent);
-      if (isSmartTV) {
-        input.setAttribute("readonly", true);
-        input.addEventListener("keydown", (e) => {
-          if (e.keyCode === 13) {
-            input.removeAttribute("readonly");
-            setTimeout(() => input.focus(), 100);
-          }
-        });
-      } else {
+function handleSearch(event) {
+  event.preventDefault();
+  const query = document.getElementById("searchInput").value.trim();
+  if (query) {
+    location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
+  }
+}
+
+// Detectar SmartTV/TV Box para control de teclado y navegación
+const isSmartTV = /SmartTV|TV|Tizen|Web0S|NetCast|HbbTV|DTV|AOSP/i.test(navigator.userAgent);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("searchInput");
+  if (isSmartTV) {
+    // Bloquear teclado automático en input
+    input.setAttribute("readonly", true);
+    input.setAttribute("inputmode", "none");
+    input.style.caretColor = "transparent";
+    // Solo permitir activación de teclado con Enter (OK)
+    input.addEventListener("keydown", (e) => {
+      if (e.keyCode === 13) {
         input.removeAttribute("readonly");
+        input.removeAttribute("inputmode");
+        input.style.caretColor = "white";
+        setTimeout(() => input.focus(), 100);
       }
     });
+  } else {
+    // En móvil o desktop, permitir el teclado normal
+    input.removeAttribute("readonly");
+    input.removeAttribute("inputmode");
+    input.style.caretColor = "white";
+  }
+});
 
-    document.addEventListener('keydown', (e) => {
-      const KEY_ENTER = 13;
-      if (e.keyCode === KEY_ENTER) {
-        const active = document.activeElement;
-        if (!active) return;
-        if (active.classList.contains('card') || active.classList.contains('ver-mas') || active.tagName === 'BUTTON') {
-          active.click();
+// Scroll horizontal automático al enfocar tarjeta
+document.addEventListener("focusin", (e) => {
+  const card = e.target.closest(".card");
+  if (card) {
+    const parent = card.closest(".slider-row");
+    if (parent) {
+      const cardRect = card.getBoundingClientRect();
+      const parentRect = parent.getBoundingClientRect();
+      const offset = cardRect.left - parentRect.left;
+      const scrollCenter = offset - (parentRect.width / 2) + (cardRect.width / 2);
+      parent.scrollTo({ left: scrollCenter, behavior: "smooth" });
+    }
+  }
+});
+
+// Navegación por control remoto y compatibilidad móvil
+document.addEventListener('keydown', (e) => {
+  const searchInput = document.getElementById('searchInput');
+  const isInputFocused = document.activeElement === searchInput;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouchDevice && isInputFocused) return;
+
+  const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
+  const focusableItems = Array.from(document.querySelectorAll('.menu-bar button, #searchInput, .slider-row .card, .card.ver-mas'));
+  if (focusableItems.length === 0) return;
+
+  const active = document.activeElement;
+  if (!focusableItems.includes(active)) {
+    focusableItems[0].focus();
+    e.preventDefault();
+    return;
+  }
+
+  let index = focusableItems.indexOf(active);
+  if (index === -1) return;
+
+  // Count how many cards per slider to calculate vertical jumps
+  const cardsPerSlider = 7;
+  // Determine index boundaries of slider cards inside focusableItems to handle up/down keys better
+  // But since menu buttons, search input, and ver-mas are included, we adjust logic accordingly
+
+  switch (e.keyCode) {
+    case KEY_LEFT:
+      if (active.classList.contains('card') && index > 0) {
+        // Move left within cards only
+        if (index > 2) { // after menu buttons and search input
+          if ((index - 3) % cardsPerSlider > 0) {
+            focusableItems[index - 1].focus();
+            e.preventDefault();
+          }
+        }
+      } else if (active.classList.contains('menu-bar')) {
+        // Nothing for menu bar left
+      }
+      break;
+
+    case KEY_RIGHT:
+      if (active.classList.contains('card') && index < focusableItems.length - 2) {
+        if (index > 2) {
+          if ((index - 3) % cardsPerSlider < cardsPerSlider - 1) {
+            focusableItems[index + 1].focus();
+            e.preventDefault();
+          }
+        }
+      }
+      break;
+
+    case KEY_UP:
+      if (index > 0) {
+        // If focused on cards, jump up one slider row (cardsPerSlider)
+        if (active.classList.contains('card')) {
+          const prevIndex = index - cardsPerSlider;
+          if (prevIndex >= 3) {
+            focusableItems[prevIndex].focus();
+          } else {
+            // If no cards above, focus search input or menu buttons
+            focusableItems[2].focus(); // search input
+          }
           e.preventDefault();
-        } else if (active.tagName === 'INPUT' && active.id === 'searchInput') {
-          active.form.dispatchEvent(new Event('submit'));
+        } else if (active === searchInput) {
+          // From search input to menu buttons
+          focusableItems[1].focus();
+          e.preventDefault();
+        } else if (active === focusableItems[1]) {
+          // From first menu button, nothing up
           e.preventDefault();
         }
       }
-    });
+      break;
 
-    document.addEventListener("click", e => {
-      const card = e.target.closest('.card');
-      if (card && !card.classList.contains("ver-mas")) {
-        const titulo = card.getAttribute("data-titulo");
-        const tipo = "Serie";
-        location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+    case KEY_DOWN:
+      if (active === focusableItems[1]) {
+        // From menu buttons down to search input
+        focusableItems[2].focus();
+        e.preventDefault();
+      } else if (active === searchInput) {
+        // From search input down to first card
+        if (focusableItems.length > 3) {
+          focusableItems[3].focus();
+          e.preventDefault();
+        }
+      } else if (active.classList.contains('card')) {
+        const nextIndex = index + cardsPerSlider;
+        if (nextIndex < focusableItems.length - 1) {
+          focusableItems[nextIndex].focus();
+        } else if (nextIndex >= focusableItems.length - 1) {
+          // Focus "Ver más" card
+          focusableItems[focusableItems.length - 1].focus();
+        }
+        e.preventDefault();
       }
-    });
-  </script>
+      break;
+
+    case KEY_ENTER:
+      if (active) active.click();
+      e.preventDefault();
+      break;
+  }
+});
+
+// Lanzar reproductor al hacer clic o al presionar OK sobre tarjeta
+document.addEventListener("click", e => {
+  const card = e.target.closest('.card');
+  if (card && !card.classList.contains("ver-mas")) {
+    const titulo = card.getAttribute("data-titulo");
+    const tipo = "Serie";
+    location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+  }
+});
+</script>
+
 </body>
 </html>
