@@ -115,13 +115,13 @@
     }
     .slider h2 {
       font-size: 1.5rem;
-      margin-left: 24px;
+      margin: 0 24px;
     }
     .slider-row {
       display: flex;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      padding-left: 24px;
+      padding: 0 24px;
     }
     .slider-row .card {
       flex: 0 0 auto;
@@ -137,9 +137,8 @@
       outline: none;
     }
     .slider-row .card:focus-visible {
-      outline: 3px solid #00bfff;
-      transform: scale(1.07);
-      box-shadow: 0 0 25px 6px #00bfff;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
       z-index: 10;
     }
     .card img {
@@ -198,7 +197,7 @@
   </div>
 
   <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar series..." autofocus onkeydown="if(event.key === 'Enter'){submitSearch()}"/>
+    <input type="text" id="searchInput" placeholder="Buscar series..." />
     <button onclick="submitSearch()">Buscar</button>
   </div>
 
@@ -214,14 +213,16 @@
       }
     }
 
-    document.getElementById("searchIcon").addEventListener("keydown", function(e) {
-      if (e.key === "Enter" || e.keyCode === 13) {
-        document.getElementById("searchPopup").style.display = "flex";
-        document.getElementById("searchInput").focus();
-      }
+    document.getElementById("searchIcon").addEventListener("click", () => {
+      document.getElementById("searchPopup").style.display = "flex";
+      setTimeout(() => document.getElementById("searchInput").focus(), 100);
     });
 
-    document.addEventListener("keydown", function(e) {
+    document.getElementById("searchInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") submitSearch();
+    });
+
+    document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
         document.getElementById("searchPopup").style.display = "none";
       }
@@ -268,7 +269,6 @@
           slider.appendChild(row);
           container.appendChild(slider);
         }
-        // Botón Ver más
         const verMas = document.createElement("div");
         verMas.className = "card ver-mas";
         verMas.tabIndex = 0;
