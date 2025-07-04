@@ -246,14 +246,14 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeSearchPopup();
     });
-    document.addEventListener("click", (e) => {
-      const card = e.target.closest(".card");
-      if (card && !card.classList.contains("ver-mas")) {
-        const titulo = card.getAttribute("data-titulo");
-        const tipo = "Pelicula";
-        location.href = `advancepelis://player?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
-      }
-    });
+    document.addEventListener("click", e => {
+  const card = e.target.closest('.card');
+  if (card && !card.classList.contains("ver-mas")) {
+    const url = card.getAttribute("data-url");
+    const titulo = card.getAttribute("data-titulo");
+    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+  }
+});
     fetch(JSON_URL)
       .then(r => r.text())
       .then(data => {
