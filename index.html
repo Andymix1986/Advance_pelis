@@ -251,7 +251,6 @@
   if (card && !card.classList.contains("ver-mas")) {
     const url = card.getAttribute("data-url");
     const titulo = card.getAttribute("data-titulo");
-    card.setAttribute("data-url", p.url);  // <--- ESTA LÍNEA FALTABA
 
     location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
   }
@@ -284,6 +283,7 @@
             card.className = "card";
             card.tabIndex = 0;
             card.setAttribute("data-titulo", p.titulo);
+            card.setAttribute("data-url", p.url);
             const img = document.createElement("img");
             img.src = p.imagen;
             const title = document.createElement("div");
