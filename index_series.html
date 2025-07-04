@@ -100,7 +100,7 @@
     }
     .slider-row {
       display: flex;
-      overflow-x: auto;
+      overflow-x: hidden; /* Oculta barras de scroll */
       scroll-behavior: smooth;
       padding: 0 24px;
       outline: none;
@@ -356,22 +356,49 @@ const isSmartTV = /SmartTV|TV|Tizen|Web0S|NetCast|HbbTV|DTV|AOSP/i.test(navigato
 
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("searchInput");
+
   if (isSmartTV) {
-    // Bloquear teclado automático en input
     input.setAttribute("readonly", true);
     input.setAttribute("inputmode", "none");
     input.style.caretColor = "transparent";
-    // Solo permitir activación de teclado con Enter (OK)
-    input.addEventListener("keydown", (e) => {
-      if (e.keyCode === 13) {
-        input.removeAttribute("readonly");
-        input.removeAttribute("inputmode");
-        input.style.caretColor = "white";
-        setTimeout(() => input.focus(), 100);
+
+    // Evitar que el teclado virtual aparezca solo con foco
+    input.addEventListener("focus", (e) => {
+      if (input.hasAttribute("readonly")) {
+        input.blur();
+        setTimeout(() => {
+          input.focus();
+        }, 10);
       }
     });
+
+    // Permitir habilitar el input con Enter (OK)
+    input.addEventListener("keydown", (e) => {
+      if (e.keyCode === 13) { // Enter
+        if (input.hasAttribute("readonly")) {
+          input.removeAttribute("readonly");
+          input.removeAttribute("inputmode");
+          input.style.caretColor = "white";
+          setTimeout(() => input.focus(), 50);
+          e.preventDefault();
+        } else {
+          // Ya editable, ejecutar búsqueda si tiene texto
+          if (input.value.trim() !== "") {
+            document.getElementById("searchForm").dispatchEvent(new Event('submit'));
+          }
+        }
+      }
+    });
+
+    // Al perder foco, volvemos a modo solo lectura
+    input.addEventListener("blur", () => {
+      input.setAttribute("readonly", true);
+      input.setAttribute("inputmode", "none");
+      input.style.caretColor = "transparent";
+    });
+
   } else {
-    // En móvil o desktop, permitir el teclado normal
+    // En móvil y desktop
     input.removeAttribute("readonly");
     input.removeAttribute("inputmode");
     input.style.caretColor = "white";
@@ -401,104 +428,114 @@ document.addEventListener('keydown', (e) => {
   if (isTouchDevice && isInputFocused) return;
 
   const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
-  const focusableItems = Array.from(document.querySelectorAll('.menu-bar button, #searchInput, .slider-row .card, .card.ver-mas'));
-  if (focusableItems.length === 0) return;
+  const focusableElements = [
+    ...document.querySelectorAll('.menu-bar button'),
+    searchInput,
+    ...document.querySelectorAll('.slider-row .card'),
+    ...document.querySelectorAll('.card.ver-mas')
+  ];
+  if (focusableElements.length === 0) return;
 
   const active = document.activeElement;
-  if (!focusableItems.includes(active)) {
-    focusableItems[0].focus();
+  if (!focusableElements.includes(active)) {
+    focusableElements[0].focus();
     e.preventDefault();
     return;
   }
 
-  let index = focusableItems.indexOf(active);
+  let index = focusableElements.indexOf(active);
   if (index === -1) return;
 
-  // Count how many cards per slider to calculate vertical jumps
   const cardsPerSlider = 7;
-  // Determine index boundaries of slider cards inside focusableItems to handle up/down keys better
-  // But since menu buttons, search input, and ver-mas are included, we adjust logic accordingly
+  const menuCount = document.querySelectorAll('.menu-bar button').length;
 
   switch (e.keyCode) {
     case KEY_LEFT:
-      if (active.classList.contains('card') && index > 0) {
-        // Move left within cards only
-        if (index > 2) { // after menu buttons and search input
-          if ((index - 3) % cardsPerSlider > 0) {
-            focusableItems[index - 1].focus();
-            e.preventDefault();
-          }
+      if (index >= menuCount + 1) { // Dentro de sliders
+        // Mover izquierda en slider si no es el primero del slider
+        if ((index - menuCount - 1) % cardsPerSlider > 0) {
+          focusableElements[index - 1].focus();
+          e.preventDefault();
         }
-      } else if (active.classList.contains('menu-bar')) {
-        // Nothing for menu bar left
+      } else if (index > 0 && index < menuCount) {
+        // Navegar entre botones menú
+        focusableElements[index - 1].focus();
+        e.preventDefault();
       }
       break;
-
     case KEY_RIGHT:
-      if (active.classList.contains('card') && index < focusableItems.length - 2) {
-        if (index > 2) {
-          if ((index - 3) % cardsPerSlider < cardsPerSlider - 1) {
-            focusableItems[index + 1].focus();
-            e.preventDefault();
-          }
+      if (index >= menuCount + 1) { // Dentro de sliders
+        if ((index - menuCount - 1) % cardsPerSlider < cardsPerSlider - 1 && index < focusableElements.length - 2) {
+          focusableElements[index + 1].focus();
+          e.preventDefault();
         }
+      } else if (index >= 0 && index < menuCount - 1) {
+        focusableElements[index + 1].focus();
+        e.preventDefault();
       }
       break;
-
     case KEY_UP:
-      if (index > 0) {
-        // If focused on cards, jump up one slider row (cardsPerSlider)
-        if (active.classList.contains('card')) {
-          const prevIndex = index - cardsPerSlider;
-          if (prevIndex >= 3) {
-            focusableItems[prevIndex].focus();
-          } else {
-            // If no cards above, focus search input or menu buttons
-            focusableItems[2].focus(); // search input
-          }
+      if (index === menuCount) { // Desde barra búsqueda sube al menú
+        focusableElements[menuCount - 1].focus();
+        e.preventDefault();
+      } else if (index > menuCount) { // Desde slider a barra búsqueda
+        if (index - cardsPerSlider === menuCount) {
+          focusableElements[menuCount].focus();
           e.preventDefault();
-        } else if (active === searchInput) {
-          // From search input to menu buttons
-          focusableItems[1].focus();
+        } else if (index - cardsPerSlider >= menuCount + 1) {
+          focusableElements[index - cardsPerSlider].focus();
           e.preventDefault();
-        } else if (active === focusableItems[1]) {
-          // From first menu button, nothing up
+        } else if (index - cardsPerSlider < menuCount) {
+          focusableElements[menuCount].focus();
           e.preventDefault();
         }
+      } else if (index > 0 && index < menuCount) { // Dentro del menú
+        focusableElements[index - 1].focus();
+        e.preventDefault();
       }
       break;
-
     case KEY_DOWN:
-      if (active === focusableItems[1]) {
-        // From menu buttons down to search input
-        focusableItems[2].focus();
+      if (index < menuCount - 1) { // Desde menú a barra búsqueda
+        focusableElements[index + 1].focus();
         e.preventDefault();
-      } else if (active === searchInput) {
-        // From search input down to first card
-        if (focusableItems.length > 3) {
-          focusableItems[3].focus();
+      } else if (index === menuCount - 1) { // Desde último botón menú a barra búsqueda
+        focusableElements[menuCount].focus();
+        e.preventDefault();
+      } else if (index === menuCount) { // Desde barra búsqueda a primer slider
+        focusableElements[menuCount + 1].focus();
+        e.preventDefault();
+      } else if (index >= menuCount + 1) { // Dentro sliders
+        if (index + cardsPerSlider < focusableElements.length - 1) {
+          focusableElements[index + cardsPerSlider].focus();
+          e.preventDefault();
+        } else if (index + cardsPerSlider === focusableElements.length - 1) {
+          focusableElements[focusableElements.length - 1].focus();
           e.preventDefault();
         }
-      } else if (active.classList.contains('card')) {
-        const nextIndex = index + cardsPerSlider;
-        if (nextIndex < focusableItems.length - 1) {
-          focusableItems[nextIndex].focus();
-        } else if (nextIndex >= focusableItems.length - 1) {
-          // Focus "Ver más" card
-          focusableItems[focusableItems.length - 1].focus();
-        }
-        e.preventDefault();
       }
       break;
-
     case KEY_ENTER:
-      if (active) active.click();
-      e.preventDefault();
+      if (active === searchInput) {
+        // Al presionar enter en búsqueda, se habilita edición o busca
+        if (active.hasAttribute("readonly")) {
+          active.removeAttribute("readonly");
+          active.removeAttribute("inputmode");
+          active.style.caretColor = "white";
+          setTimeout(() => active.focus(), 50);
+          e.preventDefault();
+        } else if (active.value.trim() !== "") {
+          document.getElementById("searchForm").dispatchEvent(new Event('submit'));
+          e.preventDefault();
+        }
+      } else {
+        active.click();
+        e.preventDefault();
+      }
       break;
   }
 });
 
-// Lanzar reproductor al hacer clic o al presionar OK sobre tarjeta
+// Lanzar reproductor al hacer clic o Enter en tarjeta
 document.addEventListener("click", e => {
   const card = e.target.closest('.card');
   if (card && !card.classList.contains("ver-mas")) {
@@ -508,6 +545,5 @@ document.addEventListener("click", e => {
   }
 });
 </script>
-
 </body>
 </html>
