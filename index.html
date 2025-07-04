@@ -198,17 +198,28 @@
       .then(r => r.text())
       .then(data => {
         const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        const pelis = json.contenidos.filter(p => p.tipo === "Pelicula");
         const container = document.getElementById("sliders");
-        const cardsPerSlider = 7;
-        for (let i = 0; i < pelis.length; i += cardsPerSlider) {
-          const slice = pelis.slice(i, i + cardsPerSlider);
+        const categorias = {}, estrenos = [];
+
+        json.contenidos.forEach(p => {
+          if (p.tipo !== "Pelicula") return;
+          const tags = (p.categoria || "Sin categoría").split(',').map(c => c.trim());
+          if (p.estreno === "Estreno") estrenos.push(p);
+          tags.forEach(tag => {
+            if (!categorias[tag]) categorias[tag] = [];
+            categorias[tag].push(p);
+          });
+        });
+
+        function crearSlider(titulo, lista) {
+          if (!lista.length) return;
           const slider = document.createElement("div");
           slider.className = "slider";
-          slider.innerHTML = `<h2>Películas</h2>`;
+          slider.innerHTML = `<h2>${titulo}</h2>`;
           const row = document.createElement("div");
           row.className = "slider-row";
-          slice.forEach(p => {
+
+          lista.slice(0, 7).forEach(p => {
             const card = document.createElement("div");
             card.className = "card";
             card.tabIndex = 0;
@@ -221,17 +232,22 @@
             card.append(img, title);
             row.appendChild(card);
           });
+
+          const verMas = document.createElement("div");
+          verMas.className = "card ver-mas";
+          verMas.tabIndex = 0;
+          verMas.textContent = "Ver más";
+          verMas.onclick = () => {
+            location.href = titulo === "Estrenos" ? "ver_categoria.html?estreno=1" : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
+          };
+
+          row.appendChild(verMas);
           slider.appendChild(row);
           container.appendChild(slider);
         }
-        const verMas = document.createElement("div");
-        verMas.className = "card ver-mas";
-        verMas.tabIndex = 0;
-        verMas.textContent = "Ver más";
-        verMas.onclick = () => {
-          location.href = "ver_categoria.html?tipo=pelicula&origen=peliculas";
-        };
-        container.appendChild(verMas);
+
+        if (estrenos.length) crearSlider("Estrenos", estrenos);
+        Object.entries(categorias).forEach(([cat, pelis]) => crearSlider(cat, pelis));
       });
   </script>
 </body>
