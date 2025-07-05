@@ -24,7 +24,7 @@
       width: 72%;
       max-width: 600px;
       border-radius: 20px;
-      outline: none;
+      outline: none; /* quita outline */
     }
     h1 {
       text-align: center;
@@ -42,6 +42,7 @@
       display: flex;
       justify-content: center;
       margin-bottom: 20px;
+      position: relative; /* para posicionar menú */
     }
     .boton-temporada {
       font-size: 1rem;
@@ -52,7 +53,7 @@
       background: #111;
       color: #00bfff;
       border: 2px solid #00bfff;
-      outline: none;
+      outline: none; /* quitar outline */
       position: relative;
       cursor: pointer;
       text-align: left;
@@ -86,6 +87,7 @@
       font-size: 1rem;
       border-radius: 10px;
       cursor: pointer;
+      outline: none; /* quitar outline */
     }
     .menu-temporadas button:focus {
       box-shadow: 0 0 10px 3px #00bfff;
@@ -116,6 +118,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
       margin: 20px 10px;
+      outline: none; /* quitar outline */
     }
     .card img {
       width: 100%;
@@ -123,7 +126,6 @@
       object-fit: cover;
     }
     .card:focus {
-      outline: none;
       transform: scale(1.05);
       box-shadow: 0 0 20px 4px #00bfff;
       z-index: 2;
@@ -154,7 +156,7 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const titulo = params.get('titulo');
-    const tipo = params.get('tipo');
+    const tipo = params.get('tipo'); // 'serie' o 'anime'
     const imagenDestacada = document.getElementById("imagenDestacada");
     const tituloSerie = document.getElementById("tituloSerie");
     const botonTemporada = document.getElementById("botonTemporada");
@@ -166,6 +168,20 @@
     let temporadaActual = 0;
     let focusables = [];
     let focusedIndex = 0;
+
+    function storageKey() {
+      return `ultimo_estado_${tipo}_${titulo}`;
+    }
+
+    function guardarEstado(temporada, capitulo) {
+      const estado = { temporada, capitulo };
+      localStorage.setItem(storageKey(), JSON.stringify(estado));
+    }
+
+    function obtenerEstado() {
+      const json = localStorage.getItem(storageKey());
+      return json ? JSON.parse(json) : null;
+    }
 
     function xorDecrypt(input, key) {
       let output = '';
@@ -188,6 +204,8 @@
         imagenDestacada.src = contenido.imagen;
         tituloSerie.textContent = contenido.titulo;
 
+        menuTemporadas.innerHTML = "";
+
         contenido.temporadas.forEach((temp, index) => {
           const btn = document.createElement("button");
           btn.textContent = temp.temporada;
@@ -201,7 +219,20 @@
           menuTemporadas.appendChild(btn);
         });
 
+        const estadoGuardado = obtenerEstado();
+        if (estadoGuardado) {
+          if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
+            temporadaActual = estadoGuardado.temporada;
+          }
+        }
+
         updateTemporadaUI();
+
+        if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
+          setTimeout(() => {
+            enfocarCapitulo(estadoGuardado.capitulo);
+          }, 100);
+        }
       });
 
     function updateTemporadaUI() {
@@ -233,6 +264,7 @@
           card.tabIndex = 0;
 
           card.onclick = () => {
+            guardarEstado(temporadaActual, capNum - 1);
             location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
           };
 
@@ -251,12 +283,28 @@
         slidersContainer.appendChild(slider);
       }
 
-      focusedIndex = 0;
-      if (focusables.length > 0) focusables[0].focus();
+      const estadoGuardado = obtenerEstado();
+      if (estadoGuardado && estadoGuardado.temporada === temporadaActual && typeof estadoGuardado.capitulo === "number") {
+        enfocarCapitulo(estadoGuardado.capitulo);
+      } else {
+        focusedIndex = 0;
+        if (focusables.length > 0) focusables[0].focus();
+      }
+    }
+
+    function enfocarCapitulo(capIndex) {
+      if (capIndex >= 0 && capIndex < focusables.length) {
+        focusedIndex = capIndex;
+        focusables[focusedIndex].focus();
+      }
     }
 
     botonTemporada.addEventListener("click", () => {
       menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
+      if (menuTemporadas.style.display === "flex") {
+        const btns = menuTemporadas.querySelectorAll("button");
+        if (btns.length > 0) btns[temporadaActual].focus();
+      }
     });
 
     document.addEventListener("click", (e) => {
@@ -266,6 +314,19 @@
     });
 
     document.addEventListener("keydown", e => {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "4") {
+        e.preventDefault();
+        if (menuTemporadas.style.display === "flex") {
+          menuTemporadas.style.display = "none";
+          botonTemporada.focus();
+          return;
+        }
+        if (window.history.length > 1) {
+          window.history.back();
+        }
+        return;
+      }
+
       if (document.activeElement === botonTemporada) {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -289,6 +350,7 @@
           e.preventDefault();
           if (idx > 0) btns[idx - 1].focus();
         } else if (e.key === "Enter") {
+          e.preventDefault();
           btns[idx].click();
         }
       } else if (focusables.includes(document.activeElement)) {
@@ -296,19 +358,23 @@
           e.preventDefault();
           focusedIndex++;
           focusables[focusedIndex].focus();
+          guardarEstado(temporadaActual, focusedIndex);
         } else if (e.key === "ArrowLeft" && focusedIndex > 0) {
           e.preventDefault();
           focusedIndex--;
           focusables[focusedIndex].focus();
+          guardarEstado(temporadaActual, focusedIndex);
         } else if (e.key === "ArrowDown" && focusedIndex + 10 < focusables.length) {
           e.preventDefault();
           focusedIndex += 10;
           focusables[focusedIndex].focus();
+          guardarEstado(temporadaActual, focusedIndex);
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           if (focusedIndex - 10 >= 0) {
             focusedIndex -= 10;
             focusables[focusedIndex].focus();
+            guardarEstado(temporadaActual, focusedIndex);
           } else {
             botonTemporada.focus();
           }
