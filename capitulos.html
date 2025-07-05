@@ -24,9 +24,6 @@
       max-width: 600px;
       border-radius: 20px;
     }
-    .portada img:focus {
-      outline: none;
-    }
 
     h1 {
       text-align: center;
@@ -38,57 +35,61 @@
     .temporada-selector {
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
       position: relative;
+      margin-bottom: 20px;
     }
 
-    #botonTemporada {
-      padding: 12px 20px;
-      font-size: 1rem;
-      border-radius: 12px;
-      background-color: #111;
+    #selectorBtn {
+      font-size: 1.2rem;
+      padding: 16px 30px;
+      border-radius: 16px;
+      background: rgba(0, 191, 255, 0.1);
       color: #00bfff;
       border: 2px solid #00bfff;
       cursor: pointer;
-    }
-    #botonTemporada:focus {
       outline: none;
-      box-shadow: 0 0 10px 3px #00bfff;
+      box-shadow: 0 0 12px 3px rgba(0,191,255,0.3);
     }
 
-    .lista-temporadas {
+    #selectorBtn:focus {
+      box-shadow: 0 0 20px 5px #00bfff;
+    }
+
+    .menu-temporadas {
       position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #111;
+      top: 65px;
+      background: rgba(0, 191, 255, 0.1);
+      border-radius: 20px;
       border: 2px solid #00bfff;
-      border-radius: 12px;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 10;
-      padding: 0;
-      margin: 8px 0 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .lista-temporadas.oculto {
+      padding: 10px 0;
+      width: 300px;
       display: none;
+      flex-direction: column;
+      z-index: 99;
     }
 
-    .lista-temporadas li {
-      list-style: none;
-      padding: 10px 20px;
+    .menu-temporadas button {
+      background: transparent;
+      color: #00bfff;
+      border: none;
+      padding: 14px 20px;
+      font-size: 1.1rem;
       cursor: pointer;
-      color: #fff;
+      text-align: left;
     }
 
-    .lista-temporadas li:focus,
-    .lista-temporadas li.selected {
+    .menu-temporadas button:focus {
       outline: none;
-      background-color: #00bfff;
-      color: #000;
+      background: rgba(0, 191, 255, 0.2);
+      box-shadow: 0 0 10px 3px #00bfff;
+      border-left: 4px solid #00bfff;
+    }
+
+    .titulo-temporada {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.4rem;
+      color: #00bfff;
     }
 
     .slider {
@@ -140,25 +141,26 @@
   </style>
 </head>
 <body>
-  <div class="portada"><img id="imagenDestacada" src="" alt="portada"></div>
+  <div class="portada"><img id="imagenDestacada" src="" alt="portada" style="outline: none;"></div>
   <h1 id="tituloSerie"></h1>
+
   <div class="temporada-selector">
-    <button id="botonTemporada" tabindex="0">Temporadas</button>
-    <ul id="listaTemporadas" class="lista-temporadas oculto"></ul>
+    <button id="selectorBtn" tabindex="0">Temporadas</button>
+    <div class="menu-temporadas" id="menuTemporadas"></div>
   </div>
+
+  <div class="titulo-temporada" id="tituloTemporada"></div>
+
   <div id="slidersContainer"></div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const titulo = params.get('titulo');
-    const tipo = params.get('tipo');
+    const titulo = params.get("titulo");
+    const tipo = params.get("tipo");
 
-    let origen = params.get('origen');
-    if (origen) {
-      localStorage.setItem("origen_actual", origen);
-    } else {
-      origen = localStorage.getItem("origen_actual") || "peliculas";
-    }
+    let origen = params.get("origen");
+    if (origen) localStorage.setItem("origen_actual", origen);
+    else origen = localStorage.getItem("origen_actual") || "peliculas";
 
     window.addEventListener("popstate", () => {
       if (origen === "series") location.href = "index_series.html";
@@ -169,23 +171,30 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "Backspace" || e.key === "Escape") {
         e.preventDefault();
-        if (origen === "series") location.href = "index_series.html";
-        else if (origen === "animes") location.href = "index_animes.html";
-        else location.href = "index.html";
+        history.back();
       }
     });
 
+    const selectorBtn = document.getElementById("selectorBtn");
+    const menuTemporadas = document.getElementById("menuTemporadas");
+    const slidersContainer = document.getElementById("slidersContainer");
     const imagenDestacada = document.getElementById("imagenDestacada");
     const tituloSerie = document.getElementById("tituloSerie");
-    const botonTemporada = document.getElementById("botonTemporada");
-    const listaTemporadas = document.getElementById("listaTemporadas");
-    const slidersContainer = document.getElementById("slidersContainer");
+    const tituloTemporada = document.getElementById("tituloTemporada");
 
     let contenido = null;
-    let temporadas = [];
-    let temporadaActual = 0;
     let focusables = [];
     let focusedIndex = 0;
+
+    selectorBtn.addEventListener("click", () => {
+      menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", e => {
+      if (!selectorBtn.contains(e.target) && !menuTemporadas.contains(e.target)) {
+        menuTemporadas.style.display = "none";
+      }
+    });
 
     function xorDecrypt(input, key) {
       let output = '';
@@ -207,80 +216,65 @@
 
         imagenDestacada.src = contenido.imagen;
         tituloSerie.textContent = contenido.titulo;
-        temporadas = contenido.temporadas;
 
-        listaTemporadas.innerHTML = "";
-        temporadas.forEach((temp, index) => {
-          const li = document.createElement("li");
-          li.textContent = temp.temporada;
-          li.tabIndex = 0;
-          li.dataset.index = index;
-          li.addEventListener("click", () => seleccionarTemporada(index));
-          li.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") seleccionarTemporada(index);
-            else if (e.key === "ArrowDown") {
-              e.preventDefault();
-              const next = listaTemporadas.children[index + 1];
-              if (next) next.focus();
-            } else if (e.key === "ArrowUp") {
-              e.preventDefault();
-              const prev = listaTemporadas.children[index - 1];
-              if (prev) prev.focus();
-            }
+        menuTemporadas.innerHTML = "";
+        contenido.temporadas.forEach((temp, index) => {
+          const btn = document.createElement("button");
+          btn.textContent = temp.temporada;
+          btn.tabIndex = 0;
+          btn.dataset.index = index;
+
+          btn.addEventListener("click", () => {
+            localStorage.setItem(`${titulo}_seasonIndex`, index);
+            mostrarCapitulos();
+            menuTemporadas.style.display = "none";
           });
-          listaTemporadas.appendChild(li);
+
+          menuTemporadas.appendChild(btn);
         });
 
-        const saved = localStorage.getItem(`${titulo}_seasonIndex`);
-        temporadaActual = saved ? parseInt(saved) : 0;
-
-        botonTemporada.addEventListener("click", (e) => {
-          e.stopPropagation();
-          listaTemporadas.classList.toggle("oculto");
-          const current = listaTemporadas.querySelector(`li[data-index="${temporadaActual}"]`);
-          current.classList.add("selected");
-          current.focus();
-        });
-
-        seleccionarTemporada(temporadaActual);
+        const savedSeasonIndex = localStorage.getItem(`${titulo}_seasonIndex`) || 0;
+        mostrarCapitulos(parseInt(savedSeasonIndex));
       });
 
-    function seleccionarTemporada(index) {
-      temporadaActual = index;
-      localStorage.setItem(`${titulo}_seasonIndex`, index);
-      listaTemporadas.classList.add("oculto");
-      mostrarCapitulos();
-    }
+    function mostrarCapitulos(seasonIndex = 0) {
+      menuTemporadas.querySelectorAll("button").forEach(btn => btn.classList.remove("selected"));
+      if (menuTemporadas.children[seasonIndex]) menuTemporadas.children[seasonIndex].classList.add("selected");
 
-    function mostrarCapitulos() {
       slidersContainer.innerHTML = "";
       focusables = [];
-      const temporada = contenido.temporadas[temporadaActual];
-      const imagen = contenido.imagen;
-      const urls = temporada.urls;
-      const savedCapIndex = parseInt(localStorage.getItem(`${titulo}_capIndex_${temporadaActual}`)) || 0;
 
-      for (let i = 0; i < urls.length; i += 10) {
+      const temporadaSeleccionada = contenido.temporadas[seasonIndex];
+      const capitulos = temporadaSeleccionada.urls;
+      const imagen = contenido.imagen;
+
+      tituloTemporada.textContent = temporadaSeleccionada.temporada;
+
+      const savedCapIndex = parseInt(localStorage.getItem(`${titulo}_capIndex_${seasonIndex}`)) || 0;
+
+      for (let i = 0; i < capitulos.length; i += 10) {
         const slider = document.createElement("div");
         slider.className = "slider";
         const row = document.createElement("div");
         row.className = "slider-row";
 
-        urls.slice(i, i + 10).forEach((url, idx) => {
-          const num = i + idx + 1;
+        capitulos.slice(i, i + 10).forEach((url, idx) => {
+          const capNum = i + idx + 1;
           const card = document.createElement("div");
           card.className = "card";
           card.tabIndex = 0;
-          if (num - 1 === savedCapIndex) card.focus();
+          if (capNum - 1 === savedCapIndex) card.focus();
+
           card.onclick = () => {
-            localStorage.setItem(`${titulo}_capIndex_${temporadaActual}`, num - 1);
-            location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + num)}`;
+            localStorage.setItem(`${titulo}_capIndex_${seasonIndex}`, capNum - 1);
+            location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
           };
+
           const img = document.createElement("img");
           img.src = imagen;
           const title = document.createElement("div");
           title.className = "card-title";
-          title.textContent = "Capítulo " + num;
+          title.textContent = "Capítulo " + capNum;
 
           card.append(img, title);
           row.appendChild(card);
@@ -297,40 +291,51 @@
       }
     }
 
-    document.addEventListener("click", (e) => {
-      const esMenu = e.target.closest(".lista-temporadas");
-      const esBoton = e.target.closest("#botonTemporada");
-      if (!esMenu && !esBoton) {
-        listaTemporadas.classList.add("oculto");
+    document.addEventListener("keydown", function (e) {
+      if (menuTemporadas.style.display === "flex") {
+        const buttons = [...menuTemporadas.querySelectorAll("button")];
+        let index = buttons.findIndex(btn => btn === document.activeElement);
+
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (index + 1 < buttons.length) buttons[index + 1].focus();
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (index - 1 >= 0) buttons[index - 1].focus();
+        } else if (e.key === "Enter" || e.key === "OK") {
+          e.preventDefault();
+          document.activeElement.click();
+        }
+        return;
       }
-    });
 
-    document.addEventListener("keydown", (e) => {
-      if (focusables.length === 0) return;
-      if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)) e.preventDefault();
-
-      if (e.key === "ArrowLeft" && focusedIndex > 0) {
-        focusedIndex--;
-        focusables[focusedIndex].focus();
-      } else if (e.key === "ArrowRight" && focusedIndex < focusables.length - 1) {
-        focusedIndex++;
-        focusables[focusedIndex].focus();
-      } else if (e.key === "ArrowUp") {
-        const prev = focusedIndex - 10;
-        if (prev >= 0) {
-          focusedIndex = prev;
-          focusables[focusedIndex].focus();
-        } else {
-          botonTemporada.focus();
+      if (focusables.length > 0) {
+        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+          e.preventDefault();
         }
-      } else if (e.key === "ArrowDown") {
-        const next = focusedIndex + 10;
-        if (next < focusables.length) {
-          focusedIndex = next;
+        if (e.key === "ArrowLeft" && focusedIndex > 0) {
+          focusedIndex--;
           focusables[focusedIndex].focus();
+        } else if (e.key === "ArrowRight" && focusedIndex < focusables.length - 1) {
+          focusedIndex++;
+          focusables[focusedIndex].focus();
+        } else if (e.key === "ArrowUp") {
+          const prev = focusedIndex - 10;
+          if (prev >= 0) {
+            focusedIndex = prev;
+            focusables[focusedIndex].focus();
+          } else {
+            selectorBtn.focus();
+          }
+        } else if (e.key === "ArrowDown") {
+          const next = focusedIndex + 10;
+          if (next < focusables.length) {
+            focusedIndex = next;
+            focusables[focusedIndex].focus();
+          }
+        } else if (e.key === "Enter") {
+          focusables[focusedIndex].click();
         }
-      } else if (e.key === "Enter") {
-        focusables[focusedIndex].click();
       }
     });
   </script>
