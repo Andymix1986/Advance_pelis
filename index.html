@@ -11,9 +11,9 @@
       font-family: sans-serif;
       color: #fff;
       overflow-x: hidden;
-    }
-    *:focus {
-      outline: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
     .carousel-wrapper {
       display: flex;
@@ -58,11 +58,11 @@
       color: #00bfff;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
+      box-shadow: 0 0 20px 6px rgba(0,191,255,0.6);
+      outline: none;
     }
-    .menu-bar button:hover, .search-button:hover,
     .menu-bar button:focus, .search-button:focus {
-      background-color: rgba(0, 191, 255, 0.1);
+      background-color: rgba(0, 191, 255, 0.2);
       transform: scale(1.05);
     }
     .search-button img {
@@ -82,6 +82,7 @@
       overflow-x: auto;
       scroll-behavior: smooth;
       padding: 0 24px;
+      outline: none;
     }
     .card {
       flex: 0 0 auto;
@@ -94,6 +95,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
       margin: 20px 12px;
+      outline: none;
     }
     .card img {
       width: 100%;
@@ -122,6 +124,13 @@
       font-size: 1rem;
       color: #fff;
       border: 2px dashed #00bfff;
+      border-radius: 12px;
+      margin: 20px 12px;
+    }
+    .card.ver-mas:focus {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px 6px #00bfff;
+      z-index: 3;
     }
     .search-popup {
       position: fixed;
@@ -147,16 +156,19 @@
       font-size: 1rem;
       border-radius: 10px;
       border: none;
+      outline: none;
       background-color: #222;
       color: #fff;
     }
-    .search-actions {
+    .search-popup .search-actions {
       display: flex;
+      flex-direction: row;
+      justify-content: space-between;
       gap: 10px;
       width: 100%;
       margin-top: 20px;
     }
-    .search-actions button {
+    .search-popup .search-actions button {
       width: 100%;
       padding: 12px;
       font-size: 1.1rem;
@@ -164,11 +176,11 @@
       border-radius: 10px;
       cursor: pointer;
     }
-    .search-actions button:first-child {
+    .search-popup .search-actions button:first-child {
       background-color: #00bfff;
       color: white;
     }
-    .search-actions button:last-child {
+    .search-popup .search-actions button:last-child {
       background-color: #666;
       color: white;
     }
@@ -225,10 +237,7 @@
       setTimeout(() => document.getElementById("searchInput").focus(), 100);
     });
     document.getElementById("searchInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        submitSearch();
-      }
+      if (e.key === "Enter") submitSearch();
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeSearchPopup();
