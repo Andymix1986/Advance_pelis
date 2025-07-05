@@ -172,7 +172,7 @@
 
           card.onclick = () => {
             localStorage.setItem(`${titulo}_capIndex_${selectorTemporada.value}`, capNum - 1);
-            location.href = `player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
+            location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
           };
 
           const img = document.createElement("img");
