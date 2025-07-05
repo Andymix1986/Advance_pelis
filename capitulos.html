@@ -114,6 +114,8 @@
     }
 
     let contenido = null;
+    let focusables = [];
+    let focusedIndex = 0;
 
     fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
       .then(r => r.text())
@@ -148,6 +150,7 @@
 
     function mostrarCapitulos() {
       slidersContainer.innerHTML = "";
+      focusables = [];
       const temporadaSeleccionada = contenido.temporadas[selectorTemporada.value];
       const capitulos = temporadaSeleccionada.urls;
       const imagen = contenido.imagen;
@@ -180,14 +183,19 @@
 
           card.append(img, title);
           row.appendChild(card);
+          focusables.push(card);
         });
 
         slider.appendChild(row);
         slidersContainer.appendChild(slider);
       }
+
+      if (focusables.length > 0) {
+        focusedIndex = savedCapIndex;
+        focusables[focusedIndex].focus();
+      }
     }
 
-    // Soporte para navegación con control remoto en el selector
     document.addEventListener("keydown", function (e) {
       if (document.activeElement === selectorTemporada) {
         if (e.key === "ArrowDown") {
@@ -201,6 +209,33 @@
         } else if (e.key === "Enter") {
           e.preventDefault();
           selectorTemporada.dispatchEvent(new Event("change"));
+        }
+      } else if (focusables.length > 0) {
+        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+          e.preventDefault();
+        }
+        if (e.key === "ArrowLeft" && focusedIndex > 0) {
+          focusedIndex--;
+          focusables[focusedIndex].focus();
+        } else if (e.key === "ArrowRight" && focusedIndex < focusables.length - 1) {
+          focusedIndex++;
+          focusables[focusedIndex].focus();
+        } else if (e.key === "ArrowUp") {
+          const prev = focusedIndex - 10;
+          if (prev >= 0) {
+            focusedIndex = prev;
+            focusables[focusedIndex].focus();
+          } else {
+            selectorTemporada.focus();
+          }
+        } else if (e.key === "ArrowDown") {
+          const next = focusedIndex + 10;
+          if (next < focusables.length) {
+            focusedIndex = next;
+            focusables[focusedIndex].focus();
+          }
+        } else if (e.key === "Enter") {
+          focusables[focusedIndex].click();
         }
       }
     });
