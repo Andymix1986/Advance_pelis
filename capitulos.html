@@ -6,101 +6,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-  margin: 0;
-  background-color: #000;
-  font-family: sans-serif;
-  color: #fff;
-  overflow-x: hidden;
-}
+      margin: 0;
+      background-color: #000;
+      font-family: sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
 
-.portada {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
+    .portada {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-.portada img {
-  width: 72%; /* 20% más chico que antes */
-  max-width: 600px;
-  border-radius: 20px;
-}
+    .portada img {
+      width: 72%;
+      max-width: 600px;
+      border-radius: 20px;
+    }
 
-h1 {
-  text-align: center;
-  margin: 20px 0 10px;
-  font-size: 1.8rem;
-  color: #00bfff;
-}
+    h1 {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 1.8rem;
+      color: #00bfff;
+    }
 
-.temporada-selector {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
+    .temporada-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
 
-select {
-  font-size: 1rem;
-  padding: 12px 20px;
-  min-width: 350px;
-  border-radius: 12px;
-  background: #111;
-  color: #00bfff;
-  border: 2px solid #00bfff;
-  outline: none;
-  transition: box-shadow 0.3s ease;
-}
+    select {
+      font-size: 1rem;
+      padding: 12px 20px;
+      min-width: 350px;
+      border-radius: 12px;
+      background: #111;
+      color: #00bfff;
+      border: 2px solid #00bfff;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
 
-select:focus {
-  box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
-}
+    select:focus {
+      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
+    }
 
-.slider {
-  margin: 20px 0;
-}
+    .slider {
+      margin: 20px 0;
+    }
 
-.slider-row {
-  display: flex;
-  overflow-x: auto;
-  padding: 0 20px;
-  scroll-behavior: smooth;
-}
+    .slider-row {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 20px;
+      scroll-behavior: smooth;
+    }
 
-.card {
-  flex: 0 0 auto;
-  width: 160px;
-  height: 240px;
-  background-color: #222;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-  margin: 20px 10px;
-}
+    .card {
+      flex: 0 0 auto;
+      width: 160px;
+      height: 240px;
+      background-color: #222;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      margin: 20px 10px;
+    }
 
-.card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.card:focus {
-  outline: none;
-  transform: scale(1.05);
-  box-shadow: 0 0 20px 4px #00bfff;
-  z-index: 2;
-}
+    .card:focus {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+    }
 
-.card-title {
-  position: absolute;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  width: 100%;
-  text-align: center;
-  font-size: 0.9rem;
-  padding: 4px;
-}
-
+    .card-title {
+      position: absolute;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 4px;
+    }
   </style>
 </head>
 <body>
@@ -115,6 +114,7 @@ select:focus {
     const params = new URLSearchParams(window.location.search);
     const titulo = params.get('titulo');
     const tipo = params.get('tipo');
+    const origen = params.get('origen') || '';
 
     const imagenDestacada = document.getElementById("imagenDestacada");
     const tituloSerie = document.getElementById("tituloSerie");
@@ -128,6 +128,7 @@ select:focus {
       }
       return output;
     }
+
     function decodeBase64(input) {
       return atob(input);
     }
@@ -255,9 +256,24 @@ select:focus {
           }
         } else if (e.key === "Enter") {
           focusables[focusedIndex].click();
+        } else if (e.key === "Backspace" || e.key === "Escape") {
+          volverAlOrigen();
         }
       }
     });
+
+    // Evento para botón "atrás" físico o navegación histórica
+    window.addEventListener("popstate", volverAlOrigen);
+
+    function volverAlOrigen() {
+      if (origen === 'series') {
+        location.href = 'index_series.html';
+      } else if (origen === 'animes') {
+        location.href = 'index_animes.html';
+      } else {
+        location.href = 'index.html';
+      }
+    }
   </script>
 </body>
 </html>
