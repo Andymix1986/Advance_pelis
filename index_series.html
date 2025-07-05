@@ -365,8 +365,9 @@
       const card = e.target.closest(".card");
       if (card && !card.classList.contains("ver-mas")) {
         const titulo = card.getAttribute("data-titulo");
-        const tipo = "Serie";
-        location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+        const tipo = "serie";
+        location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+
       }
     });
   </script>
