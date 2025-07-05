@@ -12,6 +12,9 @@
       color: #fff;
       overflow-x: hidden;
     }
+    *:focus {
+      outline: none;
+    }
     .carousel-wrapper {
       display: flex;
       justify-content: center;
@@ -57,7 +60,8 @@
       transition: all 0.2s ease;
       box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
     }
-    .menu-bar button:hover, .search-button:hover {
+    .menu-bar button:hover, .search-button:hover,
+    .menu-bar button:focus, .search-button:focus {
       background-color: rgba(0, 191, 255, 0.1);
       transform: scale(1.05);
     }
@@ -78,7 +82,6 @@
       overflow-x: auto;
       scroll-behavior: smooth;
       padding: 0 24px;
-      outline: none;
     }
     .card {
       flex: 0 0 auto;
@@ -119,78 +122,59 @@
       font-size: 1rem;
       color: #fff;
       border: 2px dashed #00bfff;
-      border-radius: 12px;
-      margin: 20px 12px;
-    }
-    .card.ver-mas:focus {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px 6px #00bfff;
-      z-index: 3;
     }
     .search-popup {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #111;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  z-index: 99;
-  width: 90%;
-  max-width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.search-popup input {
-  padding: 12px;
-  width: 100%;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  background-color: #222;
-  color: #fff;
-}
-
-.search-popup .search-actions {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  margin-top: 20px;
-}
-
-
-.search-popup .search-actions button {
-  width: 100%;
-  padding: 12px;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.search-popup .search-actions button:first-child {
-  background-color: #00bfff;
-  color: white;
-}
-
-.search-popup .search-actions button:last-child {
-  background-color: #666;
-  color: white;
-}
-
-
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 99;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .search-popup input {
+      padding: 12px;
+      width: 100%;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      background-color: #222;
+      color: #fff;
+    }
+    .search-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    .search-actions button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .search-actions button:first-child {
+      background-color: #00bfff;
+      color: white;
+    }
+    .search-actions button:last-child {
+      background-color: #666;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <!-- Carrusel -->
   <div class="carousel-wrapper">
     <div class="carousel-container" id="carousel-container">
       <img class="carousel-image active" src="https://images2.imgbox.com/10/47/jDHk78kx_o.jpg" />
@@ -198,16 +182,14 @@
       <img class="carousel-image" src="https://images2.imgbox.com/18/33/3BXP18hp_o.jpg" />
     </div>
   </div>
-  <!-- Menú -->
   <div class="menu-bar">
-    <button onclick="location.href='index.html'">Películas</button>
-    <button onclick="location.href='index_series.html'">Series</button>
-    <button onclick="location.href='index_animes.html'">Animes</button>
+    <button onclick="location.href='index.html'" tabindex="0">Películas</button>
+    <button onclick="location.href='index_series.html'" tabindex="0">Series</button>
+    <button onclick="location.href='index_animes.html'" tabindex="0">Animes</button>
     <button class="search-button" id="searchIcon" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
   </div>
-  <!-- Popup búsqueda -->
   <div class="search-popup" id="searchPopup">
     <input type="text" id="searchInput" placeholder="Buscar películas..." />
     <div class="search-actions">
@@ -215,7 +197,6 @@
       <button onclick="closeSearchPopup()">Cerrar</button>
     </div>
   </div>
-  <!-- Sliders -->
   <div id="sliders"></div>
   <script>
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
@@ -243,18 +224,23 @@
       popup.style.display = "flex";
       setTimeout(() => document.getElementById("searchInput").focus(), 100);
     });
+    document.getElementById("searchInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitSearch();
+      }
+    });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeSearchPopup();
     });
     document.addEventListener("click", e => {
-  const card = e.target.closest('.card');
-  if (card && !card.classList.contains("ver-mas")) {
-    const url = card.getAttribute("data-url");
-    const titulo = card.getAttribute("data-titulo");
-
-    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-  }
-});
+      const card = e.target.closest('.card');
+      if (card && !card.classList.contains("ver-mas")) {
+        const url = card.getAttribute("data-url");
+        const titulo = card.getAttribute("data-titulo");
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+      }
+    });
     fetch(JSON_URL)
       .then(r => r.text())
       .then(data => {
@@ -308,7 +294,6 @@
           container.appendChild(slider);
         }
       });
-    // Carrusel automático
     const images = document.querySelectorAll(".carousel-image");
     let current = 0;
     setInterval(() => {
@@ -316,8 +301,6 @@
       current = (current + 1) % images.length;
       images[current].classList.add("active");
     }, 4000);
-
-    // Navegación remota
     let sliders = [];
     let currentSliderIndex = 0;
     let currentCardIndex = 0;
