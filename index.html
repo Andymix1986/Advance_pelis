@@ -298,24 +298,44 @@
       images[current].classList.add("active");
     }, 4000);
 
-    const searchPopup = document.getElementById("searchPopup");
-    const searchInput = document.getElementById("searchInput");
+    const ORIGEN = "Pelicula"; // Cambiar según el tipo de contenido
 
-    function submitSearch() {
-      const query = searchInput.value.trim();
-      if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
-      }
+  const searchPopup = document.getElementById("searchPopup");
+  const searchInput = document.getElementById("searchInput");
+
+  // Mostrar popup al hacer clic en el ícono de lupa
+  document.querySelector(".search-button").addEventListener("click", () => {
+    searchPopup.style.display = "flex";
+    setTimeout(() => searchInput.focus(), 100);
+  });
+
+  // Cerrar popup
+  document.getElementById("closeSearch").addEventListener("click", () => {
+    searchPopup.style.display = "none";
+  });
+
+  // Ejecutar búsqueda
+  function submitSearch() {
+    const query = searchInput.value.trim();
+    if (query) {
+      window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${encodeURIComponent(ORIGEN)}`;
     }
+  }
 
-    document.getElementById("searchIcon").addEventListener("click", () => {
-      searchPopup.style.display = "flex";
-      setTimeout(() => searchInput.focus(), 100);
-    });
+  // Ejecutar búsqueda con Enter
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitSearch();
+  });
 
-    document.getElementById("closeSearch").addEventListener("click", () => {
+  // Cerrar popup con tecla Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
       searchPopup.style.display = "none";
-    });
+    }
+  });
+
+  // También ejecutar desde botón Buscar
+  document.getElementById("searchBtn").addEventListener("click", submitSearch);
 
     // Navegación con control remoto
     let sliders = [];
