@@ -111,7 +111,13 @@ function decodeBase64(input) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const query = urlParams.get('q') || '';
-const origen = urlParams.get('origen') || 'peliculas';
+let origen = urlParams.get('origen') || 'peliculas';
+origen = origen.toLowerCase();
+
+let tipo = '';
+if (origen === 'series') tipo = 'Serie';
+else if (origen === 'animes') tipo = 'Anime';
+else tipo = 'Pelicula';
 
 document.getElementById('tituloResultados').textContent = `Resultados para: "${query}"`;
 
@@ -131,11 +137,7 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
   .then(data => {
     const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
     const resultados = json.contenidos.filter(item => {
-      return item.titulo.toLowerCase().includes(query.toLowerCase()) && (
-        (origen === 'peliculas' && item.tipo === 'Pelicula') ||
-        (origen === 'series' && item.tipo === 'Serie') ||
-        (origen === 'animes' && item.tipo === 'Anime')
-      );
+      return item.tipo === tipo && item.titulo.toLowerCase().includes(query.toLowerCase());
     });
 
     const contenedor = document.getElementById('resultadosContainer');
@@ -187,7 +189,6 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
       focusOnVolver = false;
     }
 
-    // Detectar columnas automáticamente
     function calcularColumnas() {
       if (cards.length < 2) return 1;
       const cardRect = cards[0].getBoundingClientRect();
@@ -254,11 +255,10 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
           const titulo = card.getAttribute('data-titulo');
 
           if (origen === "series" || origen === "animes") {
-  location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(origen === "series" ? "Serie" : "Anime")}`;
-} else {
-  location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-}
-
+            location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+          } else {
+            location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+          }
           break;
       }
     });
@@ -270,14 +270,12 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
         const titulo = card.getAttribute('data-titulo');
 
         if (origen === "series" || origen === "animes") {
-  location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(origen === "series" ? "Serie" : "Anime")}`;
-} else {
-  location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-}
-
+          location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+        } else {
+          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+        }
       }
     });
-
   })
   .catch(console.error);
 </script>
