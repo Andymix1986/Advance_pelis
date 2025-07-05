@@ -12,9 +12,6 @@
       font-family: sans-serif;
       color: #fff;
       overflow-x: hidden;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
       user-select: none;
     }
 
@@ -30,6 +27,9 @@
       overflow: hidden;
       position: relative;
       background: #000;
+    }
+    .carousel-container:focus {
+      outline: none;
     }
     .carousel-image {
       position: absolute;
@@ -76,61 +76,10 @@
       height: 24px;
       filter: brightness(0) saturate(100%) invert(63%) sepia(45%) saturate(3197%) hue-rotate(165deg) brightness(98%) contrast(96%);
     }
-    .search-popup {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #111;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-      display: none;
-      flex-direction: column;
-      z-index: 99;
-    }
-
-    .search-popup input {
-      padding: 10px;
-      width: 300px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #222;
-      color: #fff;
-    }
-
-    .search-popup .buttons-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .search-popup button {
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      flex: 1;
-    }
-
-    .search-popup button:first-child {
-      background-color: #00bfff;
-      color: #fff;
-    }
-
-    .search-popup button:last-child {
-      background-color: #555;
-      color: white;
-    }
 
     .slider {
       margin-bottom: 40px;
     }
-
     .slider h2 {
       font-size: 1.5rem;
       margin: 0 24px;
@@ -161,7 +110,6 @@
       transform: scale(1.05);
       box-shadow: 0 0 20px 4px #00bfff;
       z-index: 2;
-      outline: none;
     }
 
     .card img {
@@ -196,19 +144,17 @@
       overflow: hidden;
     }
 
-    .card.ver-mas:focus,
-    .card.ver-mas:focus-visible {
+    .card.ver-mas:focus {
       transform: scale(1.05);
       box-shadow: 0 0 20px 4px #00bfff;
       z-index: 2;
       outline: none;
     }
-
   </style>
 </head>
 <body>
   <div class="carousel-wrapper">
-    <div class="carousel-container" id="carousel-container">
+    <div class="carousel-container" id="carousel-container" tabindex="0">
       <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
       <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
       <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
@@ -224,15 +170,8 @@
     </button>
   </div>
 
-  <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar series..." />
-    <div class="buttons-row">
-      <button id="searchBtn">Buscar</button>
-      <button id="closeSearch">Cerrar</button>
-    </div>
-  </div>
-
   <div id="sliders"></div>
+  <div class="card ver-mas" tabindex="0" id="verMasCard">Ver más</div>
 
   <script>
     const ORIGEN = "series";
@@ -244,66 +183,6 @@
       current = (current + 1) % images.length;
       images[current].classList.add("active");
     }, 4000);
-
-    const searchPopup = document.getElementById("searchPopup");
-    const searchInput = document.getElementById("searchInput");
-
-    function submitSearch() {
-      const query = searchInput.value.trim();
-      if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
-      }
-    }
-
-    document.getElementById("searchIcon").addEventListener("click", () => {
-      searchPopup.style.display = "flex";
-      setTimeout(() => searchInput.focus(), 100);
-    });
-
-    document.getElementById("closeSearch").addEventListener("click", () => {
-      searchPopup.style.display = "none";
-    });
-
-    document.getElementById("searchBtn").addEventListener("click", submitSearch);
-    searchInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") submitSearch();
-    });
-
-    document.addEventListener("keydown", function (e) {
-      const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
-      const focusables = Array.from(document.querySelectorAll(".menu-bar button, .search-button, .card, .search-popup button"));
-      const current = document.activeElement;
-      let index = focusables.indexOf(current);
-
-      switch (e.keyCode) {
-        case KEY_LEFT:
-          if (index > 0) focusables[index - 1].focus();
-          break;
-        case KEY_RIGHT:
-          if (index < focusables.length - 1) focusables[index + 1].focus();
-          break;
-        case KEY_UP:
-          if (index >= 7) focusables[index - 7]?.focus();
-          break;
-        case KEY_DOWN:
-          if (index < focusables.length - 7) focusables[index + 7]?.focus();
-          break;
-        case KEY_ENTER:
-          current.click();
-          break;
-      }
-    });
-
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return output;
-    }
-    function decodeBase64(input) {
-      return atob(input);
-    }
 
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
 
@@ -337,16 +216,43 @@
           slider.appendChild(row);
           container.appendChild(slider);
         }
-
-        const verMas = document.createElement("div");
-        verMas.className = "card ver-mas";
-        verMas.tabIndex = 0;
-        verMas.textContent = "Ver más";
-        verMas.onclick = () => {
-          location.href = `ver_categoria.html?tipo=Serie&origen=${ORIGEN}`;
-        };
-        container.appendChild(verMas);
       });
+
+    function xorDecrypt(input, key) {
+      let output = '';
+      for (let i = 0; i < input.length; i++) {
+        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return output;
+    }
+    function decodeBase64(input) {
+      return atob(input);
+    }
+
+    document.addEventListener("keydown", function (e) {
+      const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
+      const focusables = Array.from(document.querySelectorAll(".carousel-container, .menu-bar button, .search-button, .card, .ver-mas"));
+      const current = document.activeElement;
+      let index = focusables.indexOf(current);
+
+      switch (e.keyCode) {
+        case KEY_LEFT:
+          if (index > 0) focusables[index - 1].focus();
+          break;
+        case KEY_RIGHT:
+          if (index < focusables.length - 1) focusables[index + 1].focus();
+          break;
+        case KEY_UP:
+          if (index > 0) focusables[index - 1].focus();
+          break;
+        case KEY_DOWN:
+          if (index < focusables.length - 1) focusables[index + 1].focus();
+          break;
+        case KEY_ENTER:
+          current.click();
+          break;
+      }
+    });
 
     document.addEventListener("focusin", (e) => {
       const card = e.target.closest(".card");
@@ -368,6 +274,10 @@
         location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}&origen=${ORIGEN}`;
       }
     });
+
+    document.getElementById("verMasCard").onclick = () => {
+      location.href = `ver_categoria.html?tipo=Serie&origen=${ORIGEN}`;
+    };
   </script>
 </body>
 </html>
