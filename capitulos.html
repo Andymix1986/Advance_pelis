@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Capítulos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .portada {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .portada img {
+      width: 90%;
+      max-width: 600px;
+      border-radius: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 1.8rem;
+      color: #00bfff;
+    }
+    .temporada-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    select {
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 10px;
+      background: #111;
+      color: #00bfff;
+      border: 1px solid #00bfff;
+    }
+    .slider {
+      margin: 20px 0;
+    }
+    .slider-row {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 20px;
+      scroll-behavior: smooth;
+    }
+    .card {
+      flex: 0 0 auto;
+      width: 160px;
+      height: 240px;
+      background-color: #222;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      margin: 20px 10px;
+    }
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card:focus {
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+    }
+    .card-title {
+      position: absolute;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="portada"><img id="imagenDestacada" src="" alt="portada"></div>
+  <h1 id="tituloSerie"></h1>
+  <div class="temporada-selector">
+    <select id="selectorTemporada" tabindex="0"></select>
+  </div>
+  <div id="slidersContainer"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const titulo = params.get('titulo');
+    const tipo = params.get('tipo');
+
+    const imagenDestacada = document.getElementById("imagenDestacada");
+    const tituloSerie = document.getElementById("tituloSerie");
+    const selectorTemporada = document.getElementById("selectorTemporada");
+    const slidersContainer = document.getElementById("slidersContainer");
+
+    function xorDecrypt(input, key) {
+      let output = '';
+      for (let i = 0; i < input.length; i++) {
+        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return output;
+    }
+    function decodeBase64(input) {
+      return atob(input);
+    }
+
+    let contenido = null;
+
+    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
+      .then(r => r.text())
+      .then(data => {
+        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+        contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
+
+        if (!contenido) return;
+
+        imagenDestacada.src = contenido.imagen;
+        tituloSerie.textContent = contenido.titulo;
+
+        contenido.temporadas.forEach((temp, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = temp.temporada;
+          selectorTemporada.appendChild(option);
+        });
+
+        const savedSeasonIndex = localStorage.getItem(`${titulo}_seasonIndex`);
+        if (savedSeasonIndex !== null) {
+          selectorTemporada.value = savedSeasonIndex;
+        }
+
+        selectorTemporada.addEventListener("change", () => {
+          localStorage.setItem(`${titulo}_seasonIndex`, selectorTemporada.value);
+          mostrarCapitulos();
+        });
+
+        mostrarCapitulos();
+      });
+
+    function mostrarCapitulos() {
+      slidersContainer.innerHTML = "";
+      const temporadaSeleccionada = contenido.temporadas[selectorTemporada.value];
+      const capitulos = temporadaSeleccionada.urls;
+      const imagen = contenido.imagen;
+
+      const savedCapIndex = parseInt(localStorage.getItem(`${titulo}_capIndex_${selectorTemporada.value}`)) || 0;
+
+      for (let i = 0; i < capitulos.length; i += 10) {
+        const slider = document.createElement("div");
+        slider.className = "slider";
+        const row = document.createElement("div");
+        row.className = "slider-row";
+
+        capitulos.slice(i, i + 10).forEach((url, idx) => {
+          const capNum = i + idx + 1;
+          const card = document.createElement("div");
+          card.className = "card";
+          card.tabIndex = 0;
+          if (capNum - 1 === savedCapIndex) card.focus();
+
+          card.onclick = () => {
+            localStorage.setItem(`${titulo}_capIndex_${selectorTemporada.value}`, capNum - 1);
+            location.href = `player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
+          };
+
+          const img = document.createElement("img");
+          img.src = imagen;
+          const title = document.createElement("div");
+          title.className = "card-title";
+          title.textContent = "Capítulo " + capNum;
+
+          card.append(img, title);
+          row.appendChild(card);
+        });
+
+        slider.appendChild(row);
+        slidersContainer.appendChild(slider);
+      }
+    }
+
+    // Soporte para navegación con control remoto en el selector
+    document.addEventListener("keydown", function (e) {
+      if (document.activeElement === selectorTemporada) {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          selectorTemporada.selectedIndex = (selectorTemporada.selectedIndex + 1) % selectorTemporada.options.length;
+          selectorTemporada.dispatchEvent(new Event("change"));
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          selectorTemporada.selectedIndex = (selectorTemporada.selectedIndex - 1 + selectorTemporada.options.length) % selectorTemporada.options.length;
+          selectorTemporada.dispatchEvent(new Event("change"));
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          selectorTemporada.dispatchEvent(new Event("change"));
+        }
+      }
+    });
+  </script>
+</body>
+</html>
