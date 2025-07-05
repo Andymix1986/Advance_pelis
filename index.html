@@ -5,15 +5,15 @@
   <title>King Play - Películas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    * {
+      user-select: none;
+    }
     body {
       margin: 0;
       background-color: #000;
       font-family: sans-serif;
       color: #fff;
       overflow-x: hidden;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
     }
     .carousel-wrapper {
       display: flex;
@@ -49,7 +49,8 @@
       gap: 32px;
       margin: 30px auto 20px;
     }
-    .menu-bar button, .search-button {
+    .menu-bar button,
+    .search-button {
       padding: 18px 28px;
       background-color: transparent;
       border: none;
@@ -58,12 +59,13 @@
       color: #00bfff;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 0 20px 6px rgba(0,191,255,0.6);
+      box-shadow: 0 0 10px 2px rgba(0, 191, 255, 0.4);
       outline: none;
     }
-    .menu-bar button:focus, .search-button:focus {
-      background-color: rgba(0, 191, 255, 0.2);
-      transform: scale(1.05);
+    .menu-bar button:focus,
+    .search-button:focus {
+      outline: none;
+      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
     }
     .search-button img {
       width: 24px;
@@ -106,6 +108,7 @@
       transform: scale(1.05);
       box-shadow: 0 0 20px 4px #00bfff;
       z-index: 2;
+      outline: none;
     }
     .card-title {
       position: absolute;
@@ -132,58 +135,6 @@
       box-shadow: 0 0 25px 6px #00bfff;
       z-index: 3;
     }
-    .search-popup {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #111;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      z-index: 99;
-      width: 90%;
-      max-width: 400px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .search-popup input {
-      padding: 12px;
-      width: 100%;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #222;
-      color: #fff;
-    }
-    .search-popup .search-actions {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      gap: 10px;
-      width: 100%;
-      margin-top: 20px;
-    }
-    .search-popup .search-actions button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .search-popup .search-actions button:first-child {
-      background-color: #00bfff;
-      color: white;
-    }
-    .search-popup .search-actions button:last-child {
-      background-color: #666;
-      color: white;
-    }
   </style>
 </head>
 <body>
@@ -198,18 +149,12 @@
     <button onclick="location.href='index.html'" tabindex="0">Películas</button>
     <button onclick="location.href='index_series.html'" tabindex="0">Series</button>
     <button onclick="location.href='index_animes.html'" tabindex="0">Animes</button>
-    <button class="search-button" id="searchIcon" tabindex="0">
+    <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
   </div>
-  <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar películas..." />
-    <div class="search-actions">
-      <button onclick="submitSearch()">Buscar</button>
-      <button onclick="closeSearchPopup()">Cerrar</button>
-    </div>
-  </div>
   <div id="sliders"></div>
+
   <script>
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
     function xorDecrypt(input, key) {
@@ -222,26 +167,7 @@
     function decodeBase64(input) {
       return atob(input);
     }
-    function submitSearch() {
-      const query = document.getElementById("searchInput").value.trim();
-      if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=peliculas`;
-      }
-    }
-    function closeSearchPopup() {
-      document.getElementById("searchPopup").style.display = "none";
-    }
-    document.getElementById("searchIcon").addEventListener("click", () => {
-      const popup = document.getElementById("searchPopup");
-      popup.style.display = "flex";
-      setTimeout(() => document.getElementById("searchInput").focus(), 100);
-    });
-    document.getElementById("searchInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") submitSearch();
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") closeSearchPopup();
-    });
+
     document.addEventListener("click", e => {
       const card = e.target.closest('.card');
       if (card && !card.classList.contains("ver-mas")) {
@@ -250,6 +176,7 @@
         location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
       }
     });
+
     fetch(JSON_URL)
       .then(r => r.text())
       .then(data => {
@@ -267,12 +194,14 @@
           });
         });
         Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
+
         function createSlider(titulo, lista) {
           const slider = document.createElement("div");
           slider.className = "slider";
           slider.innerHTML = `<h2>${titulo}</h2>`;
           const row = document.createElement("div");
           row.className = "slider-row";
+
           lista.slice(0, 7).forEach(p => {
             const card = document.createElement("div");
             card.className = "card";
@@ -287,6 +216,7 @@
             card.append(img, title);
             row.appendChild(card);
           });
+
           const verMas = document.createElement("div");
           verMas.className = "card ver-mas";
           verMas.tabIndex = 0;
@@ -303,6 +233,8 @@
           container.appendChild(slider);
         }
       });
+
+    // Carrusel
     const images = document.querySelectorAll(".carousel-image");
     let current = 0;
     setInterval(() => {
@@ -310,6 +242,8 @@
       current = (current + 1) % images.length;
       images[current].classList.add("active");
     }, 4000);
+
+    // Navegación con control remoto
     let sliders = [];
     let currentSliderIndex = 0;
     let currentCardIndex = 0;
@@ -323,10 +257,37 @@
         cards[currentCardIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
       }
     }
+
+    const menuButtons = document.querySelectorAll(".menu-bar button, .search-button");
+    let menuIndex = 0;
+
     document.addEventListener("keydown", function (e) {
       sliders = Array.from(document.querySelectorAll(".slider-row"));
       let currentSlider = sliders[currentSliderIndex];
       let cards = Array.from(currentSlider.querySelectorAll(".card"));
+
+      if (document.activeElement.classList.contains("search-button") ||
+          document.activeElement.parentElement.classList.contains("menu-bar")) {
+
+        switch (e.key) {
+          case "ArrowRight":
+            menuIndex = (menuIndex + 1) % menuButtons.length;
+            menuButtons[menuIndex].focus();
+            break;
+          case "ArrowLeft":
+            menuIndex = (menuIndex - 1 + menuButtons.length) % menuButtons.length;
+            menuButtons[menuIndex].focus();
+            break;
+          case "ArrowDown":
+            updateFocus();
+            break;
+          case "Enter":
+            document.activeElement.click();
+            break;
+        }
+        return;
+      }
+
       switch (e.key) {
         case "ArrowRight":
           if (cards.length > 0 && currentCardIndex < cards.length - 1) {
@@ -352,13 +313,13 @@
             currentSliderIndex--;
             currentCardIndex = 0;
             updateFocus();
+          } else {
+            menuIndex = 0;
+            menuButtons[menuIndex].focus();
           }
           break;
         case "Enter":
-        case "OK":
-          if (document.activeElement.classList.contains("card")) {
-            document.activeElement.click();
-          }
+          document.activeElement.click();
           break;
       }
     });
