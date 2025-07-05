@@ -114,7 +114,7 @@
     const params = new URLSearchParams(window.location.search);
     const titulo = params.get('titulo');
     const tipo = params.get('tipo');
-    const origen = params.get('origen') || '';
+    const origen = params.get('origen') || "peliculas"; // default fallback
 
     const imagenDestacada = document.getElementById("imagenDestacada");
     const tituloSerie = document.getElementById("tituloSerie");
@@ -128,7 +128,6 @@
       }
       return output;
     }
-
     function decodeBase64(input) {
       return atob(input);
     }
@@ -216,6 +215,7 @@
       }
     }
 
+    // Soporte para navegación con control remoto y teclado
     document.addEventListener("keydown", function (e) {
       if (document.activeElement === selectorTemporada) {
         if (e.key === "ArrowDown") {
@@ -231,7 +231,7 @@
           selectorTemporada.dispatchEvent(new Event("change"));
         }
       } else if (focusables.length > 0) {
-        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter", "Backspace", "Escape"].includes(e.key)) {
           e.preventDefault();
         }
         if (e.key === "ArrowLeft" && focusedIndex > 0) {
@@ -257,23 +257,17 @@
         } else if (e.key === "Enter") {
           focusables[focusedIndex].click();
         } else if (e.key === "Backspace" || e.key === "Escape") {
-          volverAlOrigen();
+          // Volver según el origen
+          if (origen === "series") {
+            location.href = "index_series.html";
+          } else if (origen === "animes") {
+            location.href = "index_animes.html";
+          } else {
+            location.href = "index.html";
+          }
         }
       }
     });
-
-    // Evento para botón "atrás" físico o navegación histórica
-    window.addEventListener("popstate", volverAlOrigen);
-
-    function volverAlOrigen() {
-      if (origen === 'series') {
-        location.href = 'index_series.html';
-      } else if (origen === 'animes') {
-        location.href = 'index_animes.html';
-      } else {
-        location.href = 'index.html';
-      }
-    }
   </script>
 </body>
 </html>
