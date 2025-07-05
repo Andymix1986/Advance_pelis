@@ -5,6 +5,13 @@
   <title>Capítulos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
     body {
       margin: 0;
       background-color: #000;
@@ -20,9 +27,10 @@
     }
 
     .portada img {
-      width: 72%;
+      width: 90%;
       max-width: 600px;
       border-radius: 20px;
+      outline: none;
     }
 
     h1 {
@@ -35,65 +43,69 @@
     .temporada-selector {
       display: flex;
       justify-content: center;
-      position: relative;
       margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
     }
 
-    #selectorBtn {
+    .dropdown-button {
       font-size: 1.2rem;
-      padding: 16px 30px;
-      border-radius: 16px;
-      background: rgba(0, 191, 255, 0.1);
+      padding: 14px 30px;
+      min-width: 80%;
+      max-width: 600px;
+      border-radius: 14px;
+      background: #111;
       color: #00bfff;
       border: 2px solid #00bfff;
+      text-align: center;
       cursor: pointer;
-      outline: none;
-      box-shadow: 0 0 12px 3px rgba(0,191,255,0.3);
+      box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
     }
 
-    #selectorBtn:focus {
-      box-shadow: 0 0 20px 5px #00bfff;
-    }
-
-    .menu-temporadas {
+    .dropdown-menu {
       position: absolute;
-      top: 65px;
-      background: rgba(0, 191, 255, 0.1);
-      border-radius: 20px;
-      border: 2px solid #00bfff;
-      padding: 10px 0;
-      width: 300px;
+      top: 100%;
+      margin-top: 10px;
+      width: 80%;
+      max-width: 600px;
+      background: #333;
+      border-radius: 14px;
+      box-shadow: 0 0 10px 2px rgba(0, 191, 255, 0.4);
       display: none;
       flex-direction: column;
-      z-index: 99;
+      overflow: hidden;
     }
 
-    .menu-temporadas button {
-      background: transparent;
-      color: #00bfff;
-      border: none;
-      padding: 14px 20px;
+    .dropdown-menu.active {
+      display: flex;
+    }
+
+    .dropdown-item {
+      padding: 16px;
       font-size: 1.1rem;
-      cursor: pointer;
-      text-align: left;
+      border-bottom: 1px solid #222;
+      background: transparent;
+      color: #fff;
     }
 
-    .menu-temporadas button:focus {
-      outline: none;
-      background: rgba(0, 191, 255, 0.2);
-      box-shadow: 0 0 10px 3px #00bfff;
-      border-left: 4px solid #00bfff;
+    .dropdown-item:last-child {
+      border-bottom: none;
     }
 
-    .titulo-temporada {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 1.4rem;
-      color: #00bfff;
+    .dropdown-item.active {
+      box-shadow: 0 0 10px 4px #00bfff;
+      background-color: #111;
+      border-radius: 12px;
     }
 
     .slider {
       margin: 20px 0;
+    }
+
+    .slider h2 {
+      text-align: center;
+      color: #00bfff;
+      margin-bottom: 10px;
     }
 
     .slider-row {
@@ -141,60 +153,54 @@
   </style>
 </head>
 <body>
-  <div class="portada"><img id="imagenDestacada" src="" alt="portada" style="outline: none;"></div>
+  <div class="portada"><img id="imagenDestacada" src="" alt="portada"></div>
   <h1 id="tituloSerie"></h1>
-
   <div class="temporada-selector">
-    <button id="selectorBtn" tabindex="0">Temporadas</button>
-    <div class="menu-temporadas" id="menuTemporadas"></div>
+    <div id="dropdownButton" class="dropdown-button" tabindex="0">Temporadas</div>
+    <div id="dropdownMenu" class="dropdown-menu"></div>
   </div>
-
-  <div class="titulo-temporada" id="tituloTemporada"></div>
-
   <div id="slidersContainer"></div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const titulo = params.get("titulo");
-    const tipo = params.get("tipo");
+    const titulo = params.get('titulo');
+    const tipo = params.get('tipo');
 
-    let origen = params.get("origen");
-    if (origen) localStorage.setItem("origen_actual", origen);
-    else origen = localStorage.getItem("origen_actual") || "peliculas";
+    let origen = params.get('origen');
+    if (origen) {
+      localStorage.setItem("origen_actual", origen);
+    } else {
+      origen = localStorage.getItem("origen_actual") || "peliculas";
+    }
 
     window.addEventListener("popstate", () => {
-      if (origen === "series") location.href = "index_series.html";
-      else if (origen === "animes") location.href = "index_animes.html";
-      else location.href = "index.html";
+      if (origen === "series") {
+        location.href = "index_series.html";
+      } else if (origen === "animes") {
+        location.href = "index_animes.html";
+      } else {
+        location.href = "index.html";
+      }
     });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Backspace" || e.key === "Escape") {
         e.preventDefault();
-        history.back();
+        if (origen === "series") {
+          location.href = "index_series.html";
+        } else if (origen === "animes") {
+          location.href = "index_animes.html";
+        } else {
+          location.href = "index.html";
+        }
       }
     });
 
-    const selectorBtn = document.getElementById("selectorBtn");
-    const menuTemporadas = document.getElementById("menuTemporadas");
-    const slidersContainer = document.getElementById("slidersContainer");
     const imagenDestacada = document.getElementById("imagenDestacada");
     const tituloSerie = document.getElementById("tituloSerie");
-    const tituloTemporada = document.getElementById("tituloTemporada");
-
-    let contenido = null;
-    let focusables = [];
-    let focusedIndex = 0;
-
-    selectorBtn.addEventListener("click", () => {
-      menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
-    });
-
-    document.addEventListener("click", e => {
-      if (!selectorBtn.contains(e.target) && !menuTemporadas.contains(e.target)) {
-        menuTemporadas.style.display = "none";
-      }
-    });
+    const dropdownButton = document.getElementById("dropdownButton");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const slidersContainer = document.getElementById("slidersContainer");
 
     function xorDecrypt(input, key) {
       let output = '';
@@ -207,6 +213,11 @@
       return atob(input);
     }
 
+    let contenido = null;
+    let focusables = [];
+    let focusedIndex = 0;
+    let temporadaSeleccionadaIndex = 0;
+
     fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
       .then(r => r.text())
       .then(data => {
@@ -217,44 +228,61 @@
         imagenDestacada.src = contenido.imagen;
         tituloSerie.textContent = contenido.titulo;
 
-        menuTemporadas.innerHTML = "";
+        dropdownMenu.innerHTML = "";
         contenido.temporadas.forEach((temp, index) => {
-          const btn = document.createElement("button");
-          btn.textContent = temp.temporada;
-          btn.tabIndex = 0;
-          btn.dataset.index = index;
-
-          btn.addEventListener("click", () => {
+          const item = document.createElement("div");
+          item.className = "dropdown-item";
+          item.textContent = temp.temporada;
+          item.tabIndex = 0;
+          item.onclick = () => {
+            temporadaSeleccionadaIndex = index;
             localStorage.setItem(`${titulo}_seasonIndex`, index);
+            actualizarSeleccion();
             mostrarCapitulos();
-            menuTemporadas.style.display = "none";
-          });
-
-          menuTemporadas.appendChild(btn);
+            dropdownMenu.classList.remove("active");
+          };
+          dropdownMenu.appendChild(item);
         });
 
-        const savedSeasonIndex = localStorage.getItem(`${titulo}_seasonIndex`) || 0;
-        mostrarCapitulos(parseInt(savedSeasonIndex));
+        const savedIndex = localStorage.getItem(`${titulo}_seasonIndex`);
+        if (savedIndex !== null) temporadaSeleccionadaIndex = parseInt(savedIndex);
+
+        actualizarSeleccion();
+        mostrarCapitulos();
       });
 
-    function mostrarCapitulos(seasonIndex = 0) {
-      menuTemporadas.querySelectorAll("button").forEach(btn => btn.classList.remove("selected"));
-      if (menuTemporadas.children[seasonIndex]) menuTemporadas.children[seasonIndex].classList.add("selected");
+    function actualizarSeleccion() {
+      [...dropdownMenu.children].forEach((el, i) => {
+        el.classList.toggle("active", i === temporadaSeleccionadaIndex);
+      });
+    }
 
+    dropdownButton.onclick = () => {
+      dropdownMenu.classList.toggle("active");
+    };
+
+    document.addEventListener("click", (e) => {
+      if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove("active");
+      }
+    });
+
+    function mostrarCapitulos() {
       slidersContainer.innerHTML = "";
       focusables = [];
-
-      const temporadaSeleccionada = contenido.temporadas[seasonIndex];
-      const capitulos = temporadaSeleccionada.urls;
+      const temporada = contenido.temporadas[temporadaSeleccionadaIndex];
+      const capitulos = temporada.urls;
       const imagen = contenido.imagen;
-
-      tituloTemporada.textContent = temporadaSeleccionada.temporada;
-
-      const savedCapIndex = parseInt(localStorage.getItem(`${titulo}_capIndex_${seasonIndex}`)) || 0;
+      const savedCapIndex = parseInt(localStorage.getItem(`${titulo}_capIndex_${temporadaSeleccionadaIndex}`)) || 0;
 
       for (let i = 0; i < capitulos.length; i += 10) {
         const slider = document.createElement("div");
         slider.className = "slider";
+        if (i === 0) {
+          const title = document.createElement("h2");
+          title.textContent = temporada.temporada;
+          slider.appendChild(title);
+        }
         const row = document.createElement("div");
         row.className = "slider-row";
 
@@ -266,7 +294,7 @@
           if (capNum - 1 === savedCapIndex) card.focus();
 
           card.onclick = () => {
-            localStorage.setItem(`${titulo}_capIndex_${seasonIndex}`, capNum - 1);
+            localStorage.setItem(`${titulo}_capIndex_${temporadaSeleccionadaIndex}`, capNum - 1);
             location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
           };
 
@@ -292,22 +320,7 @@
     }
 
     document.addEventListener("keydown", function (e) {
-      if (menuTemporadas.style.display === "flex") {
-        const buttons = [...menuTemporadas.querySelectorAll("button")];
-        let index = buttons.findIndex(btn => btn === document.activeElement);
-
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          if (index + 1 < buttons.length) buttons[index + 1].focus();
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          if (index - 1 >= 0) buttons[index - 1].focus();
-        } else if (e.key === "Enter" || e.key === "OK") {
-          e.preventDefault();
-          document.activeElement.click();
-        }
-        return;
-      }
+      if (dropdownMenu.classList.contains("active")) return;
 
       if (focusables.length > 0) {
         if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
@@ -325,7 +338,7 @@
             focusedIndex = prev;
             focusables[focusedIndex].focus();
           } else {
-            selectorBtn.focus();
+            dropdownButton.focus();
           }
         } else if (e.key === "ArrowDown") {
           const next = focusedIndex + 10;
