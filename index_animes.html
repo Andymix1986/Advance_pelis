@@ -12,10 +12,7 @@
       font-family: sans-serif;
       color: #fff;
       overflow-x: hidden;
-      -webkit-user-select: none;
-         -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none;
+      user-select: none;
     }
     .carousel-wrapper {
       display: flex;
@@ -32,10 +29,8 @@
     }
     .carousel-image {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
       opacity: 0;
       transition: opacity 1s ease-in-out;
@@ -48,80 +43,30 @@
     .menu-bar {
       display: flex;
       justify-content: center;
-      gap: 24px;
-      margin: 20px auto 10px;
+      gap: 32px;
+      margin: 30px auto 20px;
     }
-    .menu-bar button, .search-button {
-      padding: 14px 28px;
+    .menu-bar button,
+    .search-button {
+      padding: 18px 28px;
       background-color: transparent;
-      border: 2px solid transparent;
+      border: none;
       border-radius: 12px;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       color: #00bfff;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
-    }
-    .menu-bar button:hover, .menu-bar button:focus, .search-button:hover, .search-button:focus {
-      background-color: rgba(0, 191, 255, 0.1);
-      transform: scale(1.05);
+      box-shadow: 0 0 10px 2px rgba(0, 191, 255, 0.4);
       outline: none;
-      box-shadow: 0 0 20px 5px #00bfff;
     }
-    .search-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .menu-bar button:focus,
+    .search-button:focus {
+      outline: none;
+      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
     }
     .search-button img {
       width: 24px;
       height: 24px;
-      filter: invert(48%) sepia(80%) saturate(540%) hue-rotate(175deg) brightness(95%) contrast(85%);
-    }
-    .search-popup {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #111;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
-      display: none;
-      flex-direction: column;
-      z-index: 99;
-    }
-    .search-popup input {
-      padding: 10px;
-      width: 300px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #222;
-      color: #fff;
-    }
-    .search-popup .buttons-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .search-popup button {
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      flex: 1;
-    }
-    .search-popup button:first-child {
-      background-color: #00bfff;
-      color: #fff;
-    }
-    .search-popup button:last-child {
-      background-color: #555;
-      color: white;
+      filter: brightness(0) saturate(100%) invert(63%) sepia(45%) saturate(3197%) hue-rotate(165deg) brightness(98%) contrast(96%);
     }
     .slider {
       margin-bottom: 40px;
@@ -149,10 +94,11 @@
       margin: 20px 12px;
       outline: none;
     }
-    .slider-row .card:focus-visible {
+    .slider-row .card:focus {
       transform: scale(1.05);
       box-shadow: 0 0 20px 4px #00bfff;
-      z-index: 10;
+      z-index: 2;
+      outline: none;
     }
     .card img {
       width: 100%;
@@ -183,17 +129,17 @@
       cursor: pointer;
       overflow: hidden;
     }
-    .card.ver-mas:focus-visible {
-      outline: none;
+    .card.ver-mas:focus {
       transform: scale(1.05);
-      box-shadow: 0 0 25px 6px #00bfff;
-      z-index: 3;
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+      outline: none;
     }
   </style>
 </head>
 <body>
   <div class="carousel-wrapper">
-    <div class="carousel-container" id="carousel-container">
+    <div class="carousel-container" id="carousel-container" tabindex="0">
       <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
       <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
       <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
@@ -201,9 +147,9 @@
   </div>
 
   <div class="menu-bar">
-    <button onclick="location.href='index.html'">Películas</button>
-    <button onclick="location.href='index_series.html'">Series</button>
-    <button onclick="location.href='index_animes.html'">Animes</button>
+    <button tabindex="0" onclick="location.href='index.html'">Películas</button>
+    <button tabindex="0" onclick="location.href='index_series.html'">Series</button>
+    <button tabindex="0" onclick="location.href='index_animes.html'">Animes</button>
     <button class="search-button" id="searchIcon" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
@@ -212,7 +158,7 @@
   <div class="search-popup" id="searchPopup">
     <input type="text" id="searchInput" placeholder="Buscar animes..." />
     <div class="buttons-row">
-      <button onclick="submitSearch()">Buscar</button>
+      <button id="searchBtn">Buscar</button>
       <button id="closeSearch">Cerrar</button>
     </div>
   </div>
@@ -220,14 +166,23 @@
   <div id="sliders"></div>
 
   <script>
-    const isSmartTV = !("ontouchstart" in window || navigator.maxTouchPoints);
+    const ORIGEN = "animes";
+
+    const images = document.querySelectorAll(".carousel-image");
+    let current = 0;
+    setInterval(() => {
+      images[current].classList.remove("active");
+      current = (current + 1) % images.length;
+      images[current].classList.add("active");
+    }, 4000);
+
     const searchPopup = document.getElementById("searchPopup");
     const searchInput = document.getElementById("searchInput");
 
     function submitSearch() {
       const query = searchInput.value.trim();
       if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=series`;
+        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
       }
     }
 
@@ -240,45 +195,9 @@
       searchPopup.style.display = "none";
     });
 
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        searchPopup.style.display = "none";
-      }
-    });
-
-    searchInput.addEventListener("focus", () => {
-      if (isSmartTV) {
-        searchInput.blur();
-      }
-    });
-
+    document.getElementById("searchBtn").addEventListener("click", submitSearch);
     searchInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") submitSearch();
-    });
-
-    document.addEventListener("keydown", function (e) {
-      const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
-      const focusables = Array.from(document.querySelectorAll(".menu-bar button, .search-button, .card"));
-      const current = document.activeElement;
-      let index = focusables.indexOf(current);
-
-      switch (e.keyCode) {
-        case KEY_LEFT:
-          if (index > 0) focusables[index - 1].focus();
-          break;
-        case KEY_RIGHT:
-          if (index < focusables.length - 1) focusables[index + 1].focus();
-          break;
-        case KEY_UP:
-          if (index >= 8) focusables[index - 7]?.focus();
-          break;
-        case KEY_DOWN:
-          if (index < focusables.length - 7) focusables[index + 7]?.focus();
-          break;
-        case KEY_ENTER:
-          current.click();
-          break;
-      }
     });
 
     function xorDecrypt(input, key) {
@@ -298,11 +217,11 @@
       .then(r => r.text())
       .then(data => {
         const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        const series = json.contenidos.filter(p => p.tipo === "Anime");
+        const animes = json.contenidos.filter(p => p.tipo === "Anime");
         const container = document.getElementById("sliders");
         const cardsPerSlider = 7;
-        for (let i = 0; i < series.length; i += cardsPerSlider) {
-          const slice = series.slice(i, i + cardsPerSlider);
+        for (let i = 0; i < animes.length; i += cardsPerSlider) {
+          const slice = animes.slice(i, i + cardsPerSlider);
           const slider = document.createElement("div");
           slider.className = "slider";
           slider.innerHTML = `<h2>Animes</h2>`;
@@ -324,20 +243,47 @@
           slider.appendChild(row);
           container.appendChild(slider);
         }
+
         const verMas = document.createElement("div");
         verMas.className = "card ver-mas";
         verMas.tabIndex = 0;
         verMas.textContent = "Ver más";
         verMas.onclick = () => {
-          location.href = "ver_categoria.html?tipo=Anime&origen=animes";
+          location.href = `ver_categoria.html?tipo=Anime&origen=${ORIGEN}`;
         };
         container.appendChild(verMas);
       });
+
+    document.addEventListener("keydown", function (e) {
+      const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
+      const focusables = Array.from(document.querySelectorAll("button, .search-button, .card, .carousel-container, .search-popup button"));
+      const current = document.activeElement;
+      let index = focusables.indexOf(current);
+
+      switch (e.keyCode) {
+        case KEY_LEFT:
+          if (index > 0) focusables[index - 1].focus();
+          break;
+        case KEY_RIGHT:
+          if (index < focusables.length - 1) focusables[index + 1].focus();
+          break;
+        case KEY_UP:
+          if (index > 0) focusables[index - 1].focus();
+          break;
+        case KEY_DOWN:
+          if (index < focusables.length - 1) focusables[index + 1].focus();
+          break;
+        case KEY_ENTER:
+          current.click();
+          break;
+      }
+    });
 
     document.addEventListener("focusin", (e) => {
       const card = e.target.closest(".card");
       if (card) {
         const parent = card.closest(".slider-row");
+        if (!parent) return;
         const rect = card.getBoundingClientRect();
         const parentRect = parent.getBoundingClientRect();
         const offset = rect.left - parentRect.left;
@@ -351,7 +297,7 @@
       if (card && !card.classList.contains("ver-mas")) {
         const titulo = card.getAttribute("data-titulo");
         const tipo = "Anime";
-        location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+        location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}&origen=${ORIGEN}`;
       }
     });
   </script>
