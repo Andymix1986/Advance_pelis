@@ -270,6 +270,10 @@
             guardarEstado(temporadaActual, capNum - 1);
             location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
           };
+// Desplazar la tarjeta al centro al enfocarse
+card.addEventListener("focus", () => {
+  card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+});
 
           const img = document.createElement("img");
           img.src = imagen;
