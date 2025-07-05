@@ -1,275 +1,270 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>King Play - Ver Categoría</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      margin: 0;
-      background-color: #000;
-      font-family: sans-serif;
-      color: #fff;
-      overflow-x: hidden;
-    }
-    #tituloCategoria {
-      color: #00bfff;
-      font-size: 1.8rem;
-      margin: 20px 0 8px;
-      text-align: center;
-    }
-    #btnVolver {
-      display: block;
-      margin: 0 auto 30px auto;
-      padding: 10px 20px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: 2px solid transparent;
-      color: #00bfff;
-      background-color: transparent;
-      cursor: pointer;
-      box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
-      transition: all 0.2s ease;
-    }
-    #btnVolver:hover, #btnVolver:focus {
-      background-color: rgba(0, 191, 255, 0.1);
-      border-color: #00bfff;
-      box-shadow: 0 0 20px 6px rgba(0,191,255,0.8);
-      outline: none;
-    }
-    .slider-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-      outline: none;
-      width: 95%;
-      max-width: 1100px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .card {
-      width: 160px;
-      height: 240px;
-      background-color: #222;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .card:focus {
-      outline: none;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px 4px #00bfff;
-      z-index: 2;
-    }
-    .card-title {
-      position: absolute;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      padding: 4px;
-    }
-    .no-results {
-      color: #aaa;
-      text-align: center;
-      width: 100%;
-      margin-top: 40px;
-      font-size: 1.2rem;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>King Play - Ver Categoría</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+body {
+  margin: 0;
+  background-color: #000;
+  font-family: sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+#tituloCategoria {
+  color: #00bfff;
+  font-size: 1.8rem;
+  margin: 20px 0 8px;
+  text-align: center;
+}
+#btnVolver {
+  display: block;
+  margin: 0 auto 30px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  color: #00bfff;
+  background-color: transparent;
+  cursor: pointer;
+  box-shadow: 0 0 10px 2px rgba(0,191,255,0.4);
+  transition: all 0.2s ease;
+}
+#btnVolver:hover, #btnVolver:focus {
+  background-color: rgba(0, 191, 255, 0.1);
+  border-color: #00bfff;
+  box-shadow: 0 0 20px 6px rgba(0,191,255,0.8);
+  outline: none;
+}
+.slider-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  outline: none;
+  width: 95%;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.card {
+  width: 160px;
+  height: 240px;
+  background-color: #222;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card:focus {
+  outline: none;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px 4px #00bfff;
+  z-index: 2;
+}
+.card-title {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 4px;
+}
+.no-results {
+  color: #aaa;
+  text-align: center;
+  width: 100%;
+  margin-top: 40px;
+  font-size: 1.2rem;
+}
+</style>
 </head>
 <body>
 
 <h2 id="tituloCategoria"></h2>
 <button id="btnVolver" tabindex="0">Volver al inicio</button>
+
 <div class="slider-row" id="cardsContainer"></div>
 
 <script>
-  function xorDecrypt(input, key) {
-    let output = '';
-    for (let i = 0; i < input.length; i++) {
-      output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+function xorDecrypt(input, key) {
+  let output = '';
+  for (let i = 0; i < input.length; i++) {
+    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  return output;
+}
+function decodeBase64(input) {
+  return atob(input);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const categoriaParam = urlParams.get('cat') || '';
+const estrenoParam = urlParams.get('estreno') || '';
+const tipoParam = urlParams.get('tipo') || '';
+const origen = urlParams.get('origen') || 'peliculas';
+
+const tituloCategoria = document.getElementById('tituloCategoria');
+
+if (estrenoParam === '1') {
+  tituloCategoria.textContent = 'Estrenos';
+} else if (tipoParam.toLowerCase() === 'serie') {
+  tituloCategoria.textContent = 'Series';
+} else if (tipoParam.toLowerCase() === 'anime') {
+  tituloCategoria.textContent = 'Animes';
+} else if (categoriaParam) {
+  tituloCategoria.textContent = categoriaParam;
+} else {
+  tituloCategoria.textContent = 'Contenido';
+}
+
+document.getElementById('btnVolver').onclick = () => {
+  if (origen === 'series') {
+    location.href = 'index_series.html';
+  } else if (origen === 'animes') {
+    location.href = 'index_animes.html';
+  } else {
+    location.href = 'index.html';
+  }
+};
+
+fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
+  .then(r => r.text())
+  .then(data => {
+    const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+    const lista = json.contenidos.filter(item => {
+      if (estrenoParam === '1') {
+        return item.estreno === "Estreno";
+      }
+      if (categoriaParam) {
+        return (item.categoria || "").toLowerCase() === categoriaParam.toLowerCase();
+      }
+      if (tipoParam) {
+        return item.tipo.toLowerCase() === tipoParam.toLowerCase();
+      }
+      return false;
+    });
+
+    const contenedor = document.getElementById('cardsContainer');
+    contenedor.innerHTML = '';
+
+    if (lista.length === 0) {
+      contenedor.innerHTML = '<p class="no-results">No se encontraron resultados.</p>';
+      return;
     }
-    return output;
-  }
 
-  function decodeBase64(input) {
-    return atob(input);
-  }
+    lista.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.tabIndex = -1;
+      card.setAttribute('data-url', p.url);
+      card.setAttribute('data-titulo', p.titulo);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoriaParam = urlParams.get('cat') || '';
-  const estrenoParam = urlParams.get('estreno') || '';
-  const tipoParam = urlParams.get('tipo') || '';
-  const origen = urlParams.get('origen') || 'peliculas';
+      const img = document.createElement('img');
+      img.src = p.imagen;
+      img.alt = p.titulo;
+      img.loading = "lazy";
 
-  document.getElementById('tituloCategoria').textContent =
-    estrenoParam === '1' ? 'Estrenos' : categoriaParam || 'Contenido';
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = p.titulo;
 
-  document.getElementById('btnVolver').onclick = () => {
-    if (origen === 'series') {
-      location.href = 'index_series.html';
-    } else if (origen === 'animes') {
-      location.href = 'index_animes.html';
+      card.append(img, title);
+      contenedor.appendChild(card);
+    });
+
+    const cards = Array.from(contenedor.querySelectorAll('.card'));
+    const btnVolver = document.getElementById('btnVolver');
+
+    function calcularColumnas() {
+      if (cards.length < 2) return 1;
+      const cardRect = cards[0].getBoundingClientRect();
+      const nextCardRect = cards[1].getBoundingClientRect();
+      const gap = 16;
+      const totalWidth = nextCardRect.left - cardRect.left;
+      return Math.round(totalWidth / (cardRect.width + gap));
+    }
+
+    let colCount = calcularColumnas();
+    if (!colCount || colCount < 1) colCount = 1;
+
+    let focusedIndex = 0;
+    let focusOnVolver = false;
+
+    if (cards.length > 0) {
+      cards[0].tabIndex = 0;
+      cards[0].focus();
+      focusedIndex = 0;
     } else {
-      location.href = 'index.html';
+      btnVolver.tabIndex = 0;
+      btnVolver.focus();
+      focusOnVolver = true;
     }
-  };
 
-  fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
-    .then(r => r.text())
-    .then(data => {
-      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const lista = json.contenidos.filter(item => {
-        if (estrenoParam === '1') {
-          return item.estreno === "Estreno" && (item.tipo === "Pelicula" || item.tipo === "Serie" || item.tipo === "Anime");
-        }
-        if (categoriaParam) {
-          return (item.categoria || "").toLowerCase() === categoriaParam.toLowerCase() && item.tipo === "Pelicula";
-        }
-        if (tipoParam) {
-          return item.tipo.toLowerCase() === tipoParam.toLowerCase();
-        }
-        return false;
-      });
+    function setFocus(index) {
+      if (index < 0 || index >= cards.length) return false;
+      cards[focusedIndex].tabIndex = -1;
+      focusedIndex = index;
+      cards[focusedIndex].tabIndex = 0;
+      cards[focusedIndex].focus();
+      focusOnVolver = false;
+      return true;
+    }
 
-      const contenedor = document.getElementById('cardsContainer');
-      contenedor.innerHTML = '';
-
-      if (lista.length === 0) {
-        contenedor.innerHTML = '<p class="no-results">No se encontraron resultados.</p>';
+    document.addEventListener('keydown', e => {
+      if (focusOnVolver) {
+        if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+          e.preventDefault();
+          if (cards.length > 0) {
+            setFocus(0);
+          }
+        } else if ((e.key === "Enter" || e.key === "OK") && document.activeElement === btnVolver) {
+          e.preventDefault();
+          btnVolver.click();
+        }
         return;
       }
 
-      lista.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.tabIndex = -1;
-        card.setAttribute('data-url', p.url);
-        card.setAttribute('data-titulo', p.titulo);
-
-        const img = document.createElement('img');
-        img.src = p.imagen;
-        img.alt = p.titulo;
-        img.loading = "lazy";
-
-        const title = document.createElement('div');
-        title.className = 'card-title';
-        title.textContent = p.titulo;
-
-        card.append(img, title);
-        contenedor.appendChild(card);
-      });
-
-      const cards = Array.from(contenedor.querySelectorAll('.card'));
-      const btnVolver = document.getElementById('btnVolver');
-
-      function calcularColumnas() {
-        if (cards.length < 2) return 1;
-        const cardRect = cards[0].getBoundingClientRect();
-        const nextCardRect = cards[1].getBoundingClientRect();
-        const gap = 16;
-        const totalWidth = nextCardRect.left - cardRect.left;
-        return Math.round(totalWidth / (cardRect.width + gap));
-      }
-
-      let colCount = calcularColumnas();
-      if (!colCount || colCount < 1) colCount = 1;
-
-      let focusedIndex = 0;
-      let focusOnVolver = false;
-
-      if (cards.length > 0) {
-        cards[0].tabIndex = 0;
-        cards[0].focus();
-        focusedIndex = 0;
-        focusOnVolver = false;
-      } else {
-        btnVolver.tabIndex = 0;
-        btnVolver.focus();
-        focusOnVolver = true;
-      }
-
-      function setFocus(index) {
-        if (index < 0 || index >= cards.length) return false;
-        cards[focusedIndex].tabIndex = -1;
-        focusedIndex = index;
-        cards[focusedIndex].tabIndex = 0;
-        cards[focusedIndex].focus();
-        focusOnVolver = false;
-        return true;
-      }
-
-      document.addEventListener('keydown', e => {
-        if (focusOnVolver) {
-          if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-            e.preventDefault();
-            if (cards.length > 0) {
-              setFocus(0);
-            }
-          } else if (e.key === "Enter" || e.key === "OK") {
-            e.preventDefault();
-            btnVolver.click();
+      switch(e.key) {
+        case "ArrowRight":
+          e.preventDefault();
+          if (focusedIndex < cards.length - 1) setFocus(focusedIndex + 1);
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          if (focusedIndex > 0) setFocus(focusedIndex - 1);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          const nextIndex = focusedIndex + colCount;
+          if (nextIndex < cards.length) {
+            setFocus(nextIndex);
           }
-          return;
-        }
-
-        switch(e.key) {
-          case "ArrowRight":
-            e.preventDefault();
-            if (focusedIndex < cards.length - 1) setFocus(focusedIndex + 1);
-            break;
-          case "ArrowLeft":
-            e.preventDefault();
-            if (focusedIndex > 0) setFocus(focusedIndex - 1);
-            break;
-          case "ArrowDown":
-            e.preventDefault();
-            const nextIndex = focusedIndex + colCount;
-            if (nextIndex < cards.length) {
-              setFocus(nextIndex);
-            }
-            break;
-          case "ArrowUp":
-            e.preventDefault();
-            const prevIndex = focusedIndex - colCount;
-            if (prevIndex >= 0) {
-              setFocus(prevIndex);
-            } else {
-              cards[focusedIndex].tabIndex = -1;
-              btnVolver.tabIndex = 0;
-              btnVolver.focus();
-              focusOnVolver = true;
-            }
-            break;
-          case "Enter":
-          case "OK":
-            e.preventDefault();
-            const card = cards[focusedIndex];
-            const url = card.getAttribute('data-url');
-            const titulo = card.getAttribute('data-titulo');
-
-            if (origen === "series" || origen === "animes") {
-              location.href = `advancepelis://reproductor_universal?titulo=${encodeURIComponent(titulo)}`;
-            } else {
-              location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-            }
-            break;
-        }
-      });
-
-      document.addEventListener('click', e => {
-        const card = e.target.closest('.card');
-        if (card) {
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          const prevIndex = focusedIndex - colCount;
+          if (prevIndex >= 0) {
+            setFocus(prevIndex);
+          } else {
+            cards[focusedIndex].tabIndex = -1;
+            btnVolver.tabIndex = 0;
+            btnVolver.focus();
+            focusOnVolver = true;
+          }
+          break;
+        case "Enter":
+        case "OK":
+          e.preventDefault();
+          const card = cards[focusedIndex];
           const url = card.getAttribute('data-url');
           const titulo = card.getAttribute('data-titulo');
 
@@ -278,10 +273,25 @@
           } else {
             location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
           }
+          break;
+      }
+    });
+
+    document.addEventListener('click', e => {
+      const card = e.target.closest('.card');
+      if (card) {
+        const url = card.getAttribute('data-url');
+        const titulo = card.getAttribute('data-titulo');
+
+        if (origen === "series" || origen === "animes") {
+          location.href = `advancepelis://reproductor_universal?titulo=${encodeURIComponent(titulo)}`;
+        } else {
+          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
         }
-      });
-    })
-    .catch(console.error);
+      }
+    });
+  })
+  .catch(console.error);
 </script>
 
 </body>
