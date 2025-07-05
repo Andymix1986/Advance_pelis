@@ -47,11 +47,10 @@
       color: #00bfff;
       border: 2px solid #00bfff;
       outline: none;
-      transition: box-shadow 0.3s ease;
     }
 
     select:focus {
-      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
+      box-shadow: 0 0 10px 3px #00bfff;
     }
 
     .slider {
@@ -114,8 +113,41 @@
     const params = new URLSearchParams(window.location.search);
     const titulo = params.get('titulo');
     const tipo = params.get('tipo');
-    const origen = params.get('origen') || "peliculas"; // default fallback
 
+    // ✅ Manejo de origen
+    let origen = params.get('origen');
+    if (origen) {
+      localStorage.setItem("origen_actual", origen);
+    } else {
+      origen = localStorage.getItem("origen_actual") || "peliculas";
+    }
+
+    // 🔙 Captura botón atrás del control remoto o del sistema
+    window.addEventListener("popstate", () => {
+      if (origen === "series") {
+        location.href = "index_series.html";
+      } else if (origen === "animes") {
+        location.href = "index_animes.html";
+      } else {
+        location.href = "index.html";
+      }
+    });
+
+    // 🔁 Compatibilidad adicional con Android WebView
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" || e.key === "Escape") {
+        e.preventDefault();
+        if (origen === "series") {
+          location.href = "index_series.html";
+        } else if (origen === "animes") {
+          location.href = "index_animes.html";
+        } else {
+          location.href = "index.html";
+        }
+      }
+    });
+
+    // 🧩 Funciones existentes...
     const imagenDestacada = document.getElementById("imagenDestacada");
     const tituloSerie = document.getElementById("tituloSerie");
     const selectorTemporada = document.getElementById("selectorTemporada");
@@ -141,7 +173,6 @@
       .then(data => {
         const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
         contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
-
         if (!contenido) return;
 
         imagenDestacada.src = contenido.imagen;
@@ -215,7 +246,6 @@
       }
     }
 
-    // Soporte para navegación con control remoto y teclado
     document.addEventListener("keydown", function (e) {
       if (document.activeElement === selectorTemporada) {
         if (e.key === "ArrowDown") {
@@ -231,7 +261,7 @@
           selectorTemporada.dispatchEvent(new Event("change"));
         }
       } else if (focusables.length > 0) {
-        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter", "Backspace", "Escape"].includes(e.key)) {
+        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
           e.preventDefault();
         }
         if (e.key === "ArrowLeft" && focusedIndex > 0) {
@@ -256,15 +286,6 @@
           }
         } else if (e.key === "Enter") {
           focusables[focusedIndex].click();
-        } else if (e.key === "Backspace" || e.key === "Escape") {
-          // Volver según el origen
-          if (origen === "series") {
-            location.href = "index_series.html";
-          } else if (origen === "animes") {
-            location.href = "index_animes.html";
-          } else {
-            location.href = "index.html";
-          }
         }
       }
     });
