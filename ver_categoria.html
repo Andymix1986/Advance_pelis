@@ -269,7 +269,7 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
           const titulo = card.getAttribute('data-titulo');
 
           if (origen === "series" || origen === "animes") {
-            location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}`;
+            location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}`;
           } else {
             location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
           }
@@ -284,7 +284,7 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
         const titulo = card.getAttribute('data-titulo');
 
         if (origen === "series" || origen === "animes") {
-          location.href = `advancepelis://playerUniversal?titulo=${encodeURIComponent(titulo)}`;
+          location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}`;
         } else {
           location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
         }
