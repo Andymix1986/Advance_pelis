@@ -210,6 +210,26 @@
   <div id="sliders"></div>
 
   <script>
+
+const searchPopup = document.getElementById("searchPopup");
+    const searchInput = document.getElementById("searchInput");
+
+    function submitSearch() {
+      const query = searchInput.value.trim();
+      if (query) {
+        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
+      }
+    }
+
+    document.getElementById("searchIcon").addEventListener("click", () => {
+      searchPopup.style.display = "flex";
+      setTimeout(() => searchInput.focus(), 100);
+    });
+
+    document.getElementById("closeSearch").addEventListener("click", () => {
+      searchPopup.style.display = "none";
+    });
+    
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
     function xorDecrypt(input, key) {
       let output = '';
