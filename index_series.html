@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -221,7 +220,7 @@
     <button tabindex="0" onclick="location.href='index.html'">Películas</button>
     <button tabindex="0" onclick="location.href='index_series.html'">Series</button>
     <button tabindex="0" onclick="location.href='index_animes.html'">Animes</button>
-    <button class="search-button" id="searchIcon" tabindex="0">
+    <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
   </div>
@@ -259,10 +258,11 @@
     }
   }
 
-  document.getElementById("searchIcon").addEventListener("click", () => {
-    searchPopup.style.display = "flex";
-    setTimeout(() => searchInput.focus(), 100);
-  });
+  document.querySelector(".search-button").addEventListener("click", () => {
+  searchPopup.style.display = "flex";
+  setTimeout(() => searchInput.focus(), 100);
+});
+
 
   document.getElementById("closeSearch").addEventListener("click", () => {
     searchPopup.style.display = "none";
