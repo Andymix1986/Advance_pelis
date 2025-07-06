@@ -296,7 +296,7 @@
   <script>
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
     const ORIGEN = "Pelicula";
-    let versionRemotaGlobal = null; // Variable global para guardar la versión remota
+    let versionRemotaGlobal = null;
 
     function xorDecrypt(input, key) {
       let output = '';
@@ -375,10 +375,11 @@
       });
 
     document.getElementById("updateBtn").addEventListener("click", () => {
-      if (!versionRemotaGlobal) return; // Seguridad
-      localStorage.setItem("version", versionRemotaGlobal); // Guardar versión real
-      document.getElementById("updatePopup").style.display = "none"; // Ocultar popup
-      location.reload(); // Recargar página
+      if (versionRemotaGlobal) {
+        localStorage.setItem("version", versionRemotaGlobal);
+      }
+      document.getElementById("updatePopup").style.display = "none";
+      setTimeout(() => location.reload(), 200);
     });
 
     const images = document.querySelectorAll(".carousel-image");
@@ -389,7 +390,7 @@
       images[current].classList.add("active");
     }, 4000);
 
-    // Navegación remota
+    // Navegación remota y foco
     let sliders = [];
     let currentSliderIndex = 0;
     let currentCardIndex = 0;
@@ -487,7 +488,6 @@
       }
     });
 
-    // Click en tarjeta
     document.addEventListener("click", e => {
       const card = e.target.closest('.card');
       if (card && !card.classList.contains("ver-mas")) {
@@ -497,7 +497,6 @@
       }
     });
 
-    // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
       document.getElementById("searchPopup").style.display = "flex";
       setTimeout(() => document.getElementById("searchInput").focus(), 100);
@@ -526,7 +525,6 @@
       }
     }
 
-    // Foco inicial
     window.onload = () => {
       document.getElementById("carousel-container").focus();
     };
