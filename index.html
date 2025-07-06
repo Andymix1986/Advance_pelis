@@ -206,57 +206,57 @@
       z-index: 3;
     }
 
-    .update-popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111;
-      padding: 20px 20px 70px; /* espacio extra abajo para el botón */
-      border-radius: 16px;
-      box-shadow: 0 0 25px 6px #00bfff;
-      z-index: 999;
-      color: #fff;
-      display: none;
-      width: 60%;
-      max-width: 600px;
-      height: 80%;
-      text-align: center;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-    }
+       .update-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  padding: 20px 20px 70px; /* espacio extra abajo para el botón */
+  border-radius: 16px;
+  box-shadow: 0 0 25px 6px #00bfff;
+  z-index: 999;
+  color: #fff;
+  display: none;
+  width: 60%;
+  max-width: 600px;
+  height: 80%; /* se reduce altura un 10% aprox */
+  text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
     .update-popup h3 {
       margin-bottom: 10px;
     }
 
     .update-popup p {
-      white-space: pre-line;
-      overflow-y: auto;
-      max-height: 100%;
-      margin-bottom: auto;
-    }
+  white-space: pre-line;
+  overflow-y: auto;
+  max-height: 100%;
+  margin-bottom: auto;
+}
 
     .update-popup button {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: transparent;
-      color: #00bfff;
-      border: 2px solid #00bfff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      outline: none;
-    }
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: transparent;
+  color: #00bfff;
+  border: 2px solid #00bfff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  outline: none;
+}
 
-    .update-popup button:focus {
-      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
-    }
+.update-popup button:focus {
+  box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
+}
   </style>
 </head>
 <body>
@@ -294,240 +294,267 @@
   <div id="sliders"></div>
 
   <script>
-    const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
-    const ORIGEN = "Pelicula";
-    let versionRemotaGlobal = null;
+  // Funciones de cifrado originales
+  function xorDecrypt(input, key) {
+    let output = '';
+    for (let i = 0; i < input.length; i++) {
+      output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return output;
+  }
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  function decodeBase64(input) {
+    return atob(input);
+  }
+
+  const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
+  const ORIGEN = "Pelicula";
+
+  // Funciones de actualización
+  const storedVersion = localStorage.getItem('version') || '1.0.0';
+  let newVersionFromJson = storedVersion;
+
+  function compareVersions(current, next) {
+    const c = current.split('.').map(Number);
+    const n = next.split('.').map(Number);
+    for (let i = 0; i < 3; i++) {
+      if (n[i] > c[i]) return true;
+      if (n[i] < c[i]) return false;
+    }
+    return false;
+  }
+
+  function showPopup(message) {
+    document.getElementById("updateMessage").innerHTML = message;
+    document.getElementById("updatePopup").style.display = "flex";
+  }
+
+  document.getElementById("updateButton").addEventListener("click", () => {
+    localStorage.setItem('version', newVersionFromJson);
+    document.getElementById("updatePopup").style.display = "none";
+    location.reload();
+  });
+
+  // Carga del JSON
+  fetch(JSON_URL)
+    .then(r => r.text())
+    .then(data => {
+      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+      newVersionFromJson = json.version || "1.0.0";
+      const mensaje = json.mensaje?.replace(/\n/g, "<br>") || "¡Nueva actualización disponible!";
+
+      if (compareVersions(storedVersion, newVersionFromJson)) {
+        showPopup(mensaje);
       }
-      return output;
-    }
 
-    function decodeBase64(input) {
-      return atob(input);
-    }
+      const pelis = json.contenidos.filter(p => p.tipo === ORIGEN).reverse();
+      const container = document.getElementById("sliders");
 
-    fetch(JSON_URL)
-      .then(r => r.text())
-      .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        versionRemotaGlobal = json.version || "1.0.0";
-        const versionLocal = localStorage.getItem("version");
+      const estrenos = pelis.filter(p => p.estreno === "Estreno");
+      if (estrenos.length > 0) createSlider("Estrenos", estrenos);
 
-        if (versionRemotaGlobal !== versionLocal) {
-          const mensaje = json.mensaje?.replace(/\n/g, "<br>") || "Nueva actualización disponible.";
-          document.getElementById("updateMessage").innerHTML = mensaje;
-          document.getElementById("updatePopup").style.display = "flex";
-        }
-
-        const pelis = json.contenidos.filter(p => p.tipo === "Pelicula").reverse();
-        const container = document.getElementById("sliders");
-        const estrenos = pelis.filter(p => p.estreno === "Estreno");
-        if (estrenos.length > 0) createSlider("Estrenos", estrenos);
-
-        const categorias = {};
-        pelis.forEach(p => {
-          const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
-          tags.forEach(cat => {
-            if (!categorias[cat]) categorias[cat] = [];
-            categorias[cat].push(p);
-          });
+      const categorias = {};
+      pelis.forEach(p => {
+        const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
+        tags.forEach(cat => {
+          if (!categorias[cat]) categorias[cat] = [];
+          categorias[cat].push(p);
         });
-
-        Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
-
-        function createSlider(titulo, lista) {
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          slider.innerHTML = `<h2>${titulo}</h2>`;
-          const row = document.createElement("div");
-          row.className = "slider-row";
-
-          lista.slice(0, 7).forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-            card.setAttribute("data-titulo", p.titulo);
-            card.setAttribute("data-url", p.url);
-            const img = document.createElement("img");
-            img.src = p.imagen;
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-            card.append(img, title);
-            row.appendChild(card);
-          });
-
-          const verMas = document.createElement("div");
-          verMas.className = "card ver-mas";
-          verMas.tabIndex = 0;
-          verMas.textContent = "Ver más";
-          verMas.onclick = () => {
-            location.href = titulo === "Estrenos" ? "ver_categoria.html?estreno=1" : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
-          };
-          row.appendChild(verMas);
-          slider.appendChild(row);
-          container.appendChild(slider);
-        }
       });
 
-    document.getElementById("updateBtn").addEventListener("click", () => {
-      if (versionRemotaGlobal) {
-        localStorage.setItem("version", versionRemotaGlobal);
+      Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
+
+      function createSlider(titulo, lista) {
+        const slider = document.createElement("div");
+        slider.className = "slider";
+        slider.innerHTML = `<h2>${titulo}</h2>`;
+        const row = document.createElement("div");
+        row.className = "slider-row";
+
+        lista.slice(0, 7).forEach(p => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.tabIndex = 0;
+          card.setAttribute("data-titulo", p.titulo);
+          card.setAttribute("data-url", p.url);
+
+          const img = document.createElement("img");
+          img.src = p.imagen;
+
+          const title = document.createElement("div");
+          title.className = "card-title";
+          title.textContent = p.titulo;
+
+          card.append(img, title);
+          row.appendChild(card);
+        });
+
+        const verMas = document.createElement("div");
+        verMas.className = "card ver-mas";
+        verMas.tabIndex = 0;
+        verMas.textContent = "Ver más";
+        verMas.onclick = () => {
+          location.href = titulo === "Estrenos"
+            ? "ver_categoria.html?estreno=1"
+            : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
+        };
+
+        row.appendChild(verMas);
+        slider.appendChild(row);
+        container.appendChild(slider);
       }
-      document.getElementById("updatePopup").style.display = "none";
-      setTimeout(() => location.reload(), 200);
     });
 
-    const images = document.querySelectorAll(".carousel-image");
-    let current = 0;
-    setInterval(() => {
-      images[current].classList.remove("active");
-      current = (current + 1) % images.length;
-      images[current].classList.add("active");
-    }, 4000);
+  // Carrusel de imágenes
+  const images = document.querySelectorAll(".carousel-image");
+  let current = 0;
+  setInterval(() => {
+    images[current].classList.remove("active");
+    current = (current + 1) % images.length;
+    images[current].classList.add("active");
+  }, 4000);
 
-    // Navegación remota y foco
-    let sliders = [];
-    let currentSliderIndex = 0;
-    let currentCardIndex = 0;
-    const menuButtons = document.querySelectorAll(".menu-bar button, .search-button");
-    let menuIndex = 0;
-    const carousel = document.getElementById("carousel-container");
+  // Navegación remota
+  let sliders = [];
+  let currentSliderIndex = 0;
+  let currentCardIndex = 0;
+  const menuButtons = document.querySelectorAll(".menu-bar button, .search-button");
+  let menuIndex = 0;
+  const carousel = document.getElementById("carousel-container");
 
-    function updateFocus() {
-      sliders = Array.from(document.querySelectorAll(".slider-row"));
-      if (sliders.length === 0) return;
-      let currentSlider = sliders[currentSliderIndex];
-      let cards = Array.from(currentSlider.querySelectorAll(".card"));
-      if (cards.length > 0) {
-        cards[currentCardIndex].focus();
-        cards[currentCardIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
-      }
+  function updateFocus() {
+    sliders = Array.from(document.querySelectorAll(".slider-row"));
+    if (sliders.length === 0) return;
+    let currentSlider = sliders[currentSliderIndex];
+    let cards = Array.from(currentSlider.querySelectorAll(".card"));
+    if (cards.length > 0) {
+      cards[currentCardIndex].focus();
+      cards[currentCardIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
+    }
+  }
+
+  document.addEventListener("keydown", e => {
+    sliders = Array.from(document.querySelectorAll(".slider-row"));
+    const isCarouselFocused = document.activeElement === carousel;
+
+    if (menuButtons.length && menuButtons[0].contains(document.activeElement)) {
+      menuIndex = [...menuButtons].indexOf(document.activeElement);
     }
 
-    document.addEventListener("keydown", e => {
-      sliders = Array.from(document.querySelectorAll(".slider-row"));
-      const isCarouselFocused = document.activeElement === carousel;
-
-      if (menuButtons.length && menuButtons[0].contains(document.activeElement)) {
-        menuIndex = [...menuButtons].indexOf(document.activeElement);
+    if (isCarouselFocused) {
+      if (e.key === "ArrowDown") {
+        menuButtons[menuIndex].focus();
       }
+      return;
+    }
 
-      if (isCarouselFocused) {
-        if (e.key === "ArrowDown") {
-          menuButtons[menuIndex].focus();
-        }
-        return;
-      }
-
-      if (document.activeElement.classList.contains("search-button") ||
-          document.activeElement.closest(".menu-bar")) {
-        switch (e.key) {
-          case "ArrowRight":
-            menuIndex = (menuIndex + 1) % menuButtons.length;
-            menuButtons[menuIndex].focus();
-            break;
-          case "ArrowLeft":
-            menuIndex = (menuIndex - 1 + menuButtons.length) % menuButtons.length;
-            menuButtons[menuIndex].focus();
-            break;
-          case "ArrowDown":
-            currentSliderIndex = 0;
-            currentCardIndex = 0;
-            updateFocus();
-            break;
-          case "ArrowUp":
-            carousel.focus();
-            break;
-          case "Enter":
-            document.activeElement.click();
-            break;
-        }
-        return;
-      }
-
-      const currentSlider = sliders[currentSliderIndex];
-      const cards = currentSlider ? currentSlider.querySelectorAll(".card") : [];
-
+    if (document.activeElement.classList.contains("search-button") ||
+        document.activeElement.closest(".menu-bar")) {
       switch (e.key) {
         case "ArrowRight":
-          if (cards.length > 0 && currentCardIndex < cards.length - 1) {
-            currentCardIndex++;
-            cards[currentCardIndex].focus();
-          }
+          menuIndex = (menuIndex + 1) % menuButtons.length;
+          menuButtons[menuIndex].focus();
           break;
         case "ArrowLeft":
-          if (cards.length > 0 && currentCardIndex > 0) {
-            currentCardIndex--;
-            cards[currentCardIndex].focus();
-          }
+          menuIndex = (menuIndex - 1 + menuButtons.length) % menuButtons.length;
+          menuButtons[menuIndex].focus();
           break;
         case "ArrowDown":
-          if (currentSliderIndex < sliders.length - 1) {
-            currentSliderIndex++;
-            currentCardIndex = 0;
-            updateFocus();
-          }
+          currentSliderIndex = 0;
+          currentCardIndex = 0;
+          updateFocus();
           break;
         case "ArrowUp":
-          if (currentSliderIndex > 0) {
-            currentSliderIndex--;
-            currentCardIndex = 0;
-            updateFocus();
-          } else {
-            menuButtons[menuIndex].focus();
-          }
+          carousel.focus();
           break;
         case "Enter":
           document.activeElement.click();
           break;
       }
-    });
-
-    document.addEventListener("click", e => {
-      const card = e.target.closest('.card');
-      if (card && !card.classList.contains("ver-mas")) {
-        const url = card.getAttribute("data-url");
-        const titulo = card.getAttribute("data-titulo");
-        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-      }
-    });
-
-    document.querySelector(".search-button").addEventListener("click", () => {
-      document.getElementById("searchPopup").style.display = "flex";
-      setTimeout(() => document.getElementById("searchInput").focus(), 100);
-    });
-
-    document.getElementById("closeSearch").addEventListener("click", () => {
-      document.getElementById("searchPopup").style.display = "none";
-    });
-
-    document.getElementById("searchBtn").addEventListener("click", submitSearch);
-
-    document.getElementById("searchInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") submitSearch();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        document.getElementById("searchPopup").style.display = "none";
-      }
-    });
-
-    function submitSearch() {
-      const query = document.getElementById("searchInput").value.trim();
-      if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${encodeURIComponent(ORIGEN)}`;
-      }
+      return;
     }
 
-    window.onload = () => {
-      document.getElementById("carousel-container").focus();
-    };
-  </script>
+    const currentSlider = sliders[currentSliderIndex];
+    const cards = currentSlider ? currentSlider.querySelectorAll(".card") : [];
+
+    switch (e.key) {
+      case "ArrowRight":
+        if (cards.length > 0 && currentCardIndex < cards.length - 1) {
+          currentCardIndex++;
+          cards[currentCardIndex].focus();
+        }
+        break;
+      case "ArrowLeft":
+        if (cards.length > 0 && currentCardIndex > 0) {
+          currentCardIndex--;
+          cards[currentCardIndex].focus();
+        }
+        break;
+      case "ArrowDown":
+        if (currentSliderIndex < sliders.length - 1) {
+          currentSliderIndex++;
+          currentCardIndex = 0;
+          updateFocus();
+        }
+        break;
+      case "ArrowUp":
+        if (currentSliderIndex > 0) {
+          currentSliderIndex--;
+          currentCardIndex = 0;
+          updateFocus();
+        } else {
+          menuButtons[menuIndex].focus();
+        }
+        break;
+      case "Enter":
+        document.activeElement.click();
+        break;
+    }
+  });
+
+  // Click en tarjeta
+  document.addEventListener("click", e => {
+    const card = e.target.closest('.card');
+    if (card && !card.classList.contains("ver-mas")) {
+      const url = card.getAttribute("data-url");
+      const titulo = card.getAttribute("data-titulo");
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    }
+  });
+
+  // Búsqueda
+  document.querySelector(".search-button").addEventListener("click", () => {
+    document.getElementById("searchPopup").style.display = "flex";
+    setTimeout(() => document.getElementById("searchInput").focus(), 100);
+  });
+
+  document.getElementById("closeSearch").addEventListener("click", () => {
+    document.getElementById("searchPopup").style.display = "none";
+  });
+
+  document.getElementById("searchBtn").addEventListener("click", submitSearch);
+
+  document.getElementById("searchInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitSearch();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.getElementById("searchPopup").style.display = "none";
+    }
+  });
+
+  function submitSearch() {
+    const query = document.getElementById("searchInput").value.trim();
+    if (query) {
+      window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${encodeURIComponent(ORIGEN)}`;
+    }
+  }
+
+  // Foco inicial
+  window.onload = () => {
+    document.getElementById("carousel-container").focus();
+  };
+</script>
 </body>
 </html>
