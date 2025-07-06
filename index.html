@@ -329,7 +329,8 @@
     document.getElementById("updatePopup").style.display = "flex";
   }
 
-  document.getElementById("updateButton").addEventListener("click", () => {
+  document.getElementById("updateBtn").addEventListener("click", () => {
+
     localStorage.setItem('version', newVersionFromJson);
     document.getElementById("updatePopup").style.display = "none";
     location.reload();
