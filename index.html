@@ -207,56 +207,56 @@
     }
 
     .update-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #111;
-  padding: 20px 20px 70px; /* espacio extra abajo para el botón */
-  border-radius: 16px;
-  box-shadow: 0 0 25px 6px #00bfff;
-  z-index: 999;
-  color: #fff;
-  display: none;
-  width: 60%;
-  max-width: 600px;
-  height: 80%; /* se reduce altura un 10% aprox */
-  text-align: center;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-}
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 20px 20px 70px; /* espacio extra abajo para el botón */
+      border-radius: 16px;
+      box-shadow: 0 0 25px 6px #00bfff;
+      z-index: 999;
+      color: #fff;
+      display: none;
+      width: 60%;
+      max-width: 600px;
+      height: 80%;
+      text-align: center;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
     .update-popup h3 {
       margin-bottom: 10px;
     }
 
     .update-popup p {
-  white-space: pre-line;
-  overflow-y: auto;
-  max-height: 100%;
-  margin-bottom: auto;
-}
+      white-space: pre-line;
+      overflow-y: auto;
+      max-height: 100%;
+      margin-bottom: auto;
+    }
 
     .update-popup button {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: transparent;
-  color: #00bfff;
-  border: 2px solid #00bfff;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  outline: none;
-}
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: transparent;
+      color: #00bfff;
+      border: 2px solid #00bfff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      outline: none;
+    }
 
-.update-popup button:focus {
-  box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
-}
+    .update-popup button:focus {
+      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
+    }
   </style>
 </head>
 <body>
@@ -296,6 +296,7 @@
   <script>
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
     const ORIGEN = "Pelicula";
+    let versionRemotaGlobal = null; // Variable global para guardar la versión remota
 
     function xorDecrypt(input, key) {
       let output = '';
@@ -309,16 +310,18 @@
       return atob(input);
     }
 
-document.getElementById("updateBtn").addEventListener("click", () => {
-  fetch(JSON_URL)
-    .then(r => r.text())
-    .then(data => {
-      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const version = json.version || "1.0.0";
-      localStorage.setItem("version", version);
-      document.getElementById("updatePopup").style.display = "none";
-      location.replace("index.html"); // o usa reload() si prefieres
-    }
+    fetch(JSON_URL)
+      .then(r => r.text())
+      .then(data => {
+        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+        versionRemotaGlobal = json.version || "1.0.0";
+        const versionLocal = localStorage.getItem("version");
+
+        if (versionRemotaGlobal !== versionLocal) {
+          const mensaje = json.mensaje?.replace(/\n/g, "<br>") || "Nueva actualización disponible.";
+          document.getElementById("updateMessage").innerHTML = mensaje;
+          document.getElementById("updatePopup").style.display = "flex";
+        }
 
         const pelis = json.contenidos.filter(p => p.tipo === "Pelicula").reverse();
         const container = document.getElementById("sliders");
@@ -371,7 +374,13 @@ document.getElementById("updateBtn").addEventListener("click", () => {
         }
       });
 
-    
+    document.getElementById("updateBtn").addEventListener("click", () => {
+      if (!versionRemotaGlobal) return; // Seguridad
+      localStorage.setItem("version", versionRemotaGlobal); // Guardar versión real
+      document.getElementById("updatePopup").style.display = "none"; // Ocultar popup
+      location.reload(); // Recargar página
+    });
+
     const images = document.querySelectorAll(".carousel-image");
     let current = 0;
     setInterval(() => {
