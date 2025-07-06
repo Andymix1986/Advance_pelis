@@ -21,6 +21,7 @@
       justify-content: center;
       margin-top: 20px;
     }
+
     .carousel-container {
       width: 90%;
       aspect-ratio: 16 / 9;
@@ -30,9 +31,11 @@
       background: #000;
       outline: none;
     }
+
     .carousel-container:focus {
       outline: none;
     }
+
     .carousel-image {
       position: absolute;
       top: 0;
@@ -44,6 +47,7 @@
       transition: opacity 1s ease-in-out;
       z-index: 0;
     }
+
     .carousel-image.active {
       opacity: 1;
       z-index: 1;
@@ -55,6 +59,7 @@
       gap: 32px;
       margin: 30px auto 20px;
     }
+
     .menu-bar button,
     .search-button {
       padding: 18px 28px;
@@ -68,10 +73,10 @@
       box-shadow: 0 0 10px 2px rgba(0, 191, 255, 0.4);
       outline: none;
     }
+
     .menu-bar button:focus,
     .search-button:focus {
       box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
-      outline: none;
     }
 
     .search-button img {
@@ -100,7 +105,6 @@
       font-size: 1rem;
       border-radius: 10px;
       border: none;
-      outline: none;
       background-color: #222;
       color: #fff;
     }
@@ -208,7 +212,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: #111;
-      padding: 20px;
+      padding: 30px;
       border-radius: 16px;
       box-shadow: 0 0 25px 6px #00bfff;
       z-index: 999;
@@ -216,6 +220,7 @@
       display: none;
       width: 60%;
       max-width: 600px;
+      aspect-ratio: 16 / 9;
       text-align: center;
     }
 
@@ -225,16 +230,22 @@
 
     .update-popup p {
       margin-bottom: 20px;
+      white-space: pre-line;
     }
 
     .update-popup button {
-      background-color: #00bfff;
-      color: #fff;
-      border: none;
+      background-color: transparent;
+      color: #00bfff;
+      border: 2px solid #00bfff;
       padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 1rem;
+      border-radius: 12px;
+      font-size: 1.2rem;
       cursor: pointer;
+      outline: none;
+    }
+
+    .update-popup button:focus {
+      box-shadow: 0 0 10px 3px #00bfff, 0 0 20px 6px rgba(0, 191, 255, 0.8);
     }
   </style>
 </head>
@@ -267,7 +278,7 @@
   <div class="update-popup" id="updatePopup">
     <h3>¡Nueva versión disponible!</h3>
     <p id="updateMessage">Hay una actualización disponible.</p>
-    <button onclick="acceptUpdate()">Actualizar</button>
+    <button id="updateBtn">Actualizar</button>
   </div>
 
   <div id="sliders"></div>
@@ -275,9 +286,6 @@
   <script>
     const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
     const ORIGEN = "Pelicula";
-
-    const searchPopup = document.getElementById("searchPopup");
-    const searchInput = document.getElementById("searchInput");
 
     function xorDecrypt(input, key) {
       let output = '';
@@ -299,7 +307,8 @@
         const versionLocal = localStorage.getItem("version");
 
         if (versionRemota !== versionLocal) {
-          document.getElementById("updateMessage").textContent = json.mensaje || "Nueva actualización disponible.";
+          const mensaje = json.mensaje?.replace(/\n/g, "<br>") || "Nueva actualización disponible.";
+          document.getElementById("updateMessage").innerHTML = mensaje;
           document.getElementById("updatePopup").style.display = "block";
         }
 
@@ -346,11 +355,7 @@
           verMas.tabIndex = 0;
           verMas.textContent = "Ver más";
           verMas.onclick = () => {
-            if (titulo === "Estrenos") {
-              location.href = "ver_categoria.html?estreno=1";
-            } else {
-              location.href = `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
-            }
+            location.href = titulo === "Estrenos" ? "ver_categoria.html?estreno=1" : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
           };
           row.appendChild(verMas);
           slider.appendChild(row);
@@ -358,10 +363,12 @@
         }
       });
 
-    function acceptUpdate() {
-      localStorage.setItem("version", document.getElementById("updateMessage").textContent);
-      location.reload();
-    }
+    document.getElementById("updateBtn").addEventListener("click", () => {
+      const mensaje = document.getElementById("updateMessage").innerText;
+      localStorage.setItem("version", mensaje);
+      document.getElementById("updatePopup").style.display = "none";
+      location.replace("splash.html");
+    });
 
     const images = document.querySelectorAll(".carousel-image");
     let current = 0;
@@ -481,23 +488,28 @@
 
     // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
-      searchPopup.style.display = "flex";
-      setTimeout(() => searchInput.focus(), 100);
+      document.getElementById("searchPopup").style.display = "flex";
+      setTimeout(() => document.getElementById("searchInput").focus(), 100);
     });
+
     document.getElementById("closeSearch").addEventListener("click", () => {
-      searchPopup.style.display = "none";
+      document.getElementById("searchPopup").style.display = "none";
     });
+
     document.getElementById("searchBtn").addEventListener("click", submitSearch);
-    searchInput.addEventListener("keydown", (e) => {
+
+    document.getElementById("searchInput").addEventListener("keydown", (e) => {
       if (e.key === "Enter") submitSearch();
     });
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
-        searchPopup.style.display = "none";
+        document.getElementById("searchPopup").style.display = "none";
       }
     });
+
     function submitSearch() {
-      const query = searchInput.value.trim();
+      const query = document.getElementById("searchInput").value.trim();
       if (query) {
         window.location.href = `resultados.html?q=${encodeURIComponent(query)}&origen=${encodeURIComponent(ORIGEN)}`;
       }
