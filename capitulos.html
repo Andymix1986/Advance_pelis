@@ -268,8 +268,8 @@
 
           card.onclick = () => {
             guardarEstado(temporadaActual, capNum - 1);
-            location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
-          };
+            location.href = `advancepelis://capitulos?titulo=${encodeURIComponent(contenido.titulo)}&temporada=${encodeURIComponent(contenido.temporadas[temporadaActual].temporada)}&tipo=${encodeURIComponent(tipo)}&capitulo=${capNum - 1}`;
+           };
 // Desplazar la tarjeta al centro al enfocarse
 card.addEventListener("focus", () => {
   card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
