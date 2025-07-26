@@ -267,11 +267,9 @@
           card.tabIndex = 0;
 
           card.onclick = () => {
-  guardarEstado(temporadaActual, capNum - 1);
-  const temporadaNombre = contenido.temporadas[temporadaActual].temporada;
-  location.href = `advancepelis://verCapitulo?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(contenido.tipo)}&temporada=${encodeURIComponent(temporadaNombre)}&capitulo=${capNum - 1}`;
-};
-
+            guardarEstado(temporadaActual, capNum - 1);
+            location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
+          };
 // Desplazar la tarjeta al centro al enfocarse
 card.addEventListener("focus", () => {
   card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
