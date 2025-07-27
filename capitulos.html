@@ -155,9 +155,12 @@
   </div>
   <h2 id="temporadaTitulo"></h2>
   <div id="slidersContainer"></div>
-<div id="loaderSiguiente" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#000; color:#00bfff; padding:20px; border-radius:12px; font-size:1.2rem; z-index:9999; box-shadow:0 0 15px #00bfff;">
-  <span class="loader-text">Cargando siguiente capítulo...</span>
-</div>
+<div id="loaderSiguiente" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); padding: 20px 30px; border-radius: 12px; color: #00bfff; font-size: 1.2rem; z-index: 9999;">
+    Cargando siguiente capítulo...
+    <div style="margin-top: 10px;">
+      <progress style="width: 100%;" />
+    </div>
+  </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -395,16 +398,20 @@ card.addEventListener("focus", () => {
         e.preventDefault();
         botonTemporada.focus();
       }
-      window.saltarSiguienteCapitulo = function() {
-  const siguiente = focusedIndex + 1;
-  if (siguiente < focusables.length) {
-    const loader = document.getElementById("loaderSiguiente");
-    loader.style.display = "block";
-    setTimeout(() => {
-      focusables[siguiente].click();
-    }, 1500);
-  }
     });
+     // FUNCION PARA SALTAR AL SIGUIENTE CAPITULO CON LOADER
+    window.saltarSiguienteCapitulo = function () {
+      const siguiente = focusedIndex + 1;
+      if (siguiente < focusables.length) {
+        const loader = document.getElementById("loaderSiguiente");
+        if (loader) loader.style.display = "block";
+
+        setTimeout(() => {
+          focusables[siguiente].click();
+        }, 1500);
+      }
+    };
+
   </script>
 </body>
 </html>
