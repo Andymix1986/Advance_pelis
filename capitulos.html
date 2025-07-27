@@ -273,9 +273,11 @@
           card.tabIndex = 0;
 
           card.onclick = () => {
-            guardarEstado(temporadaActual, capNum - 1);
-            location.href = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&temporada=${encodeURIComponent(contenido.temporadas[temporadaActual].temporada)}&tipo=${encodeURIComponent(tipo)}&capitulo=${capNum - 1}`;
-           };
+  guardarEstado(temporadaActual, capNum - 1);
+  const capUrl = contenido.temporadas[temporadaActual].urls[capNum - 1];
+  location.href = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&temporada=${encodeURIComponent(contenido.temporadas[temporadaActual].temporada)}&tipo=${encodeURIComponent(tipo)}&capitulo=${capNum - 1}&url=${encodeURIComponent(capUrl)}`;
+};
+
 // Desplazar la tarjeta al centro al enfocarse
 card.addEventListener("focus", () => {
   card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
