@@ -273,20 +273,13 @@
           card.tabIndex = 0;
 
           card.onclick = () => {
-  guardarEstado(temporadaActual, capNum - 1);
-  
-  const capUrl = contenido.temporadas[temporadaActual].urls[capNum - 1];
-  const playlist = contenido.temporadas[temporadaActual].urls;
-  const temporadaNombre = contenido.temporadas[temporadaActual].temporada;
-  const isSerie = (tipo === "Serie" || tipo === "Anime");
+  guardarEstado(temporadaActual, capNum - 1);
 
-  let intent = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(tipo)}&temporada=${encodeURIComponent(temporadaNombre)}&url=${encodeURIComponent(capUrl)}&isSerie=${isSerie}`;
+  const temporadaNombre = contenido.temporadas[temporadaActual].temporada;
 
-  if (isSerie) {
-    intent += `&playlist=${encodeURIComponent(JSON.stringify(playlist))}&capitulo=${capNum - 1}`;
-  }
+  const intent = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(tipo)}&temporada=${encodeURIComponent(temporadaNombre)}&capitulo=${capNum - 1}`;
 
-  location.href = intent;
+  location.href = intent;
 };
 
 
