@@ -420,19 +420,7 @@ card.addEventListener("focus", () => {
         botonTemporada.focus();
       }
     });
-     // FUNCION PARA SALTAR AL SIGUIENTE CAPITULO CON LOADER
-    window.saltarSiguienteCapitulo = function () {
-      const siguiente = focusedIndex + 1;
-      if (siguiente < focusables.length) {
-        const loader = document.getElementById("loaderSiguiente");
-        if (loader) loader.style.display = "block";
-
-        setTimeout(() => {
-          focusables[siguiente].click();
-        }, 1500);
-      }
-    };
-
+     
   </script>
 </body>
 </html>
