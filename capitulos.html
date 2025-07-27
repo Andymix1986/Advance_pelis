@@ -155,6 +155,9 @@
   </div>
   <h2 id="temporadaTitulo"></h2>
   <div id="slidersContainer"></div>
+<div id="loaderSiguiente" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#000; color:#00bfff; padding:20px; border-radius:12px; font-size:1.2rem; z-index:9999; box-shadow:0 0 15px #00bfff;">
+  <span class="loader-text">Cargando siguiente capítulo...</span>
+</div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -392,6 +395,15 @@ card.addEventListener("focus", () => {
         e.preventDefault();
         botonTemporada.focus();
       }
+      window.saltarSiguienteCapitulo = function() {
+  const siguiente = focusedIndex + 1;
+  if (siguiente < focusables.length) {
+    const loader = document.getElementById("loaderSiguiente");
+    loader.style.display = "block";
+    setTimeout(() => {
+      focusables[siguiente].click();
+    }, 1500);
+  }
     });
   </script>
 </body>
