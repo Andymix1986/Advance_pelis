@@ -274,9 +274,21 @@
 
           card.onclick = () => {
   guardarEstado(temporadaActual, capNum - 1);
+  
   const capUrl = contenido.temporadas[temporadaActual].urls[capNum - 1];
-  location.href = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&temporada=${encodeURIComponent(contenido.temporadas[temporadaActual].temporada)}&tipo=${encodeURIComponent(tipo)}&capitulo=${capNum - 1}&url=${encodeURIComponent(capUrl)}`;
+  const playlist = contenido.temporadas[temporadaActual].urls;
+  const temporadaNombre = contenido.temporadas[temporadaActual].temporada;
+  const isSerie = (tipo === "Serie" || tipo === "Anime");
+
+  let intent = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(tipo)}&temporada=${encodeURIComponent(temporadaNombre)}&url=${encodeURIComponent(capUrl)}&isSerie=${isSerie}`;
+
+  if (isSerie) {
+    intent += `&playlist=${encodeURIComponent(JSON.stringify(playlist))}&capitulo=${capNum - 1}`;
+  }
+
+  location.href = intent;
 };
+
 
 // Desplazar la tarjeta al centro al enfocarse
 card.addEventListener("focus", () => {
