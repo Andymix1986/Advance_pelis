@@ -304,7 +304,28 @@ card.addEventListener("focus", () => {
         if (focusables.length > 0) focusables[0].focus();
       }
     }
+// Función para saltar al siguiente capítulo desde PlayerActivity
+  function saltarSiguienteCapitulo() {
+    // Si no hay capítulos enfocados, enfoca el primero
+    if (typeof focusedIndex === 'undefined' || focusedIndex === null) {
+      focusedIndex = 0;
+    }
 
+    // Calculamos el índice del siguiente capítulo
+    let siguiente = focusedIndex + 1;
+    const totalCapitulos = focusables.length;
+
+    if (siguiente < totalCapitulos) {
+      focusedIndex = siguiente;
+      focusables[focusedIndex].focus();
+      guardarEstado(temporadaActual, focusedIndex);
+      // Simular click para abrir el siguiente capítulo
+      focusables[focusedIndex].click();
+    } else {
+      // Si es el último capítulo
+      alert("Has llegado al último capítulo de esta temporada.");
+    }
+  }
     function enfocarCapitulo(capIndex) {
       if (capIndex >= 0 && capIndex < focusables.length) {
         focusedIndex = capIndex;
