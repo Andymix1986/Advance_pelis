@@ -251,8 +251,16 @@
     function mostrarCapitulos() {
   slidersContainer.innerHTML = "";
   focusables = [];
-  // Ahora capitulos es un array de objetos {id, url}
-  const capitulos = contenido.temporadas[temporadaActual].urls;
+
+  const rawCapitulos = contenido.temporadas[temporadaActual].urls;
+  const capitulos = rawCapitulos.map((cap, idx) => {
+    if (typeof cap === "string") {
+      return { id: "C" + (idx + 1), url: cap }; // autogenera ID si es string
+    } else {
+      return cap;
+    }
+  });
+
   const imagen = contenido.imagen;
 
   for (let i = 0; i < capitulos.length; i += 10) {
@@ -269,11 +277,9 @@
 
       card.onclick = () => {
         guardarEstado(temporadaActual, capNum - 1);
-        // Enviamos id y url separados por &
         location.href = `advancepelis://player?capitulo=${encodeURIComponent(cap.id)}&url=${encodeURIComponent(cap.url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + cap.id)}`;
       };
 
-      // Desplazar la tarjeta al centro al enfocarse
       card.addEventListener("focus", () => {
         card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
       });
@@ -301,6 +307,26 @@
     if (focusables.length > 0) focusables[0].focus();
   }
 }
+
+      // Desplazar la tarjeta al centro al enfocarse
+      card.addEventListener("focus", () => {
+        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
+
+      const img = document.createElement("img");
+      img.src = imagen;
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = "Capítulo " + cap.id;
+
+      card.append(img, title);
+      row.appendChild(card);
+      focusables.push(card);
+    });
+
+    slider.appendChild(row);
+    slidersContainer.appendChild(slider);
+  }
 
     botonTemporada.addEventListener("click", () => {
       menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
