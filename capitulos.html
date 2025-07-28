@@ -249,62 +249,58 @@
     }
 
     function mostrarCapitulos() {
-      slidersContainer.innerHTML = "";
-      focusables = [];
-      const capitulos = contenido.temporadas[temporadaActual].urls;
-      const imagen = contenido.imagen;
+  slidersContainer.innerHTML = "";
+  focusables = [];
+  // Ahora capitulos es un array de objetos {id, url}
+  const capitulos = contenido.temporadas[temporadaActual].urls;
+  const imagen = contenido.imagen;
 
-      for (let i = 0; i < capitulos.length; i += 10) {
-        const slider = document.createElement("div");
-        slider.className = "slider";
-        const row = document.createElement("div");
-        row.className = "slider-row";
+  for (let i = 0; i < capitulos.length; i += 10) {
+    const slider = document.createElement("div");
+    slider.className = "slider";
+    const row = document.createElement("div");
+    row.className = "slider-row";
 
-        capitulos.slice(i, i + 10).forEach((url, idx) => {
-          const capNum = i + idx + 1;
-          const card = document.createElement("div");
-          card.className = "card";
-          card.tabIndex = 0;
+    capitulos.slice(i, i + 10).forEach((cap, idx) => {
+      const capNum = i + idx + 1;
+      const card = document.createElement("div");
+      card.className = "card";
+      card.tabIndex = 0;
 
-          card.onclick = () => {
-            guardarEstado(temporadaActual, capNum - 1);
-            location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
-          };
-// Desplazar la tarjeta al centro al enfocarse
-card.addEventListener("focus", () => {
-  card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-});
+      card.onclick = () => {
+        guardarEstado(temporadaActual, capNum - 1);
+        // Enviamos id y url separados por &
+        location.href = `advancepelis://player?capitulo=${encodeURIComponent(cap.id)}&url=${encodeURIComponent(cap.url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + cap.id)}`;
+      };
 
-          const img = document.createElement("img");
-          img.src = imagen;
-          const title = document.createElement("div");
-          title.className = "card-title";
-          title.textContent = "Capítulo " + capNum;
+      // Desplazar la tarjeta al centro al enfocarse
+      card.addEventListener("focus", () => {
+        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
 
-          card.append(img, title);
-          row.appendChild(card);
-          focusables.push(card);
-        });
+      const img = document.createElement("img");
+      img.src = imagen;
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = "Capítulo " + cap.id;
 
-        slider.appendChild(row);
-        slidersContainer.appendChild(slider);
-      }
+      card.append(img, title);
+      row.appendChild(card);
+      focusables.push(card);
+    });
 
-      const estadoGuardado = obtenerEstado();
-      if (estadoGuardado && estadoGuardado.temporada === temporadaActual && typeof estadoGuardado.capitulo === "number") {
-        enfocarCapitulo(estadoGuardado.capitulo);
-      } else {
-        focusedIndex = 0;
-        if (focusables.length > 0) focusables[0].focus();
-      }
-    }
+    slider.appendChild(row);
+    slidersContainer.appendChild(slider);
+  }
 
-    function enfocarCapitulo(capIndex) {
-      if (capIndex >= 0 && capIndex < focusables.length) {
-        focusedIndex = capIndex;
-        focusables[focusedIndex].focus();
-      }
-    }
+  const estadoGuardado = obtenerEstado();
+  if (estadoGuardado && estadoGuardado.temporada === temporadaActual && typeof estadoGuardado.capitulo === "number") {
+    enfocarCapitulo(estadoGuardado.capitulo);
+  } else {
+    focusedIndex = 0;
+    if (focusables.length > 0) focusables[0].focus();
+  }
+}
 
     botonTemporada.addEventListener("click", () => {
       menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
