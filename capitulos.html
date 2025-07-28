@@ -155,12 +155,6 @@
   </div>
   <h2 id="temporadaTitulo"></h2>
   <div id="slidersContainer"></div>
-<div id="loaderSiguiente" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); padding: 20px 30px; border-radius: 12px; color: #00bfff; font-size: 1.2rem; z-index: 9999;">
-    Cargando siguiente capítulo...
-    <div style="margin-top: 10px;">
-      <progress style="width: 100%;" />
-    </div>
-  </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -273,15 +267,9 @@
           card.tabIndex = 0;
 
           card.onclick = () => {
-  guardarEstado(temporadaActual, capNum - 1);
-
-  const intent = `advancepelis://player?videoUrl=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capítulo ' + capNum)}`;
-  
-  location.href = intent;
-};
-
-
-
+            guardarEstado(temporadaActual, capNum - 1);
+            location.href = `advancepelis://player.html?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capitulo ' + capNum)}`;
+          };
 // Desplazar la tarjeta al centro al enfocarse
 card.addEventListener("focus", () => {
   card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
@@ -310,28 +298,7 @@ card.addEventListener("focus", () => {
         if (focusables.length > 0) focusables[0].focus();
       }
     }
-// Función para saltar al siguiente capítulo desde PlayerActivity
-  function saltarSiguienteCapitulo() {
-    // Si no hay capítulos enfocados, enfoca el primero
-    if (typeof focusedIndex === 'undefined' || focusedIndex === null) {
-      focusedIndex = 0;
-    }
 
-    // Calculamos el índice del siguiente capítulo
-    let siguiente = focusedIndex + 1;
-    const totalCapitulos = focusables.length;
-
-    if (siguiente < totalCapitulos) {
-      focusedIndex = siguiente;
-      focusables[focusedIndex].focus();
-      guardarEstado(temporadaActual, focusedIndex);
-      // Simular click para abrir el siguiente capítulo
-      focusables[focusedIndex].click();
-    } else {
-      // Si es el último capítulo
-      alert("Has llegado al último capítulo de esta temporada.");
-    }
-  }
     function enfocarCapitulo(capIndex) {
       if (capIndex >= 0 && capIndex < focusables.length) {
         focusedIndex = capIndex;
@@ -426,7 +393,6 @@ card.addEventListener("focus", () => {
         botonTemporada.focus();
       }
     });
-     
   </script>
 </body>
 </html>
