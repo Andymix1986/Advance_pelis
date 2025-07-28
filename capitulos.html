@@ -275,9 +275,11 @@
           card.onclick = () => {
   guardarEstado(temporadaActual, capNum - 1);
 
-  const temporadaNombre = contenido.temporadas[temporadaActual].temporada;
+  const temporadaIndex = temporadaActual; // es el índice entero de la temporada
 
-  const intent = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(tipo)}&temporada=${encodeURIComponent(temporadaNombre)}&capitulo=${capNum - 1}`;
+
+  const intent = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(tipo)}&temporada=${temporadaIndex}&capitulo=${capNum - 1}`;
+ 
 
   location.href = intent;
 };
