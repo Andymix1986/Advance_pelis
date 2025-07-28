@@ -306,35 +306,7 @@
     focusedIndex = 0;
     if (focusables.length > 0) focusables[0].focus();
   }
-}
-
-      // Desplazar la tarjeta al centro al enfocarse
-      card.addEventListener("focus", () => {
-        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      });
-
-      const img = document.createElement("img");
-      img.src = imagen;
-      const title = document.createElement("div");
-      title.className = "card-title";
-      title.textContent = "Capítulo " + cap.id;
-
-      card.append(img, title);
-      row.appendChild(card);
-      focusables.push(card);
-    });
-
-    slider.appendChild(row);
-    slidersContainer.appendChild(slider);
-  }
-
-    botonTemporada.addEventListener("click", () => {
-      menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
-      if (menuTemporadas.style.display === "flex") {
-        const btns = menuTemporadas.querySelectorAll("button");
-        if (btns.length > 0) btns[temporadaActual].focus();
-      }
-    });
+    }
 
     document.addEventListener("click", (e) => {
       if (!menuTemporadas.contains(e.target) && e.target !== botonTemporada) {
