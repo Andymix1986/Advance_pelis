@@ -273,16 +273,13 @@
           card.tabIndex = 0;
 
           card.onclick = () => {
-  guardarEstado(temporadaActual, capNum - 1);
+  guardarEstado(temporadaActual, capNum - 1);
 
-  const temporadaIndex = temporadaActual; // es el índice entero de la temporada
-
-
-  const intent = `advancepelis://player?titulo=${encodeURIComponent(contenido.titulo)}&tipo=${encodeURIComponent(tipo)}&temporada=${temporadaIndex}&capitulo=${capNum - 1}`;
- 
-
-  location.href = intent;
+  const intent = `advancepelis://player?videoUrl=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - Capítulo ' + capNum)}`;
+  
+  location.href = intent;
 };
+
 
 
 // Desplazar la tarjeta al centro al enfocarse
