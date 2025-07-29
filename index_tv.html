@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+t<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -210,9 +210,9 @@
 <body>
   <div class="carousel-wrapper">
     <div class="carousel-container" id="carousel-container" tabindex="0">
-      <img class="carousel-image active" src="https://images2.imgbox.com/10/47/jDHk78kx_o.jpg" />
-      <img class="carousel-image" src="https://images2.imgbox.com/96/51/IVfyWVM3_o.jpg" />
-      <img class="carousel-image" src="https://images2.imgbox.com/18/33/3BXP18hp_o.jpg" />
+      <img class="carousel-image active" src="https://pbs.twimg.com/media/FRZ42e5WQAAiArH.png" />
+      <img class="carousel-image" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjPs9rbhHP83KGxOZ4qgxlfKTGX98cxQVgB6nD3bD37H9nlfShZN12JYEgDQ3JPHQVwLvFslHw_bQiYFgv96cGfDFetBx5jdYYoyWGSTERHLkfD_TdLLVZTjgUojcFdJ3oIHtPHVI4KKfoSjGDEmJxBMJwqB2d9h_K1rAnfbvDG1RFlRyWLs0qpBfQED1Ft/s1600/TNTSportsLA.png" />
+      <img class="carousel-image" src="https://media.tycsports.com/files/2023/10/10/629209/los-especiales-de-tyc-sports_1440x810.webp" />
     </div>
   </div>
 
@@ -419,20 +419,13 @@
     });
 
     document.addEventListener("click", e => {
-  const card = e.target.closest('.card');
-  if (card && !card.classList.contains("ver-mas")) {
-    const url = card.getAttribute("data-url");
-    if (url) {
-      // Abre la url directamente en una nueva ventana o pestaña
-      window.open(url, '_blank');
-      
-      // O si querés reemplazar la ventana actual:
-      // window.location.href = url;
-    }
-  }
-});
-
-
+      const card = e.target.closest('.card');
+      if (card && !card.classList.contains("ver-mas")) {
+        const url = card.getAttribute("data-url");
+        const titulo = card.getAttribute("data-titulo");
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+      }
+    });
     // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
       document.getElementById("searchPopup").style.display = "flex";
