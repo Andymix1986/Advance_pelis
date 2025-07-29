@@ -1,54 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TV en Vivo - Player</title>
-<style>
-  html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden; background: black;
-  }
-  iframe {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    border: none;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Reproductor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      height: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
 <body>
+  <iframe id="canalIframe" allowfullscreen></iframe>
 
-<iframe id="livePlayer" allowfullscreen allow="autoplay; fullscreen"></iframe>
+  <script>
+    // Obtener parámetro "url"
+    const params = new URLSearchParams(window.location.search);
+    const canalUrl = params.get("url");
 
-<script>
-  // Función para obtener parámetro GET
-  function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-  }
-
-  const iframe = document.getElementById('livePlayer');
-  const srcUrl = getQueryParam('url');
-
-  if (srcUrl) {
-    iframe.src = srcUrl;
-  } else {
-    // Si no hay URL, mostrar mensaje o cargar algo por defecto
-    document.body.innerHTML = '<p style="color:white; text-align:center; margin-top:20px;">No se proporcionó URL para el stream.</p>';
-  }
-
-  // Intentar abrir en pantalla completa automáticamente (depende del navegador)
-  document.addEventListener('DOMContentLoaded', () => {
-    if (iframe.requestFullscreen) {
-      iframe.requestFullscreen().catch(() => {});
-    } else if (iframe.webkitRequestFullscreen) {
-      iframe.webkitRequestFullscreen();
-    } else if (iframe.msRequestFullscreen) {
-      iframe.msRequestFullscreen();
+    // Cargar en el iframe
+    if (canalUrl) {
+      document.getElementById("canalIframe").src = canalUrl;
+    } else {
+      document.body.innerHTML = "<h1 style='color:white; text-align:center;'>Canal no válido</h1>";
     }
-  });
-</script>
-
+  </script>
 </body>
 </html>
