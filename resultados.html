@@ -117,6 +117,7 @@ origen = origen.toLowerCase();
 let tipo = '';
 if (origen === 'series') tipo = 'Serie';
 else if (origen === 'animes') tipo = 'Anime';
+else if (origen === 'tv') tipo = 'Tv';
 else tipo = 'Pelicula';
 
 document.getElementById('tituloResultados').textContent = `Resultados para: "${query}"`;
@@ -127,10 +128,13 @@ btnVolver.onclick = () => {
     location.href = 'index_series.html';
   } else if (origen === 'animes') {
     location.href = 'index_animes.html';
+  } else if (origen === 'tv') {
+    location.href = 'index_tv.html';
   } else {
     location.href = 'index.html';
   }
 };
+
 
 fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
   .then(r => r.text())
