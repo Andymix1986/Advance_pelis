@@ -425,6 +425,11 @@
     if (url) {
       // Abre la url directamente en una nueva ventana o pestaña
       window.open(url, '_blank');
+      
+      // O si querés reemplazar la ventana actual:
+      // window.location.href = url;
+    }
+  }
 });
 
 
