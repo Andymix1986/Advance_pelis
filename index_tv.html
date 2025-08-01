@@ -302,8 +302,9 @@
           verMas.onclick = () => {
             location.href = titulo === "Estrenos"
                ? "ver_categoria.html?estreno=1"
-              : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
-          };
+              : `ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=Tv&origen=tv`;
+};
+          
 
           row.appendChild(verMas);
           slider.appendChild(row);
