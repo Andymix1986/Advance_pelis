@@ -138,11 +138,16 @@
     }
 
     .slider-row {
-      display: flex;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-      padding: 0 24px;
-    }
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 24px;
+  scrollbar-width: none; /* Firefox */
+}
+.slider-row::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
 
     .slider-row .card {
       flex: 0 0 auto;
