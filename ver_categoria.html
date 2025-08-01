@@ -110,7 +110,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const categoriaParam = urlParams.get('cat') || '';
 const estrenoParam = urlParams.get('estreno') || '';
 const tipoParam = urlParams.get('tipo') || '';
-const origen = urlParams.get('origen') || 'peliculas','Tv';
+const origen = urlParams.get('origen') || 'peliculas';
 
 const tituloCategoria = document.getElementById('tituloCategoria');
 
@@ -131,13 +131,13 @@ document.getElementById('btnVolver').onclick = () => {
     location.href = 'index_series.html';
   } else if (origen === 'animes') {
     location.href = 'index_animes.html';
-    else if (origen === 'Tv') {
+  } else if (origen === 'tv') {
     location.href = 'index_tv.html';
-  }
   } else {
     location.href = 'index.html';
   }
 };
+
 
 fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
   .then(r => r.text())
