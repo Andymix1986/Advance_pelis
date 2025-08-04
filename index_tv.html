@@ -420,15 +420,13 @@
     });
 
     document.addEventListener("click", e => {
-  const card = e.target.closest('.card');
-  if (card && !card.classList.contains("ver-mas")) {
-    const url = card.getAttribute("data-url");
-    if (url) {
-      // Cargar directamente la URL en el WebView (mismo WebView)
-      window.location.href = url;
-    }
-  }
-});
+      const card = e.target.closest('.card');
+      if (card && !card.classList.contains("ver-mas")) {
+        const url = card.getAttribute("data-url");
+        const titulo = card.getAttribute("data-titulo");
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+      }
+    });
     // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
       document.getElementById("searchPopup").style.display = "flex";
