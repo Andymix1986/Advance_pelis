@@ -268,18 +268,23 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
     });
 
     contenedor.addEventListener('click', e => {
-      const card = e.target.closest('.card');
-      if (card) {
-        const url = card.getAttribute('data-url');
-        const titulo = card.getAttribute('data-titulo');
+  const card = e.target.closest('.card');
+  if (card) {
+    const url = card.getAttribute('data-url');
+    const titulo = card.getAttribute('data-titulo');
 
-        if (origen === "series" || origen === "animes") {
-          location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
-        } else {
-          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-        }
-      }
-    });
+    if (origen === "series" || origen === "animes") {
+      location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+    } else if (origen === "tv") {
+      // Abrir directamente la URL en el WebView
+      window.location.href = url;
+    } else {
+      // Películas (u otros): usa esquema personalizado
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    }
+  }
+});
+
   })
   .catch(console.error);
 </script>
