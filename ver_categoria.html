@@ -264,21 +264,22 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
             focusOnVolver = true;
           }
           break;
+          
         case "Enter":
-case "OK":
-  e.preventDefault();
-  const card = cards[focusedIndex];
-  const url = card.getAttribute('data-url');
-  const titulo = card.getAttribute('data-titulo');
+        case "OK":
+          e.preventDefault();
+          const card = cards[focusedIndex];
+          const url = card.getAttribute('data-url');
+          const titulo = card.getAttribute('data-titulo');
 
-  if (origen === "series" || origen === "animes") {
-    location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(origen === "series" ? "Serie" : "Anime")}`;
-  } else if (origen === "tv") {
-    location.href = url; // Abre directamente la señal en el WebView
-  } else {
-    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-  }
-  break;
+          if (origen === "series" || origen === "animes") {
+  location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(origen === "series" ? "Serie" : "Anime")}`;
+} else {
+  location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+}
+          break;
+      }
+    });
 
 
     document.addEventListener('click', e => {
