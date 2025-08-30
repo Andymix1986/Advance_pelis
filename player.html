@@ -1,332 +1,122 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <title>Player - Shaka</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta charset="UTF-8">
+  <title>Player</title>
   <style>
-    :root{--accent:#00bfff}
-    html,body{height:100%;margin:0;background:#000;color:#fff;font-family:system-ui,Segoe UI,Roboto,sans-serif}
-    .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
-    #video{width:100%;height:100%;background:#000;object-fit:contain}
-    .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:40}
-    .splash{position:absolute;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:60;color:var(--accent);font-size:1.1rem}
-    .spinner{width:40px;height:40px;border-radius:50%;border:4px solid rgba(255,255,255,.12);border-top-color:var(--accent);animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .controls{position:absolute;left:0;right:0;bottom:0;padding:12px;display:flex;align-items:center;gap:10px;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent);z-index:50}
-    .btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:.45rem .6rem;border-radius:10px;color:#fff;cursor:pointer}
-    .time{font-variant-numeric:tabular-nums;font-size:.95rem;opacity:.95}
-    input[type="range"]{flex:1;-webkit-appearance:none;height:12px;background:transparent}
-    input[type="range"]::-webkit-slider-runnable-track{height:6px;background:rgba(255,255,255,.18);border-radius:999px}
-    input[type="range"]::-webkit-slider-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);margin-top:-5px;border:none}
-    .hidden{display:none}
-    .gestures{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.06);z-index:70;display:none}
-    .black-screen{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#fff;z-index:80}
-    /* safe area bottom */
-    .controls{padding-bottom:calc(env(safe-area-inset-bottom) + 12px)}
+    body,html {
+      margin:0;
+      padding:0;
+      background:black;
+      height:100%;
+      width:100%;
+      overflow:hidden;
+    }
+    #video {
+      width:100%;
+      height:100%;
+      background:black;
+    }
+    #overlay {
+      position: absolute;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.8);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-size:2em;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid orange;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
   </style>
-  <!-- Shaka Player CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.6/shaka-player.compiled.js"></script>
 </head>
 <body>
-  <div class="stage" id="stage">
-    <video id="video" playsinline></video>
-
-    <div class="splash" id="splash">
-      <div class="spinner"></div>
-      <div id="splashText">Cargando…</div>
-      <div style="width:60%;max-width:400px">
-        <progress id="splashProgress" value="0" max="100" style="width:100%"></progress>
-      </div>
-    </div>
-
-    <div id="gestures" class="gestures"><div id="gLbl">Buscar</div><div id="gVal">00:00</div></div>
-
-    <div id="blackScreen" class="black-screen hidden">Fin de Temporada</div>
-
-    <div class="controls" id="controls">
-      <button id="playPause" class="btn" aria-label="Play/Pause">▶</button>
-      <span id="cur" class="time">00:00</span>
-      <input id="seek" type="range" min="0" max="100" step="0.1" value="0" />
-      <span id="dur" class="time">00:00</span>
-      <button id="fsBtn" class="btn" title="Pantalla completa">⤢</button>
-    </div>
+  <div id="overlay">
+    <div class="loader"></div>
+    <div id="overlayText">Cargando...</div>
   </div>
+  <video id="video" controls autoplay></video>
 
   <script>
-  (function(){
-    // -------- parámetros (espera url, capitulo (0-based), id, total, temporada) ----------
-    const Q = new URLSearchParams(location.search);
-    const urlBase = Q.get('url') || Q.get('urlBase') || '';
-    let capitulo = parseInt(Q.get('capitulo') || '0', 10) || 0;
-    const total = parseInt(Q.get('total') || '1', 10) || 1;
-    const serieId = Q.get('id') || 'serie';
-    let temporada = parseInt(Q.get('temporada') || '0', 10) || 0;
+    // ----------- 1. obtener parámetros de la URL ------------
+    const params = new URLSearchParams(window.location.search);
+    let videoUrl   = decodeURIComponent(params.get("url"));
+    const titulo   = decodeURIComponent(params.get("titulo"));
+    const tipo     = params.get("tipo");
+    const id       = params.get("id");
+    let temporada  = parseInt(params.get("temporada"));
+    let capitulo   = parseInt(params.get("capitulo"));
+    const total    = parseInt(params.get("total"));
 
-    // -------- DOM ----------
-    const video = document.getElementById('video');
-    const splash = document.getElementById('splash');
-    const splashText = document.getElementById('splashText');
-    const splashProgress = document.getElementById('splashProgress');
-    const playPause = document.getElementById('playPause');
-    const seek = document.getElementById('seek');
-    const cur = document.getElementById('cur');
-    const dur = document.getElementById('dur');
-    const fsBtn = document.getElementById('fsBtn');
-    const controls = document.getElementById('controls');
-    const gestures = document.getElementById('gestures');
-    const gLbl = document.getElementById('gLbl');
-    const gVal = document.getElementById('gVal');
-    const blackScreen = document.getElementById('blackScreen');
+    const video = document.getElementById("video");
+    const overlay = document.getElementById("overlay");
+    const overlayText = document.getElementById("overlayText");
 
-    // -------- keys for storage ----------
-    const progKey = (id,t,c)=> `progreso_${id}_T${t}_C${c}`;
-    const ultimoKey = (id)=> `ultimo_estado_${id}`;
+    // ----------- 2. reproducir video -----------------
+    video.src = videoUrl;
 
-    // -------- helper: construir URL incrementando número antes de extensión ----------
-    function buildEpisodeUrl(base, index0){
-      // match prefix + number + .ext (ext includes dot)
-      const m = base.match(/^(.*?)(\d+)(\.(mkv|mp4|ts|avi|m3u8))(?:[?#].*)?$/i);
-      if (!m) return base;
-      const prefix = m[1], baseNum = parseInt(m[2],10), ext = m[3];
-      const newNum = baseNum + index0;
-      return prefix + newNum + ext;
+    // ----------- 3. restaurar progreso -----------------
+    const progressKey = `progress_${id}_${temporada}_${capitulo}`;
+    const savedTime = localStorage.getItem(progressKey);
+    if (savedTime) {
+      video.currentTime = parseFloat(savedTime);
     }
 
-    // -------- Shaka init ----------
-    shaka.polyfill.installAll();
-    if (!shaka.Player.isBrowserSupported()) {
-      alert('Shaka Player no es soportado en este navegador.');
-    }
-
-    const player = new shaka.Player(video);
-    // Opcional: configurar buffering, ABR, etc.
-    player.configure({
-      streaming: { rebufferingGoal: 2, bufferingGoal: 8 },
-      manifest: { retryParameters: { maxAttempts: 2 } }
+    // ----------- 4. guardar progreso -----------------
+    video.addEventListener("timeupdate", () => {
+      localStorage.setItem(progressKey, video.currentTime);
     });
 
-    // ---------- estado ----------
-    let savedAtLoad = 0;
-    let hideControlsTimer = null;
-    let lastSavedSecond = -1;
-    let sessionMaxWatched = capitulo; // record last chapter watched in this session
-    let seekingViaSwipe = false;
-
-    // ---------- UX helpers ----------
-    function showSplash(text, determinate=false){
-      splashText.textContent = text;
-      splashProgress.style.display = determinate ? 'block' : 'none';
-      splash.style.display = 'flex';
-    }
-    function hideSplash(){ splash.style.display = 'none'; }
-    function showBlackScreen(){ blackScreen.classList.remove('hidden'); }
-    function hideBlackScreen(){ blackScreen.classList.add('hidden'); }
-    function fmt(s){
-      if (!isFinite(s)) return '00:00';
-      s = Math.max(0, Math.floor(s));
-      const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-      return h>0 ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` : `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-    }
-    function saveProgress(){
-      try {
-        const v = Math.floor(video.currentTime || 0);
-        localStorage.setItem(progKey(serieId, temporada, capitulo), String(v));
-      }catch(e){}
-    }
-    function restoreProgress(){
-      try {
-        const v = parseInt(localStorage.getItem(progKey(serieId, temporada, capitulo))||'0',10) || 0;
-        if (v>0 && video.duration && v < (video.duration - 1)) {
-          video.currentTime = v;
-        }
-      }catch(e){}
-    }
-    function markLastWatched(){
-      try {
-        localStorage.setItem(ultimoKey(serieId), JSON.stringify({temporada: temporada, capitulo: capitulo}));
-      }catch(e){}
-    }
-
-    // ---------- cargar episodio ----------
-    function loadEpisode(){
-      hideBlackScreen();
-      showSplash('Cargando…', false);
-      const src = buildEpisodeUrl(urlBase, capitulo);
-      // Shaka puede lanzar en casos DASH/HLS; aquí cargamos URL "plain"
-      // si es mp4/mkv sirve como media source (si el navegador lo soporta)
-      player.unload().catch(()=>{}).then(()=>{
-        // try to load as simple asset
-        player.load(src).then(()=>{
-          // loaded manifest or media
-          // shaka doesn't provide percent buffering easily for file; hide splash when canplay
-          // but we can listen on video events too
-        }).catch(err=>{
-          // fallback: set video.src directly if shaka can't handle (for plain files)
-          console.warn('Shaka load error, fallback to <video> src:', err);
-          video.src = src;
-        });
-      });
-      // update last-chapter-in-session
-      sessionMaxWatched = Math.max(sessionMaxWatched, capitulo);
-    }
-
-    // ---------- events ----------
-    video.addEventListener('loadedmetadata', ()=>{
-      dur.textContent = fmt(video.duration);
-      restoreProgress();
+    // ----------- 5. ocultar overlay cuando cargue -----
+    video.addEventListener("canplay", () => {
+      overlay.style.display = "none";
     });
 
-    video.addEventListener('canplay', ()=>{
-      hideSplash();
-      showControls();
-      playPause.textContent = video.paused ? '▶' : '⏸';
-    });
-
-    video.addEventListener('playing', ()=>{ hideSplash(); playPause.textContent = '⏸'; });
-    video.addEventListener('waiting', ()=>{ showSplash('Buffering…', false); });
-
-    video.addEventListener('timeupdate', ()=>{
-      if (!video.duration || !isFinite(video.duration)) return;
-      const pct = (video.currentTime / video.duration) * 100;
-      seek.value = pct;
-      cur.textContent = fmt(video.currentTime);
-      // Guardar cada 2s (evitar demasiadas escrituras)
-      const sec = Math.floor(video.currentTime || 0);
-      if (sec !== lastSavedSecond && sec % 2 === 0){
-        lastSavedSecond = sec;
-        saveProgress();
-      }
-    });
-
-    video.addEventListener('ended', ()=>{
-      // guardar y marcar
-      saveProgress();
-      markLastWatched();
-      // actualizar session max
-      sessionMaxWatched = Math.max(sessionMaxWatched, capitulo);
-
-      if (capitulo + 1 < total){
-        // Avanza al siguiente cap
+    // ----------- 6. salto automático -----------------
+    video.addEventListener("ended", () => {
+      if (capitulo + 1 < total) {
+        // Siguiente capitulo
         capitulo++;
-        // actualizar ultimo visto inmediatamente
-        markLastWatched(); // guarda nuevo cap
-        showSplash('Cargando siguiente capítulo…', false);
-        // small delay for UX
-        setTimeout(()=> {
-          loadEpisode();
-          // start autoplay
-          video.play().catch(()=>{});
-        }, 700);
+        const nextIdNum = parseInt(videoUrl.match(/(\d+)\.mkv$/)[1]) + 1;
+        videoUrl = videoUrl.replace(/(\d+)\.mkv$/, nextIdNum + ".mkv");
+
+        // mostrar overlay
+        overlay.style.display = "flex";
+        overlayText.textContent = "Cargando siguiente capítulo...";
+
+        // guardar último visto
+        localStorage.setItem("ultimoCapituloVisto", JSON.stringify({id, temporada, capitulo}));
+
+        setTimeout(() => {
+          video.src = videoUrl;
+          video.load();
+          video.play();
+        }, 2000);
+
       } else {
-        // Fin de temporada: mostrar pantalla negra y cerrar/regresar después de 3s
-        showBlackScreen();
-        setTimeout(()=>{
-          try { window.close(); } catch(e){ if(history.length>1) history.back(); }
+        // Fin de temporada
+        overlay.style.display = "flex";
+        overlayText.textContent = "Fin de Temporada";
+        setTimeout(() => {
+          window.close(); // cierra el player (en WebView funciona)
         }, 3000);
       }
     });
-
-    // ---------- controls ----------
-    playPause.addEventListener('click', ()=>{
-      if (video.paused) video.play(); else video.pause();
-      showControls();
-    });
-
-    seek.addEventListener('input', ()=>{
-      if (video.duration && isFinite(video.duration)) {
-        const t = (seek.value/100) * video.duration;
-        video.currentTime = t;
-      }
-      showControls();
-    });
-
-    fsBtn.addEventListener('click', async ()=>{
-      try {
-        if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-        else await document.exitFullscreen();
-      } catch(e){}
-    });
-
-    // show/hide controls
-    function showControls(){
-      controls.classList.remove('hidden');
-      if (hideControlsTimer) clearTimeout(hideControlsTimer);
-      hideControlsTimer = setTimeout(()=> controls.classList.add('hidden'), 3500);
-    }
-    document.addEventListener('mousemove', ()=> showControls());
-
-    // ---------- touch swipe horizontal = seek (no volume/brightness) ----------
-    let tstartX=0, tstartTime=0;
-    let inTouch=false;
-    const SWIPE_SENS = 30; // px threshold to start
-    video.addEventListener('touchstart', (ev)=> {
-      if(!ev.touches || ev.touches.length===0) return;
-      inTouch=true;
-      tstartX=ev.touches[0].clientX;
-      tstartTime=video.currentTime || 0;
-      seekingViaSwipe=false;
-    }, {passive:true});
-    video.addEventListener('touchmove', (ev)=> {
-      if(!inTouch || !ev.touches || ev.touches.length===0) return;
-      const dx = ev.touches[0].clientX - tstartX;
-      if (Math.abs(dx) < SWIPE_SENS) return;
-      seekingViaSwipe = true;
-      const durSec = isFinite(video.duration)? video.duration : 0;
-      if (durSec>0){
-        // dx -> seconds (sensitivity: 1/4 screen -> ~30s)
-        const secDelta = (dx / (window.innerWidth * 0.25))*30;
-        const nt = Math.max(0, Math.min(durSec, tstartTime + secDelta));
-        video.currentTime = nt;
-        gestures.style.display='block';
-        gLbl.textContent='Buscar';
-        gVal.textContent = fmt(nt);
-      }
-    }, {passive:true});
-    video.addEventListener('touchend', ()=> {
-      inTouch=false;
-      setTimeout(()=>{ gestures.style.display='none'; }, 400);
-    });
-
-    // ---------- keyboard (TV remote) ----------
-    document.addEventListener('keydown', (e)=>{
-      showControls();
-      if (e.key === 'ArrowLeft'){
-        e.preventDefault();
-        video.currentTime = Math.max(0, (video.currentTime || 0) - 10);
-      } else if (e.key === 'ArrowRight'){
-        e.preventDefault();
-        video.currentTime = Math.min(video.duration || 0, (video.currentTime || 0) + 10);
-      } else if (e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        if (video.paused) video.play(); else video.pause();
-      } else if (e.key === 'Backspace' || e.key === 'Escape' || e.key === '4'){
-        e.preventDefault();
-        // Guardar progreso y marcar último
-        saveProgress();
-        markLastWatched();
-        try { window.close(); } catch(e){ if(history.length>1) history.back(); }
-      } else if (e.key.toLowerCase() === 'f'){
-        e.preventDefault();
-        try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch(e){}
-      }
-    });
-
-    // ---------- lifecycle ----------
-    window.addEventListener('beforeunload', ()=>{
-      saveProgress();
-      markLastWatched();
-    });
-
-    // Load first episode and play
-    loadEpisode();
-    // try autoplay
-    video.play().catch(()=>{ /* user gesture required */ });
-
-    // Optional: expose for debugging
-    window.__player_debug = { player, buildEpisodeUrl, state: ()=>({serieId, temporada, capitulo, total}) };
-
-  })();
   </script>
 </body>
 </html>
