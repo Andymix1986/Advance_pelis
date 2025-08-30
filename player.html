@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Player</title>
+  <title>Player Shaka</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.0/shaka-player.compiled.js"></script>
   <style>
     body,html {
       margin:0;
@@ -50,10 +51,10 @@
     <div class="loader"></div>
     <div id="overlayText">Cargando...</div>
   </div>
-  <video id="video" controls autoplay></video>
+  <video id="video" autoplay muted playsinline></video>
 
   <script>
-    // ----------- 1. obtener parámetros de la URL ------------
+    // Obtener parámetros de URL
     const params = new URLSearchParams(window.location.search);
     let videoUrl   = decodeURIComponent(params.get("url"));
     const titulo   = decodeURIComponent(params.get("titulo"));
@@ -67,54 +68,57 @@
     const overlay = document.getElementById("overlay");
     const overlayText = document.getElementById("overlayText");
 
-    // ----------- 2. reproducir video -----------------
-    video.src = videoUrl;
+    // Inicializar Shaka Player
+    const player = new shaka.Player(video);
 
-    // ----------- 3. restaurar progreso -----------------
+    player.addEventListener('error', e => console.error('Error Shaka:', e.detail));
+
+    // Restaurar progreso
     const progressKey = `progress_${id}_${temporada}_${capitulo}`;
     const savedTime = localStorage.getItem(progressKey);
-    if (savedTime) {
-      video.currentTime = parseFloat(savedTime);
+
+    function loadVideo(url, resumeTime=0) {
+      overlay.style.display = "flex";
+      overlayText.textContent = capitulo === total-1 ? "Fin de Temporada" : "Cargando...";
+      player.load(url).then(() => {
+        if (resumeTime > 0) video.currentTime = resumeTime;
+        overlay.style.display = "none";
+        video.play();
+      }).catch(e => console.error("Shaka load error:", e));
     }
 
-    // ----------- 4. guardar progreso -----------------
+    loadVideo(videoUrl, savedTime ? parseFloat(savedTime) : 0);
+
+    // Guardar progreso en tiempo real
     video.addEventListener("timeupdate", () => {
       localStorage.setItem(progressKey, video.currentTime);
     });
 
-    // ----------- 5. ocultar overlay cuando cargue -----
-    video.addEventListener("canplay", () => {
-      overlay.style.display = "none";
-    });
-
-    // ----------- 6. salto automático -----------------
+    // Salto automático
     video.addEventListener("ended", () => {
       if (capitulo + 1 < total) {
-        // Siguiente capitulo
         capitulo++;
         const nextIdNum = parseInt(videoUrl.match(/(\d+)\.mkv$/)[1]) + 1;
         videoUrl = videoUrl.replace(/(\d+)\.mkv$/, nextIdNum + ".mkv");
 
-        // mostrar overlay
+        // Guardar último visto
+        localStorage.setItem("ultimoCapituloVisto", JSON.stringify({id, temporada, capitulo}));
+
         overlay.style.display = "flex";
         overlayText.textContent = "Cargando siguiente capítulo...";
 
-        // guardar último visto
-        localStorage.setItem("ultimoCapituloVisto", JSON.stringify({id, temporada, capitulo}));
-
         setTimeout(() => {
-          video.src = videoUrl;
-          video.load();
-          video.play();
-        }, 2000);
+          const nextProgressKey = `progress_${id}_${temporada}_${capitulo}`;
+          const nextSavedTime = localStorage.getItem(nextProgressKey);
+          loadVideo(videoUrl, nextSavedTime ? parseFloat(nextSavedTime) : 0);
+        }, 1000);
 
       } else {
         // Fin de temporada
         overlay.style.display = "flex";
         overlayText.textContent = "Fin de Temporada";
-        setTimeout(() => {
-          window.close(); // cierra el player (en WebView funciona)
-        }, 3000);
+        localStorage.setItem("ultimoCapituloVisto", JSON.stringify({id, temporada, capitulo}));
+        setTimeout(() => window.close(), 3000);
       }
     });
   </script>
