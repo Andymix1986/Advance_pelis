@@ -242,7 +242,7 @@
   <div id="sliders"></div>
 
   <script>
-  const ORIGEN = "Serie";
+  const ORIGEN = "series";
 
   // Carrusel - cambio automático de imágenes
   const images = document.querySelectorAll(".carousel-image");
@@ -260,8 +260,7 @@
   function submitSearch() {
     const query = searchInput.value.trim();
     if (query) {
-      window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
-
+      window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
     }
   }
 
@@ -299,7 +298,7 @@
     .then(r => r.text())
     .then(data => {
       const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const series = json.contenidos.filter(p => p.tipo === ORIGEN);
+      const series = json.contenidos.filter(p => p.tipo === "Serie");
       const container = document.getElementById("sliders");
       const cardsPerSlider = 7;
       for (let i = 0; i < series.length; i += cardsPerSlider) {
@@ -331,10 +330,9 @@
       verMas.tabIndex = 0;
       verMas.textContent = "Ver más";
       verMas.onclick = () => {
-  location.href = `https://advance-pelis.vercel.app/ver_categoria.html?tipo=${encodeURIComponent(ORIGEN)}`;
-};
-
-container.appendChild(verMas);
+        location.href = `https://advance-pelis.vercel.app/ver_categoria.html?tipo=Serie&origen=${ORIGEN}`;
+      };
+      container.appendChild(verMas);
     });
 
   // Auto-scroll slider al enfocar tarjeta
@@ -346,7 +344,7 @@ container.appendChild(verMas);
       const rect = card.getBoundingClientRect();
       const parentRect = parent.getBoundingClientRect();
       const offset = rect.left - parentRect.left;
- /     const scrollCenter = offset - (parentRect.width / 2) + (rect.width / 2);
+      const scrollCenter = offset - (parentRect.width / 2) + (rect.width / 2);
       parent.scrollTo({ left: scrollCenter, behavior: "smooth" });
     }
   });
