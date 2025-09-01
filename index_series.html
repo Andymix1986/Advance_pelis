@@ -222,10 +222,10 @@
   </div>
 
   <div class="menu-bar">
-    <button tabindex="0" onclick="location.href='http://186.148.224.87:8080/index.html'">Películas</button>
-    <button tabindex="0" onclick="location.href='http://186.148.224.87:8080/index_series.html'">Series</button>
-    <button tabindex="0" onclick="location.href='http://186.148.224.87:8080/index_animes.html'">Animes</button>
-    <button onclick="location.href='http://186.148.224.87:8080/index_tv.html'" tabindex="0">TV en Vivo</button>
+    <button tabindex="0" onclick="location.href='https://advance-pelis.vercel.app/index.html'">Películas</button>
+    <button tabindex="0" onclick="location.href='https://advance-pelis.vercel.app/index_series.html'">Series</button>
+    <button tabindex="0" onclick="location.href='https://advance-pelis.vercel.app/index_animes.html'">Animes</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_tv.html'" tabindex="0">TV en Vivo</button>
     <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
@@ -242,7 +242,7 @@
   <div id="sliders"></div>
 
   <script>
-  const ORIGEN = "series";
+  const ORIGEN = "Serie";
 
   // Carrusel - cambio automático de imágenes
   const images = document.querySelectorAll(".carousel-image");
@@ -260,7 +260,8 @@
   function submitSearch() {
     const query = searchInput.value.trim();
     if (query) {
-      window.location.href = `http://186.148.224.87:8080/resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
+      window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
+
     }
   }
 
@@ -292,13 +293,13 @@
   }
 
   // Cargar JSON y crear sliders con tarjetas
-  const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
+  const JSON_URL = "https://advance-pelis.vercel.app/contenidos.json";
 
   fetch(JSON_URL)
     .then(r => r.text())
     .then(data => {
       const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const series = json.contenidos.filter(p => p.tipo === "Serie");
+      const series = json.contenidos.filter(p => p.tipo === ORIGEN);
       const container = document.getElementById("sliders");
       const cardsPerSlider = 7;
       for (let i = 0; i < series.length; i += cardsPerSlider) {
@@ -330,9 +331,10 @@
       verMas.tabIndex = 0;
       verMas.textContent = "Ver más";
       verMas.onclick = () => {
-        location.href = `http://186.148.224.87:8080/ver_categoria.html?tipo=Serie&origen=${ORIGEN}`;
-      };
-      container.appendChild(verMas);
+  location.href = `https://advance-pelis.vercel.app/ver_categoria.html?tipo=${encodeURIComponent(ORIGEN)}`;
+};
+
+container.appendChild(verMas);
     });
 
   // Auto-scroll slider al enfocar tarjeta
@@ -344,7 +346,7 @@
       const rect = card.getBoundingClientRect();
       const parentRect = parent.getBoundingClientRect();
       const offset = rect.left - parentRect.left;
-      const scrollCenter = offset - (parentRect.width / 2) + (rect.width / 2);
+ /     const scrollCenter = offset - (parentRect.width / 2) + (rect.width / 2);
       parent.scrollTo({ left: scrollCenter, behavior: "smooth" });
     }
   });
@@ -355,7 +357,7 @@
     if (card && !card.classList.contains("ver-mas")) {
       const titulo = card.getAttribute("data-titulo");
       const tipo = "Serie";
-      location.href = `http://186.148.224.87:8080/capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}&origen=${ORIGEN}`;
+      location.href = `https://advance-pelis.vercel.app/capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}&origen=${ORIGEN}`;
     }
   });
 
