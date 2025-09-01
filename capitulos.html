@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Capítulos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      user-select: none;
+    }
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .portada {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .portada img {
+      width: 72%;
+      max-width: 600px;
+      border-radius: 20px;
+      outline: none;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 1.8rem;
+      color: #00bfff;
+    }
+    #temporadaTitulo {
+      text-align: center;
+      font-size: 1.3rem;
+      color: #00bfff;
+      margin-top: 20px;
+    }
+    .temporada-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .boton-temporada {
+      font-size: 1rem;
+      padding: 12px 20px;
+      min-width: 70%;
+      max-width: 600px;
+      border-radius: 12px;
+      background: #111;
+      color: #00bfff;
+      border: 2px solid #00bfff;
+      outline: none;
+      position: relative;
+      cursor: pointer;
+      text-align: left;
+    }
+    .boton-temporada:focus {
+      box-shadow: 0 0 10px 3px #00bfff;
+    }
+    .menu-temporadas {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px 5px rgba(0, 191, 255, 0.5);
+      z-index: 999;
+      max-height: 300px;
+      overflow-y: auto;
+      width: 70%;
+      max-width: 600px;
+    }
+    .menu-temporadas button {
+      background: transparent;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      outline: none;
+    }
+    .menu-temporadas button:focus {
+      box-shadow: 0 0 10px 3px #00bfff;
+      background-color: #222;
+    }
+    .menu-temporadas .seleccionada {
+      border: 2px solid #00bfff;
+      box-shadow: 0 0 10px 3px #00bfff;
+      background-color: #222;
+    }
+    .slider {
+      margin: 20px 0;
+    }
+    .slider-row {
+      display: flex;
+      overflow-x: auto;
+      padding-left: 40px;
+      padding-right: 40px;
+      scroll-behavior: smooth;
+    }
+    .card {
+      flex: 0 0 auto;
+      width: 160px;
+      height: 240px;
+      background-color: #222;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      margin: 20px 10px;
+      outline: none;
+    }
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card:focus {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 4px #00bfff;
+      z-index: 2;
+    }
+    .card-title {
+      position: absolute;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 4px;
+    }
+    .last-watched {
+      border: 3px solid #00bfff;
+      box-shadow: 0 0 15px 5px rgba(0, 191, 255, 0.7);
+    }
+    .last-watched::after {
+      content: "✓ Visto";
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(0, 191, 255, 0.9);
+      color: #000;
+      font-size: 0.7rem;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .cargando {
+      text-align: center;
+      padding: 20px;
+      color: #00bfff;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="portada">
+    <img id="imagenDestacada" src="" alt="portada" tabindex="0">
+  </div>
+  <h1 id="tituloSerie"></h1>
+  <div class="temporada-selector">
+    <button class="boton-temporada" id="botonTemporada" tabindex="0">Seleccionar temporada</button>
+    <div class="menu-temporadas" id="menuTemporadas"></div>
+  </div>
+  <h2 id="temporadaTitulo"></h2>
+  <div id="slidersContainer"></div>
+
+  <script>
+    // Función global para actualizar el último capítulo visto
+    function updateLastWatched(serieId, temporada, capitulo) {
+      console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
+      
+      // Solo procesar si es la misma serie
+      if (contenido && contenido.id === serieId) {
+        // Guardar en localStorage (número real 1-based)
+        const estado = { 
+          temporada: parseInt(temporada), 
+          capitulo: parseInt(capitulo) // Mantener como 1-based
+        };
+        localStorage.setItem(storageKey(), JSON.stringify(estado));
+        
+        // Actualizar la interfaz
+        actualizarInterfazConUltimoCapitulo();
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const titulo = params.get('titulo');
+    const tipo = params.get('tipo');
+    const imagenDestacada = document.getElementById("imagenDestacada");
+    const tituloSerie = document.getElementById("tituloSerie");
+    const botonTemporada = document.getElementById("botonTemporada");
+    const menuTemporadas = document.getElementById("menuTemporadas");
+    const slidersContainer = document.getElementById("slidersContainer");
+    const temporadaTitulo = document.getElementById("temporadaTitulo");
+
+    let contenido = null;
+    let temporadaActual = 0;
+    let focusables = [];
+    let focusedIndex = 0;
+
+    function storageKey() {
+      return `ultimo_estado_${contenido.id}`;
+    }
+
+    function guardarEstado(temporada, capitulo) {
+      const estado = { temporada, capitulo };
+      localStorage.setItem(storageKey(), JSON.stringify(estado));
+    }
+
+    function obtenerEstado() {
+      const json = localStorage.getItem(storageKey());
+      return json ? JSON.parse(json) : null;
+    }
+
+    function actualizarInterfazConUltimoCapitulo() {
+      const estado = obtenerEstado();
+      if (!estado) return;
+      
+      // Quitar marca de último visto de todas las tarjetas
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => card.classList.remove('last-watched'));
+      
+      // Si el estado guardado es para la temporada actual
+      if (estado.temporada === temporadaActual) {
+        // Marcar el capítulo correspondiente (convertir de 1-based a índice)
+        if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
+          focusables[estado.capitulo - 1].classList.add('last-watched');
+        }
+      }
+    }
+
+    function xorDecrypt(input, key) {
+      let output = '';
+      for (let i = 0; i < input.length; i++) {
+        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return output;
+    }
+
+    function decodeBase64(input) {
+      return atob(input);
+    }
+
+    // Función para generar URLs de capítulos
+    function generarURLsCapitulos(temp) {
+      const urls = [];
+      const total = temp.totalCapitulos;
+      const baseUrl = temp.urlBase;
+      
+      // Extraer el número base y la extensión del archivo
+      const match = baseUrl.match(/(\d+)(\.\w+)$/);
+      if (!match) {
+        console.error("No se pudo analizar la URL base:", baseUrl);
+        return urls;
+      }
+      
+      const baseId = parseInt(match[1]);
+      const extension = match[2];
+      
+      // Generar URLs para todos los capítulos
+      for (let capNum = 1; capNum <= total; capNum++) {
+        const nuevoId = baseId + (capNum - 1);
+        const url = baseUrl.replace(/(\d+)(\.\w+)$/, nuevoId + extension);
+        urls.push(url);
+      }
+      
+      return urls;
+    }
+
+    // Función para crear una tarjeta de capítulo
+    function crearTarjetaCapitulo(capNum, url, temp) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.tabIndex = 0;
+      card.setAttribute("data-serie", contenido.id);
+      card.setAttribute("data-temp", temporadaActual);
+      card.setAttribute("data-cap", capNum);
+
+      card.onclick = () => {
+        guardarEstado(temporadaActual, capNum);
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum)}&tipo=${encodeURIComponent(contenido.tipo)}&id=${encodeURIComponent(contenido.id)}&temporada=${temporadaActual}&capitulo=${capNum}&total=${temp.totalCapitulos}`;
+      };
+
+      card.addEventListener("focus", () => {
+        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
+
+      const img = document.createElement("img");
+      img.src = contenido.imagen;
+      img.alt = `Capítulo ${capNum}`;
+      
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = `Capítulo ${capNum}`;
+
+      card.append(img, title);
+      return card;
+    }
+
+    // Función para mostrar los capítulos de la temporada actual
+    function mostrarCapitulos() {
+      slidersContainer.innerHTML = "<div class='cargando'>Cargando capítulos...</div>";
+      focusables = [];
+      
+      setTimeout(() => {
+        const temp = contenido.temporadas[temporadaActual];
+        
+        // Verificar que la temporada tenga los datos necesarios
+        if (!temp || !temp.urlBase || !temp.totalCapitulos) {
+          console.error("Datos de temporada incompletos:", temp);
+          slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
+          return;
+        }
+        
+        // Generar todas las URLs de capítulos
+        const urlsCapitulos = generarURLsCapitulos(temp);
+        
+        if (urlsCapitulos.length === 0) {
+          slidersContainer.innerHTML = "<div class='cargando'>No se pudieron generar las URLs</div>";
+          return;
+        }
+        
+        slidersContainer.innerHTML = "";
+        
+        // Crear sliders con 10 capítulos cada uno
+        for (let i = 0; i < urlsCapitulos.length; i += 10) {
+          const slider = document.createElement("div");
+          slider.className = "slider";
+          const row = document.createElement("div");
+          row.className = "slider-row";
+
+          for (let j = 0; j < 10 && (i + j) < urlsCapitulos.length; j++) {
+            const capNum = i + j + 1;
+            const url = urlsCapitulos[i + j];
+
+            const card = crearTarjetaCapitulo(capNum, url, temp);
+            row.appendChild(card);
+            focusables.push(card);
+          }
+
+          slider.appendChild(row);
+          slidersContainer.appendChild(slider);
+        }
+
+        actualizarInterfazConUltimoCapitulo();
+        
+        // Enfocar el primer capítulo o el último visto
+        const estadoGuardado = obtenerEstado();
+        if (estadoGuardado && estadoGuardado.temporada === temporadaActual) {
+          enfocarCapitulo(estadoGuardado.capitulo);
+        } else {
+          focusedIndex = 0;
+          if (focusables.length > 0) focusables[0].focus();
+        }
+      }, 50);
+    }
+
+    function enfocarCapitulo(capNum) {
+      // Recibir número real (1-based) y convertirlo a índice
+      if (capNum >= 1 && capNum <= focusables.length) {
+        focusedIndex = capNum - 1;
+        focusables[focusedIndex].focus();
+      }
+    }
+
+    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
+      .then(r => r.text())
+      .then(data => {
+        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+        contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
+        if (!contenido) return;
+
+        imagenDestacada.src = contenido.imagen;
+        tituloSerie.textContent = contenido.titulo;
+
+        menuTemporadas.innerHTML = "";
+
+        contenido.temporadas.forEach((temp, index) => {
+          const btn = document.createElement("button");
+          btn.textContent = temp.temporada;
+          btn.tabIndex = 0;
+          btn.onclick = () => {
+            temporadaActual = index;
+            updateTemporadaUI();
+            menuTemporadas.style.display = "none";
+            botonTemporada.focus();
+            // Regenerar los capítulos para la nueva temporada
+            mostrarCapitulos();
+          };
+          menuTemporadas.appendChild(btn);
+        });
+
+        const estadoGuardado = obtenerEstado();
+        if (estadoGuardado) {
+          if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
+            temporadaActual = estadoGuardado.temporada;
+          }
+        }
+
+        updateTemporadaUI();
+
+        if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
+          setTimeout(() => {
+            enfocarCapitulo(estadoGuardado.capitulo);
+          }, 100);
+        }
+      });
+
+    function updateTemporadaUI() {
+      const botones = menuTemporadas.querySelectorAll("button");
+      botones.forEach((b, i) => {
+        b.classList.toggle("seleccionada", i === temporadaActual);
+      });
+      botonTemporada.textContent = contenido.temporadas[temporadaActual].temporada;
+      temporadaTitulo.textContent = contenido.temporadas[temporadaActual].temporada;
+      mostrarCapitulos();
+    }
+
+    // === controles ===
+    botonTemporada.addEventListener("click", () => {
+      menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
+      if (menuTemporadas.style.display === "flex") {
+        const btns = menuTemporadas.querySelectorAll("button");
+        if (btns.length > 0) btns[temporadaActual].focus();
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!menuTemporadas.contains(e.target) && e.target !== botonTemporada) {
+        menuTemporadas.style.display = "none";
+      }
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "4") {
+        e.preventDefault();
+        if (menuTemporadas.style.display === "flex") {
+          menuTemporadas.style.display = "none";
+          botonTemporada.focus();
+          return;
+        }
+        if (window.history.length > 1) {
+          window.history.back();
+        }
+        return;
+      }
+
+      if (document.activeElement === botonTemporada) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          menuTemporadas.style.display = "flex";
+          const btns = menuTemporadas.querySelectorAll("button");
+          if (btns.length > 0) btns[temporadaActual].focus();
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (focusables.length > 0) focusables[0].focus();
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          imagenDestacada.focus();
+        }
+      } else if (menuTemporadas.contains(document.activeElement)) {
+        const btns = Array.from(menuTemporadas.querySelectorAll("button"));
+        let idx = btns.indexOf(document.activeElement);
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (idx < btns.length - 1) btns[idx + 1].focus();
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (idx > 0) btns[idx - 1].focus();
+        } else if (e.key === "Enter") {
+          e.preventDefault();
+          btns[idx].click();
+        }
+      } else if (focusables.includes(document.activeElement)) {
+        if (e.key === "ArrowRight" && focusedIndex < focusables.length - 1) {
+          e.preventDefault();
+          focusedIndex++;
+          focusables[focusedIndex].focus();
+          guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+        } else if (e.key === "ArrowLeft" && focusedIndex > 0) {
+          e.preventDefault();
+          focusedIndex--;
+          focusables[focusedIndex].focus();
+          guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+        } else if (e.key === "ArrowDown" && focusedIndex + 10 < focusables.length) {
+          e.preventDefault();
+          focusedIndex += 10;
+          focusables[focusedIndex].focus();
+          guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (focusedIndex - 10 >= 0) {
+            focusedIndex -= 10;
+            focusables[focusedIndex].focus();
+            guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+          } else {
+            botonTemporada.focus();
+          }
+        } else if (e.key === "Enter") {
+          document.activeElement.click();
+        }
+      } else if (document.activeElement === imagenDestacada && e.key === "ArrowDown") {
+        e.preventDefault();
+        botonTemporada.focus();
+      }
+    });
+  </script>
+</body>
+</html>
