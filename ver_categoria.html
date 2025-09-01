@@ -138,20 +138,8 @@ document.getElementById('btnVolver').onclick = () => {
   }
 };
 
-// Función para obtener la URL de destino según el origen
-function getDestinationURL(url, titulo, origen) {
-  if (origen === "series" || origen === "animes") {
-    return `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(origen === "series" ? "Serie" : "Anime")}`;
-  } else if (origen === "tv") {
-    // Solo para TV agregamos el parámetro type=Tv
-    return `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&type=Tv`;
-  } else {
-    // Para otros orígenes, no agregamos el parámetro type
-    return `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-  }
-}
 
-fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
+fetch("https://advance-pelis.vercel.app/contenidos.json")
   .then(r => r.text())
   .then(data => {
     const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
@@ -278,28 +266,49 @@ fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/ma
           break;
           
         case "Enter":
-        case "OK":
-          e.preventDefault();
-          const card = cards[focusedIndex];
-          const url = card.getAttribute('data-url');
-          const titulo = card.getAttribute('data-titulo');
-          
-          // Usar la función getDestinationURL para obtener la URL correcta
-          location.href = getDestinationURL(url, titulo, origen);
+case "OK":
+  e.preventDefault();
+  const card = cards[focusedIndex];
+  const url = card.getAttribute('data-url');
+  const titulo = card.getAttribute('data-titulo');
+
+  let tipo = 'Pelicula';
+  if (origen === "Serie") tipo = "Serie";
+  else if (origen === "Anime") tipo = "Anime";
+  else if (origen === "Tv") tipo = "Tv";
+
+  if (tipo === "Tv") {
+    location.href = `advancepelis://liveplayer?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+  } else {
+    location.href = `advancepelis://player?tipo=${encodeURIComponent(tipo)}&url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+  }
+  break;
+
           break;
       }
     });
 
+
     document.addEventListener('click', e => {
-      const card = e.target.closest('.card');
-      if (card) {
-        const url = card.getAttribute('data-url');
-        const titulo = card.getAttribute('data-titulo');
-        
-        // Usar la función getDestinationURL para obtener la URL correcta
-        location.href = getDestinationURL(url, titulo, origen);
-      }
-    });
+  const card = e.target.closest('.card');
+  if (card) {
+    const url = card.getAttribute('data-url');
+    const titulo = card.getAttribute('data-titulo');
+
+    let tipo = 'Pelicula';
+    if (origen === "Serie") tipo = "Serie";
+    else if (origen === "Anime") tipo = "Anime";
+    else if (origen === "Tv") tipo = "Tv";
+
+    if (tipo === "Tv") {
+      location.href = `advancepelis://liveplayer?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    } else {
+      location.href = `advancepelis://player?tipo=${encodeURIComponent(tipo)}&url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+    }
+  }
+});
+
+
   })
   .catch(console.error);
 </script>
