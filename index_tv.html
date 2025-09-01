@@ -300,9 +300,9 @@
           verMas.tabIndex = 0;
           verMas.textContent = "Ver más";
           verMas.onclick = () => {
-  location.href = titulo === "Estrenos"
-     ? "https://advance-pelis.vercel.app/ver_categoria.html?estreno=1"
-     : `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(ORIGEN)}`;
+            location.href = titulo === "Estrenos"
+               ? "https://advance-pelis.vercel.app/ver_categoria.html?estreno=1"
+              : `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=Tv&origen=tv`;
 };
           
 
@@ -423,12 +423,15 @@
   const card = e.target.closest('.card');
   if (card && !card.classList.contains("ver-mas")) {
     const url = card.getAttribute("data-url");
-    if (url) {
-      // Usamos ORIGEN como tipo
-      window.location.href = `advancepelis://liveplayer?tipo=${encodeURIComponent(ORIGEN)}&url=${encodeURIComponent(url)}`;
+    const titulo = card.getAttribute("data-titulo");
+    
+    if (url && titulo) {
+      // Enviar la URL al esquema personalizado para Android, incluyendo el type con el valor de ORIGEN
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&type=${ORIGEN}`;
     }
   }
 });
+
 
     // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
@@ -455,8 +458,7 @@
     function submitSearch() {
       const query = document.getElementById("searchInput").value.trim();
       if (query) {
-        window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
-
+        window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&origen=${encodeURIComponent(ORIGEN)}`;
       }
     }
 
