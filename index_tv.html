@@ -217,10 +217,10 @@
   </div>
 
   <div class="menu-bar">
-    <button onclick="location.href='http://186.148.224.87:8080/index.html'" tabindex="0">Películas</button>
-    <button onclick="location.href='http://186.148.224.87:8080/index_series.html'" tabindex="0">Series</button>
-    <button onclick="location.href='http://186.148.224.87:8080/index_animes.html'" tabindex="0">Animes</button>
-<button onclick="location.href='http://186.148.224.87:8080/index_tv.html'" tabindex="0">TV en Vivo</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index.html'" tabindex="0">Películas</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_series.html'" tabindex="0">Series</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_animes.html'" tabindex="0">Animes</button>
+<button onclick="location.href='https://advance-pelis.vercel.app/index_tv.html'" tabindex="0">TV en Vivo</button>
     <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
@@ -237,7 +237,7 @@
   <div id="sliders"></div>
 
   <script>
-    const JSON_URL = "https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json";
+    const JSON_URL = "https://advance-pelis.vercel.app/contenidos.json";
     const ORIGEN = "Tv";
 
     function xorDecrypt(input, key) {
@@ -300,9 +300,9 @@
           verMas.tabIndex = 0;
           verMas.textContent = "Ver más";
           verMas.onclick = () => {
-            location.href = titulo === "Estrenos"
-               ? "http://186.148.224.87:8080/ver_categoria.html?estreno=1"
-              : `http://186.148.224.87:8080/ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=Tv&origen=tv`;
+  location.href = titulo === "Estrenos"
+     ? "https://advance-pelis.vercel.app/ver_categoria.html?estreno=1"
+     : `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(ORIGEN)}`;
 };
           
 
@@ -423,15 +423,12 @@
   const card = e.target.closest('.card');
   if (card && !card.classList.contains("ver-mas")) {
     const url = card.getAttribute("data-url");
-    const titulo = card.getAttribute("data-titulo");
-    
-    if (url && titulo) {
-      // Enviar la URL al esquema personalizado para Android, incluyendo el type con el valor de ORIGEN
-      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&type=${ORIGEN}`;
+    if (url) {
+      // Usamos ORIGEN como tipo
+      window.location.href = `advancepelis://liveplayer?tipo=${encodeURIComponent(ORIGEN)}&url=${encodeURIComponent(url)}`;
     }
   }
 });
-
 
     // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
@@ -458,7 +455,8 @@
     function submitSearch() {
       const query = document.getElementById("searchInput").value.trim();
       if (query) {
-        window.location.href = `http://186.148.224.87:8080/resultados.html?q=${encodeURIComponent(query)}&origen=${encodeURIComponent(ORIGEN)}`;
+        window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
+
       }
     }
 
