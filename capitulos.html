@@ -375,7 +375,7 @@
       }
     }
 
-    fetch("https://raw.githubusercontent.com/Andymix1986/Advance_pelis/refs/heads/main/contenidos.json")
+    fetch("https://advance-pelis.vercel.app/contenidos.json")
       .then(r => r.text())
       .then(data => {
         const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
