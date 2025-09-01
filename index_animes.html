@@ -239,7 +239,7 @@
   <div id="sliders"></div>
 
   <script>
-  const ORIGEN = "Anime";
+  const ORIGEN = "animes";
 
   // Carrusel - cambio automático de imágenes
   const images = document.querySelectorAll(".carousel-image");
@@ -257,8 +257,7 @@
   function submitSearch() {
     const query = searchInput.value.trim();
     if (query) {
-      window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
-
+      window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&origen=${ORIGEN}`;
     }
   }
 
@@ -296,8 +295,7 @@
     .then(r => r.text())
     .then(data => {
       const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const animes = json.contenidos.filter(p => p.tipo === ORIGEN);
-
+      const animes = json.contenidos.filter(p => p.tipo === "Anime");
       const container = document.getElementById("sliders");
       const cardsPerSlider = 7;
       for (let i = 0; i < series.length; i += cardsPerSlider) {
@@ -354,8 +352,7 @@
     if (card && !card.classList.contains("ver-mas")) {
       const titulo = card.getAttribute("data-titulo");
       const tipo = "Anime";
-      location.href = `https://advance-pelis.vercel.app//capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(ORIGEN)}`;
-
+      location.href = `https://advance-pelis.vercel.app/capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}&origen=${ORIGEN}`;
     }
   });
 
