@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>King Play - Animes</title>
+  <title>Advance Pelis Animes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html, body {
@@ -138,12 +138,15 @@
     }
 
     .slider-row {
-      display: flex;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      padding: 0 24px;
-      outline: none;
-    }
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 24px;
+  scrollbar-width: none; /* Firefox */
+}
+.slider-row::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
 
 
     .slider-row .card {
@@ -212,9 +215,9 @@
 <body>
   <div class="carousel-wrapper">
     <div class="carousel-container" id="carousel-container" tabindex="-1">
-      <img class="carousel-image active" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQFx-yaLXryOtvVHUWmHCLwkUGLeGMACOhWtiiq7wWbdaoyqdD3Ky-aUawWjYD_pipETnpxI1BRPPiyVdxRnNtwANojDKRZrQ5rhnf9BZ4p6KfEeVLqtJ1zltJd8Tyzip6CSaPii7ZQ-Y/s600/personajes-dragon-ball.jpg" />
-      <img class="carousel-image" src="https://sm.ign.com/t/ign_br/tv/o/one-piece-/one-piece-2_1xby.1200.jpg" />
-      <img class="carousel-image" src="https://www.clarin.com/img/2023/04/09/meZpY48iq_2000x1500__1.jpg" />
+      <img class="carousel-image active" src="https://images2.imgbox.com/62/1c/BtDYFVpm_o.jpg" />
+      <img class="carousel-image" src="https://images2.imgbox.com/64/4d/zcXSgABv_o.jpg" />
+      <img class="carousel-image" src="https://images2.imgbox.com/3d/96/xZfvWYg3_o.jpg" />
     </div>
   </div>
 
@@ -229,7 +232,7 @@
   </div>
 
   <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar animes..." />
+    <input type="text" id="searchInput" placeholder="Buscar series..." />
     <div class="buttons-row">
       <button id="searchBtn">Buscar</button>
       <button id="closeSearch">Cerrar</button>
