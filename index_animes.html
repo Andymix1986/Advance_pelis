@@ -301,8 +301,8 @@
       const animes = json.contenidos.filter(p => p.tipo === "Anime");
       const container = document.getElementById("sliders");
       const cardsPerSlider = 7;
-      for (let i = 0; i < series.length; i += cardsPerSlider) {
-        const slice = series.slice(i, i + cardsPerSlider);
+      for (let i = 0; i < animes.length; i += cardsPerSlider) {
+        const slice = animes.slice(i, i + cardsPerSlider);
         const slider = document.createElement("div");
         slider.className = "slider";
         slider.innerHTML = `<h2>Animes</h2>`;
