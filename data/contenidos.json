@@ -1,0 +1,1125 @@
+{
+  "version": "1.0.3",
+  "mensaje": "Se agrego canales Infantiles y Musicales",
+  "contenidos": [
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible",
+      "imagen": "https://image.tmdb.org/t/p/w342//xCpmxw3UUjv4PGzbIPOHeoKAV0l.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/5667d66e-8ec0-4760-a1a0-8dd51ff4733a.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 2",
+      "imagen": "https://image.tmdb.org/t/p/w342//mskE3W88cjMRrnKQye8pjmJu3O1.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/307a5410-f24e-40c1-85ad-d10e160408be.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 3",
+      "imagen": "https://image.tmdb.org/t/p/w342//w61xBgFOfP8Z6uHKIKn1sl1TI8j.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/e4961445-8c16-4c61-a647-f0f2c2b7b20e.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 4 Protocolo Fantasma",
+      "imagen": "https://image.tmdb.org/t/p/w342//y0hjsPyieqxcunEcAxb9mrrE09c.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/62cd4b87-40e9-45bf-bc07-f0041e481179.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 5 Nacion Secreta",
+      "imagen": "https://image.tmdb.org/t/p/w342//ww0IX7Xla6tHgrwYSupfXcksV3n.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/3ba454f0-92e6-4661-ae17-438e8ee5b552.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 6 Repercusión",
+      "imagen": "https://image.tmdb.org/t/p/w342//6fSdqrkkhSHi2hD6WFTi2LF43Al.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/3e92ad88-9ec8-4e85-b32b-0d23d9aeab19.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 7 Sentencia Mortal",
+      "imagen": "https://image.tmdb.org/t/p/w342//83sGKvCv2T2CulYbd40Aeduc7n2.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/5e2aa940-5821-429f-aebb-a60df3e5d19b.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Mision Imposible 8 Sentencia Final",
+      "imagen": "https://image.tmdb.org/t/p/w342//haOjJGUV00dKlZaJWgjM1UD1cJV.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/5ead978e-8052-40cc-a20e-c9ecc17e29d5.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Lilo Stitch",
+      "imagen": "https://image.tmdb.org/t/p/w342//COzWKbKbHGsOM7HjWuYrUrlQ8r.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/606137.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Como Entrenar A Tu Dragón",
+      "imagen": "https://image.tmdb.org/t/p/w342//sGFO6VshDEQ9vX4tOSobLJpkNhq.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "Estreno",
+      "url": "http://nxt.plus:8080/movie/sebastiands/643011/263691.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Las Guerreras K-pop",
+      "imagen": "https://image.tmdb.org/t/p/w342//swQRKmW7RLhncPYHvM0RHz8b7bT.jpg",
+      "categoria": "Animada",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/608746.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Karate Kid Leyends",
+      "imagen": "https://image.tmdb.org/t/p/w342//efNhiZPk71FTYJ30dBkWMfc939D.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/605077.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Destino Final Lazos De Sangre",
+      "imagen": "https://image.tmdb.org/t/p/w154/eMrXZnGTPy52zgplp7PbZWll8W7.jpg",
+      "categoria": "Terror",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/605721.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Kayara La Guerrera Del Imperio Inca",
+      "imagen": "https://image.tmdb.org/t/p/w220_and_h330_face/A1DSh29atQjLZCVCddMyGw1mbM8.jpg",
+      "categoria": "Animada",
+      "estreno": "Estreno",
+      "url": "http://tv.nousiptv.com:8080/movie/UY2466/76446765/1246264.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "F1 La Pelicula",
+      "imagen": "https://image.tmdb.org/t/p/w185/6u4APbFBTcu3ieWBzFdyaGMLC9O.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/609292.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Criatura Voraz",
+      "imagen": "https://image.tmdb.org/t/p/w185/Ahq9wbcwKdZyaJgzeZg4lazqqkx.jpg",
+      "categoria": "Terror",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/609263.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Exterminio 28 Dias Despues",
+      "imagen": "https://image.tmdb.org/t/p/w185/sIGsLU7hMDVKhGKsRFcFxUAtFyT.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/movie/UY2466/76446765/1099187.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Exterminio 3 La Evolucion 28 Años Después",
+      "imagen": "https://image.tmdb.org/t/p/w185/hvIqaDUC48dwfd7taKczB7909Qg.jpg",
+      "categoria": "Terror",
+      "estreno": "Estreno",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/d525696c-80f1-4943-b885-87ed63ff9565.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Elio",
+      "imagen": "https://image.tmdb.org/t/p/w185/fGjwHlv8bCjZypi2bHbbSmyIGMV.jpg",
+      "categoria": "Animada",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/608760.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Agente Infiltrado",
+      "imagen": "https://image.tmdb.org/t/p/w185/kV1j0KzbNGPz5EUqzUOrVTtDx2u.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/1b4a635f-6924-4602-ab1a-bf31e2b8dcda.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "La Profecia Del Guerrero",
+      "imagen": "https://image.tmdb.org/t/p/w185/sV9vfQ6FneFt3x9FokKWAAqwWDq.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/964acbd2-f373-41d7-8c58-2738f10f78d0.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Jurassic Wolrd El Renacer",
+      "imagen": "https://pics.filmaffinity.com/jurassic_world_rebirth-254962281-mmed.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/609626.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Superman",
+      "imagen": "https://image.tmdb.org/t/p/w154/fvUJb08yatV2b3NUSwuYdQKYoFd.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/610224.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "La Vieja Guardia 2",
+      "imagen": "https://image.tmdb.org/t/p/w342//6eGyuK8bHMAB34AIIQOL3wZw8sn.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/609583.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "K.O.",
+      "imagen": "https://image.tmdb.org/t/p/w342//uTbQg4zQ0eGXlKl8imLu64LLJQX.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/607467.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Ballerina",
+      "imagen": "https://image.tmdb.org/t/p/w342//gQCrYmvCK7JCLXjCGTMRF5Lzr5c.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/607407.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Tierras Perdidas",
+      "imagen": "https://la.movie/wp-content/uploads/thumbs/83bff3fce9076bf1a3011d17fb5f1240_hd.webp",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/607396.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Exterminio 2 28 Semanas Después",
+      "imagen": "https://images.justwatch.com/poster/117795404/s718/28-semanas-despues.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://mundo2.pro:80/movie/OscarGuevara2/q2UM2f6EsJk6/ffd0f115-3097-464a-9604-42fab966fdda.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Los Pecadores",
+      "imagen": "https://media.themoviedb.org/t/p/w220_and_h330_face/jIVa5m9s7bKYdI0KH8wFw1qLxHl.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/607099.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Niko La Aventura De Las Narices Frias",
+      "imagen": "https://media.themoviedb.org/t/p/w220_and_h330_face/edIFOCPgAS8zBAlr3B5EvHpVM5l.jpg",
+      "categoria": "Animada",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/589629.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "El Ritual",
+      "imagen": "https://image.tmdb.org/t/p/w185/8gT2cR9ETkSZbNSmQQeCUW6sYCg.jpg",
+      "categoria": "Terror",
+      "estreno": "Estreno",
+      "url": "http://tv.nousiptv.com:8080/movie/mariasuazo/123456/1247420.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Perro y Gata",
+      "imagen": "https://media.themoviedb.org/t/p/w220_and_h330_face/wASttItE7cVqjZGmrnRREay1p2g.jpg",
+      "categoria": "Comedia",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/movie/mariasuazo/123456/1201906.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Todas Menos Tu",
+      "imagen": "https://media.themoviedb.org/t/p/w220_and_h330_face/6MYLLfWEVlAwWvNY5Tdy1Z9ruqH.jpg",
+      "categoria": "Comedia",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/movie/mariasuazo/123456/1207403.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Luces Fuera",
+      "imagen": "https://media.themoviedb.org/t/p/w220_and_h330_face/w77zHTSykW74c19rgV5JOA0nGmd.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/532432.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Los 4 Fantasticos Primeros Pasos",
+      "imagen": "https://image.tmdb.org/t/p/w342//ckfiXWGEMWrUP53cc6QyHijLlhl.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "Estreno",
+      "url": "http://tv.nousiptv.com:8080/movie/mariasuazo/123456/1250026.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Pitufos",
+      "imagen": "https://image.tmdb.org/t/p/w342//zBdQclxQnEDOhDOjkKgKPW6jEHh.jpg",
+      "categoria": "Animada",
+      "estreno": "Estreno",
+      "url": "http://tv.nousiptv.com:8080/movie/mariasuazo/123456/1251461.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Los Tipos Malos 2",
+      "imagen": "https://image.tmdb.org/t/p/w342//j0moebdCWDjjwS6bz1ohrsRp1Vp.jpg",
+      "categoria": "Animada",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/613262.mp4"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Fox Sports Premium",
+      "imagen": "https://images2.imgbox.com/f5/de/o0sy8ap6_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://fivetv.org:25461/liseth2919/paucar2813/92622"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Espn 1 ARG",
+      "imagen": "https://images2.imgbox.com/aa/09/qHCeWIEZ_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://fivetv.org:25461/liseth2919/paucar2813/92586"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Espn 2 ARG",
+      "imagen": "https://images2.imgbox.com/8a/9b/q61NU2Kr_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://fivetv.org:25461/liseth2919/paucar2813/92592"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Espn 3 ARG",
+      "imagen": "https://images2.imgbox.com/a5/1e/IdBb4mOO_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.iprotv.live:25461/canales-ProYeCtoX998/deiproaproyecto2025/94807"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Dsports +",
+      "imagen": "https://images2.imgbox.com/dc/4a/klajf9IC_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://blast.lat:8080//live/PRUEBA2204/X6sSAgNEC25k/249514.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Dsports 2",
+      "imagen": "https://images2.imgbox.com/c2/a2/a649A3q4_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://blast.lat:8080//live/PRUEBA2204/X6sSAgNEC25k/249513.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Dsports",
+      "imagen": "https://images2.imgbox.com/bb/9a/0vdnnNTs_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/7863"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Fox Sports 3",
+      "imagen": "https://images2.imgbox.com/6e/7d/8qEndAwq_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.zapping.life:8080/herreraluis1/5Zu6KeSVgm/9589"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Fox Sports 2",
+      "imagen": "https://images2.imgbox.com/67/19/Kxg8REgh_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1090741"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Fox Sports Arg",
+      "imagen": "https://images2.imgbox.com/36/3b/KqEDpOgB_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1090738"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Tyc Sports",
+      "imagen": "https://images2.imgbox.com/42/38/p0wePb3Q_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/454718.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Tnt Sports",
+      "imagen": "https://images2.imgbox.com/c4/50/cyRpeZkx_o.jpg",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1155814"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Espn Premium",
+      "imagen": "https://images2.imgbox.com/a8/fb/8VI5qesm_o.png",
+      "categoria": "Deportes",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/8330"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "America",
+      "imagen": "https://images2.imgbox.com/6c/67/WKuhrvwA_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1155829"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Telefé",
+      "imagen": "https://images2.imgbox.com/93/29/iruyefdX_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/51071"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "El Trece",
+      "imagen": "https://images2.imgbox.com/8c/24/2XksP0eR_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/46976.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "El Nueve",
+      "imagen": "https://images2.imgbox.com/7a/54/Z7oaMm8L_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/46977.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "TN",
+      "imagen": "https://images2.imgbox.com/d2/2f/12SUD41Q_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/613255.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Tv Publica",
+      "imagen": "https://images2.imgbox.com/62/2a/Sh7dVmLN_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/46972.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "C5n",
+      "imagen": "https://images2.imgbox.com/de/ec/jDdF90Gd_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/242080.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Cronica Tv",
+      "imagen": "https://images2.imgbox.com/54/a1/jC0OOvrz_o.jpg",
+      "categoria": "Argentina",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/19708.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Cine Ar",
+      "imagen": "https://images2.imgbox.com/30/ac/SM6Q0Ern_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://nxt.plus:8080/live/sebastiands/643011/183274.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "TCM",
+      "imagen": "https://images2.imgbox.com/5d/33/vpCCC3cW_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1155806"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Sony Channel",
+      "imagen": "https://images2.imgbox.com/d4/e9/TmC6gUdg_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4048"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Sony Movies",
+      "imagen": "https://images2.imgbox.com/c7/ec/aoVjVp3U_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1143816"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Paramount Network",
+      "imagen": "https://images2.imgbox.com/e1/3d/n2PZfc0e_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/439787.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Cinecanal",
+      "imagen": "https://images2.imgbox.com/e4/9f/LSd10JFf_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://nxt.plus:8080/live/sebastiands/643011/2833.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Star Channel",
+      "imagen": "https://images2.imgbox.com/cb/c2/3UUO1nJP_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1200684"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO",
+      "imagen": "https://images2.imgbox.com/cb/95/oSr5hFUj_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4112"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO 2",
+      "imagen": "https://images2.imgbox.com/fe/10/3THvPPfN_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4095"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO Plus",
+      "imagen": "https://images2.imgbox.com/ab/8c/2pzggs6s_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4109"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO Family",
+      "imagen": "https://images2.imgbox.com/3f/2d/VZd75dJ8_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4017"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO Xtreme",
+      "imagen": "https://images2.imgbox.com/eb/ee/aQopotXz_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/185175.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO Mundi",
+      "imagen": "https://images2.imgbox.com/b7/f9/PPAVtcgp_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/19547.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO Pop",
+      "imagen": "https://images2.imgbox.com/09/89/0qJnsIl1_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://redworld.pro:8880/jhon670/eMwQGD7QrzBk/414471"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HBO Signature",
+      "imagen": "https://images2.imgbox.com/db/00/C00XNZkh_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/1155796"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Studio Universal",
+      "imagen": "https://images2.imgbox.com/be/5c/TUI1ASfO_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4100"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Universal Tv",
+      "imagen": "https://images2.imgbox.com/cd/1f/dtyZl6fW_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4054"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Warner Tv",
+      "imagen": "https://images2.imgbox.com/9e/93/bWtULBEo_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://blast.lat:8080//live/PRUEBA2204/X6sSAgNEC25k/120078.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "FX HD",
+      "imagen": "https://images2.imgbox.com/7e/df/8hx2fFRo_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://blast.lat:8080//live/PRUEBA2204/X6sSAgNEC25k/120087.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Cinemax",
+      "imagen": "https://images2.imgbox.com/e0/8f/KoTeqKHp_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4110"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Space",
+      "imagen": "https://images2.imgbox.com/8b/c8/FYblO86i_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4099"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "TNT HD",
+      "imagen": "https://images2.imgbox.com/2d/14/CKaNHwsS_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4103"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "TNT Series",
+      "imagen": "https://images2.imgbox.com/32/dd/EsfJDXJu_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4050"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "A&E",
+      "imagen": "https://images2.imgbox.com/27/9d/uTvwS211_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4037"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "AXN",
+      "imagen": "https://images2.imgbox.com/4a/67/umdi7uR8_o.jpg",
+      "categoria": "Cine y Series",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4038"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Osiris",
+      "imagen": "https://image.tmdb.org/t/p/w154/9xqWda3KWuGWxNyoqlOlEzEzPmd.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/613807.mp4"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "La Hora De La Desaparicion",
+      "imagen": "https://image.tmdb.org/t/p/w185/cwjNSLj5FCkwFsTx7g57ybWQDcp.jpg",
+      "categoria": "Terror",
+      "estreno": "Estreno",
+      "url": "http://tv.nousiptv.com:8080/movie/mariasuazo/123456/1251652.mkv"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Cartoonito",
+      "imagen": "https://images2.imgbox.com/f1/28/tKVOkRA6_o.jpg",
+      "categoria": "Infantiles",
+      "estreno": "",
+      "url": "http://nxt.plus:8080/live/sebastiands/643011/191171.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Discovery Kids",
+      "imagen": "https://images2.imgbox.com/29/39/4q0CchPW_o.jpg",
+      "categoria": "Infantiles",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/439758.ts"
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "Karma",
+      "imagen": "https://fr.web.img5.acsta.net/img/ef/36/ef368c32d2b59bb02331a6c0b128e6c0.jpg",
+      "id": "KAR",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://cplay.club:2082/series/YolisHdz/33WvR7gxyuTK/453367.mkv",
+          "totalCapitulos": 6
+        }
+      ]
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "Ironheart",
+      "imagen": "https://images.justwatch.com/poster/332745826/s718/ironheart.jpg",
+      "id": "IRON",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://tv.nousiptv.com:8080/series/UY2466/76446765/1247821.mkv",
+          "totalCapitulos": 6
+        }
+      ]
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "Merlina",
+      "imagen": "https://m.media-amazon.com/images/M/MV5BNDM2ZTA0NjQtMjk4Ni00ODkyLTk3ZjMtYzFjZThjYzQzNWViXkEyXkFqcGc@._V1_.jpg",
+      "id": "MER",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/386488.mkv",
+          "totalCapitulos": 8
+        },
+        {
+          "temporada": "Temporada 2",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/613131.mp4",
+          "totalCapitulos": 4
+        }
+      ]
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "Alien Planeta Tierra",
+      "imagen": "https://pics.filmaffinity.com/Alien_Earth_Serie_de_TV-306984163-large.jpg",
+      "id": "ALIEN",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/613776.mp4",
+          "totalCapitulos": 4
+        }
+      ]
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Maa",
+      "imagen": "https://www.lavanguardia.com/peliculas-series/images/movie/poster/2025/6/w300/kc5n7LJUmvBsVxzAla1ONN8kouP.jpg",
+      "categoria": "Terror",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/615551.mp4"
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "El Juego Del Calamar",
+      "imagen": "https://elgeneracionalpost.com/wp-content/uploads/2021/09/WhatsApp-Image-2021-09-29-at-16.42.19.jpeg",
+      "id": "CAL",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://cplay.club:2082/series/YolisHdz/33WvR7gxyuTK/417687.mkv",
+          "totalCapitulos": 9
+        },
+        {
+          "temporada": "Temporada 2",
+          "urlBase": "http://cplay.club:2082/series/YolisHdz/33WvR7gxyuTK/417609.mkv",
+          "totalCapitulos": 7
+        },
+        {
+          "temporada": "Temporada 3",
+          "urlBase": "http://cplay.club:2082/series/YolisHdz/33WvR7gxyuTK/454176.mkv",
+          "totalCapitulos": 6
+        }
+      ]
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "La Lista Final: Lobo Negro",
+      "imagen": "https://es.web.img3.acsta.net/c_310_420/img/b3/97/b3973c4cea81e26a856e1615bed20d78.jpg",
+      "id": "LOBO",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/615829.mp4",
+          "totalCapitulos": 3
+        }
+      ]
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "El Eternauta",
+      "imagen": "https://images.ctfassets.net/4cd45et68cgf/1mVbB15TI7b9cNNZ1V1eZN/7e9b763e09b46a70f14fbe7ebdd10417/ES-AR_EE_Main-Key-Art_The-Mask_Vertical_27x40_sRGB_PRE_OP2.jpg?w=2000",
+      "id": "ETER",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/603748.mkv",
+          "totalCapitulos": 6
+        }
+      ]
+    },
+    {
+      "tipo": "Serie",
+      "titulo": "El Gran Guerrero",
+      "imagen": "https://www.lavanguardia.com/peliculas-series/images/serie/poster/2025/7/w1280/qEcYaWKUUJITpp3hwTIGtgfHeEZ.jpg",
+      "id": "GRAN",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/613598.mp4",
+          "totalCapitulos": 6
+        }
+      ]
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Destino Final",
+      "imagen": "https://image.tmdb.org/t/p/w185/6F3MEcGHeMAMxledi7vQfqkZRkc.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/234225.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Destino Final 2",
+      "imagen": "https://image.tmdb.org/t/p/w185/6m4TTnatasZcMi6qE4Hbe9LdJgz.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/93724.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Destino Final 3",
+      "imagen": "https://image.tmdb.org/t/p/w185/3PEVkIBOii1fxQxaQ0iKODGnBUp.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/93725.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Destino Final 4",
+      "imagen": "https://image.tmdb.org/t/p/w185/8b1tsUQW8hogJRi6FFHHfO7D1fu.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/93726.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Destino Final 5",
+      "imagen": "https://image.tmdb.org/t/p/w185/T0IGau7Alj52OLrrthzftkLMIA.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/93727.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Arcadian",
+      "imagen": "https://image.tmdb.org/t/p/w185/2paAs9Azw9CXZe3jD5F3weQVwyr.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/576250.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "El Experimento Del Sueño",
+      "imagen": "https://image.tmdb.org/t/p/w185/x2CmhuEvPWM90WUD5mLP7Drd4Na.jpg",
+      "categoria": "Suspenso",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/576253.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Kraven El Cazador",
+      "imagen": "https://image.tmdb.org/t/p/w185/gabWTSVhzltlKkmcqPoJmjKJxyb.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/577783.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "De Vuelta A La Accion",
+      "imagen": "https://image.tmdb.org/t/p/w185/mAvyQ2X3767LwXE2htvAd22ucd3.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/577905.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Nosferatu",
+      "imagen": "https://image.tmdb.org/t/p/w185/jivUhECegXI3OYtPVflWoIDtENt.jpg",
+      "categoria": "Terror",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/578066.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Sonic 3 La Pelicula",
+      "imagen": "https://image.tmdb.org/t/p/w185/3aDWCRXLYOCuxjrjiPfLd79tcI6.jpg",
+      "categoria": "Animada",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/578068.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "La Secta",
+      "imagen": "https://image.tmdb.org/t/p/w185/6PeWbZBxMXD7Yyy1zB9xIxawnKs.jpg",
+      "categoria": "Suspenso",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/578119.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Sniper La Ultima Resistencia",
+      "imagen": "https://image.tmdb.org/t/p/w185/iEscED4NZCHsbA5maY4jnd3Z7xh.jpg",
+      "categoria": "Acción",
+      "estreno": "Estreno",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/578183.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Moana 2",
+      "imagen": "https://image.tmdb.org/t/p/w185/bit1B5F7IQydiWqdwAAD8f9TkXs.jpg",
+      "categoria": "Animada",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/578808.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Respira",
+      "imagen": "https://image.tmdb.org/t/p/w185/oujEGO5eXnP8PsFRPJHZfUzlKFK.jpg",
+      "categoria": "Ciencia Ficción",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/588114.mkv"
+    },
+    {
+      "tipo": "Pelicula",
+      "titulo": "Criaturas Linea De Extincion",
+      "imagen": "https://image.tmdb.org/t/p/w185/92cd9vR6ThBqT6Pe6m5daxX0rAk.jpg",
+      "categoria": "Acción",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/movie/LilianaAlfaro/SBJQZ/588455.mkv"
+    },
+    {
+      "tipo": "Anime",
+      "titulo": "Kimetsu No Yaiba",
+      "imagen": "https://image.tmdb.org/t/p/w342/6N21gcFbhT4ocdTU4MGREAaM5Vz.jpg",
+      "id": "KIME",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/578657.mp4",
+          "totalCapitulos": 26
+        },
+        {
+          "temporada": "Temporada 2",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/578683.mp4",
+          "totalCapitulos": 7
+        },
+        {
+          "temporada": "Temporada 3",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/578690.mp4",
+          "totalCapitulos": 11
+        },
+        {
+          "temporada": "Temporada 4",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/578701.mp4",
+          "totalCapitulos": 11
+        },
+        {
+          "temporada": "Temporada 5",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/613779.mp4",
+          "totalCapitulos": 8
+        }
+      ]
+    },
+    {
+      "tipo": "Anime",
+      "titulo": "Dragon Ball Z",
+      "imagen": "https://image.tmdb.org/t/p/w342/aKr5GFLLAGy4ndo1NKkIngx1teJ.jpg",
+      "id": "DBZ",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/288116.mkv",
+          "totalCapitulos": 35
+        },
+        {
+          "temporada": "Temporada 2",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/288172.mkv",
+          "totalCapitulos": 72
+        },
+        {
+          "temporada": "Temporada 3",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/288244.mkv",
+          "totalCapitulos": 10
+        },
+        {
+          "temporada": "Temporada 4",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/288262.mkv",
+          "totalCapitulos": 22
+        },
+        {
+          "temporada": "Temporada 5",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/288284.mkv",
+          "totalCapitulos": 55
+        },
+        {
+          "temporada": "Temporada 6",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/288338.mkv",
+          "totalCapitulos": 6
+        }
+      ]
+    },
+    {
+      "tipo": "Anime",
+      "titulo": "Dragon Ball Super",
+      "imagen": "https://i.pinimg.com/736x/00/f0/7f/00f07f11cd6f595f92d9fe98e12a0be7.jpg",
+      "id": "DBS",
+      "temporadas": [
+        {
+          "temporada": "Temporada 1",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/219705.mkv",
+          "totalCapitulos": 14
+        },
+        {
+          "temporada": "Temporada 2",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/219719.mkv",
+          "totalCapitulos": 13
+        },
+        {
+          "temporada": "Temporada 3",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/219732.mkv",
+          "totalCapitulos": 14
+        },
+        {
+          "temporada": "Temporada 4",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/219746.mkv",
+          "totalCapitulos": 5
+        },
+        {
+          "temporada": "Temporada 6",
+          "urlBase": "http://home-playtv.com:25461/series/LilianaAlfaro/SBJQZ/219833.mkv",
+          "totalCapitulos": 55
+        }
+      ]
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Disney Junior",
+      "imagen": "https://images2.imgbox.com/32/8a/bY9inGdB_o.jpg",
+      "categoria": "Infantiles",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4111"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Disney Channel",
+      "imagen": "https://images2.imgbox.com/e5/6e/QsjZ6K8Q_o.jpg",
+      "categoria": "Infantiles",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/211237.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Nick Jr",
+      "imagen": "https://images2.imgbox.com/4d/7a/UKEkzZFr_o.jpg",
+      "categoria": "Infantiles",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/242022.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Cartoon Network",
+      "imagen": "https://images2.imgbox.com/18/23/YkKbWjcC_o.jpg",
+      "categoria": "Infantiles",
+      "estreno": "",
+      "url": "http://home-playtv.com:25461/live/LilianaAlfaro/SBJQZ/439761.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "MTV",
+      "imagen": "https://images2.imgbox.com/39/98/NOC2uTsG_o.jpg",
+      "categoria": "Musicales",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/4083"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "HTV",
+      "imagen": "https://images2.imgbox.com/4d/8f/9kUJETGJ_o.jpg",
+      "categoria": "Musicales",
+      "estreno": "",
+      "url": "http://tv.nousiptv.com:8080/UY2466/76446765/51395"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "CM",
+      "imagen": "https://images2.imgbox.com/31/1b/tVfmHwwl_o.jpg",
+      "categoria": "Musicales",
+      "estreno": "",
+      "url": "http://2.magmas5.com:8000/live/sandrademolina2/A7AAD8E/3552.ts"
+    },
+    {
+      "tipo": "Tv",
+      "titulo": "Quiero Tv",
+      "imagen": "https://images2.imgbox.com/a5/fb/ZwtKkm9W_o.jpg",
+      "categoria": "Musicales",
+      "estreno": "",
+      "url": "http://2.magmas5.com:8000/live/sandrademolina2/A7AAD8E/3548.ts"
+    }
+  ]
+}
