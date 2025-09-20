@@ -253,32 +253,6 @@
       return atob(input);
     }
 
-    // Función para generar URLs de capítulos
-    function generarURLsCapitulos(temp) {
-      const urls = [];
-      const total = temp.totalCapitulos;
-      const baseUrl = temp.urlBase;
-      
-      // Extraer el número base y la extensión del archivo
-      const match = baseUrl.match(/(\d+)(\.\w+)$/);
-      if (!match) {
-        console.error("No se pudo analizar la URL base:", baseUrl);
-        return urls;
-      }
-      
-      const baseId = parseInt(match[1]);
-      const extension = match[2];
-      
-      // Generar URLs para todos los capítulos
-      for (let capNum = 1; capNum <= total; capNum++) {
-        const nuevoId = baseId + (capNum - 1);
-        const url = baseUrl.replace(/(\d+)(\.\w+)$/, nuevoId + extension);
-        urls.push(url);
-      }
-      
-      return urls;
-    }
-
     // Función para crear una tarjeta de capítulo
     function crearTarjetaCapitulo(capNum, url, temp) {
       const card = document.createElement("div");
@@ -290,7 +264,7 @@
 
       card.onclick = () => {
         guardarEstado(temporadaActual, capNum);
-        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum)}&tipo=${encodeURIComponent(contenido.tipo)}&id=${encodeURIComponent(contenido.id)}&temporada=${temporadaActual}&capitulo=${capNum}&total=${temp.totalCapitulos}`;
+        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum)}&tipo=${encodeURIComponent(contenido.tipo)}&id=${encodeURIComponent(contenido.id)}&temporada=${temporadaActual}&capitulo=${capNum}&total=${temp.urls.length}`;
       };
 
       card.addEventListener("focus", () => {
@@ -318,32 +292,24 @@
         const temp = contenido.temporadas[temporadaActual];
         
         // Verificar que la temporada tenga los datos necesarios
-        if (!temp || !temp.urlBase || !temp.totalCapitulos) {
+        if (!temp || !temp.urls || !Array.isArray(temp.urls) || temp.urls.length === 0) {
           console.error("Datos de temporada incompletos:", temp);
           slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
-          return;
-        }
-        
-        // Generar todas las URLs de capítulos
-        const urlsCapitulos = generarURLsCapitulos(temp);
-        
-        if (urlsCapitulos.length === 0) {
-          slidersContainer.innerHTML = "<div class='cargando'>No se pudieron generar las URLs</div>";
           return;
         }
         
         slidersContainer.innerHTML = "";
         
         // Crear sliders con 10 capítulos cada uno
-        for (let i = 0; i < urlsCapitulos.length; i += 10) {
+        for (let i = 0; i < temp.urls.length; i += 10) {
           const slider = document.createElement("div");
           slider.className = "slider";
           const row = document.createElement("div");
           row.className = "slider-row";
 
-          for (let j = 0; j < 10 && (i + j) < urlsCapitulos.length; j++) {
+          for (let j = 0; j < 10 && (i + j) < temp.urls.length; j++) {
             const capNum = i + j + 1;
-            const url = urlsCapitulos[i + j];
+            const url = temp.urls[i + j];
 
             const card = crearTarjetaCapitulo(capNum, url, temp);
             row.appendChild(card);
