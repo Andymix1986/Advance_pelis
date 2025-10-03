@@ -264,7 +264,27 @@
 
       card.onclick = () => {
         guardarEstado(temporadaActual, capNum);
-        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum)}&tipo=${encodeURIComponent(contenido.tipo)}&id=${encodeURIComponent(contenido.id)}&temporada=${temporadaActual}&capitulo=${capNum}&total=${temp.urls.length}`;
+        
+        // Obtener todas las URLs de la temporada actual
+        const chapterUrls = temp.urls;
+        // Calcular el índice del capítulo actual (0-based)
+        const currentChapterIndex = capNum - 1;
+        
+        // Crear el intent con todos los datos necesarios para el sistema de capítulos
+        const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum)}&tipo=${encodeURIComponent(contenido.tipo)}&id=${encodeURIComponent(contenido.id)}&temporada=${temporadaActual}&capitulo=${capNum}&total=${temp.urls.length}&currentChapterIndex=${currentChapterIndex}&chapterUrls=${encodeURIComponent(JSON.stringify(chapterUrls))}`;
+        
+        console.log("Enviando datos al reproductor:", {
+          url: url,
+          tipo: contenido.tipo,
+          id: contenido.id,
+          temporada: temporadaActual,
+          capitulo: capNum,
+          total: temp.urls.length,
+          currentChapterIndex: currentChapterIndex,
+          chapterUrlsCount: chapterUrls.length
+        });
+        
+        location.href = intentUrl;
       };
 
       card.addEventListener("focus", () => {
