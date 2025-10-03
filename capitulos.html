@@ -266,12 +266,25 @@
         guardarEstado(temporadaActual, capNum);
         
         // Obtener todas las URLs de la temporada actual
-        const chapterUrls = temp.urls;
+        const videoUrls = temp.urls;
         // Calcular el índice del capítulo actual (0-based)
         const currentChapterIndex = capNum - 1;
         
-        // Crear el intent con todos los datos necesarios para el sistema de capítulos
-        const intentUrl = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum)}&tipo=${encodeURIComponent(contenido.tipo)}&id=${encodeURIComponent(contenido.id)}&temporada=${temporadaActual}&capitulo=${capNum}&total=${temp.urls.length}&currentChapterIndex=${currentChapterIndex}&chapterUrls=${encodeURIComponent(JSON.stringify(chapterUrls))}`;
+        // Crear el intent con TODOS los datos necesarios para el sistema de capítulos
+        const intentParams = new URLSearchParams({
+          url: url,
+          titulo: contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum,
+          tipo: contenido.tipo,
+          id: contenido.id,
+          temporada: temporadaActual.toString(),
+          capitulo: capNum.toString(),
+          total: temp.urls.length.toString(),
+          currentChapterIndex: currentChapterIndex.toString(),
+          videoUrls: JSON.stringify(videoUrls),
+          isManualSelection: "true"
+        });
+
+        const intentUrl = `advancepelis://player?${intentParams.toString()}`;
         
         console.log("Enviando datos al reproductor:", {
           url: url,
@@ -281,7 +294,8 @@
           capitulo: capNum,
           total: temp.urls.length,
           currentChapterIndex: currentChapterIndex,
-          chapterUrlsCount: chapterUrls.length
+          videoUrlsCount: videoUrls.length,
+          isManualSelection: true
         });
         
         location.href = intentUrl;
