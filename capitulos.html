@@ -177,65 +177,142 @@
   <div id="slidersContainer"></div>
 
   <script>
+    // ========== SISTEMA MEJORADO DE GESTIÓN DE ESTADO ==========
+
     // Función global para actualizar el último capítulo visto
     function updateLastWatched(serieId, temporada, capitulo) {
         console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
         
         try {
+            // Solo procesar si es la misma serie
             if (contenido && contenido.id === serieId) {
+                // Guardar en localStorage (número real 1-based)
                 const estado = { 
                     temporada: parseInt(temporada), 
                     capitulo: parseInt(capitulo),
-                    timestamp: Date.now() // Agregar timestamp
+                    timestamp: Date.now()
                 };
+                
+                // Guardar en localStorage específico de la serie
                 localStorage.setItem(storageKey(), JSON.stringify(estado));
                 
-                // También guardar como estado global para recuperación
+                // También guardar como estado global (siempre se sobrescribe)
                 const estadoGlobal = {
                     id: serieId,
                     temporada: parseInt(temporada),
                     capitulo: parseInt(capitulo),
                     timestamp: Date.now()
                 };
-                localStorage.setItem('estado_global_pendiente', JSON.stringify(estadoGlobal));
+                localStorage.setItem('ultimo_capitulo_global', JSON.stringify(estadoGlobal));
                 
+                console.log("Estado guardado:", estado);
+                
+                // Actualizar la interfaz inmediatamente
                 actualizarInterfazConUltimoCapitulo();
+                
+                // Forzar re-render si es necesario
+                if (parseInt(temporada) === temporadaActual) {
+                    setTimeout(actualizarInterfazConUltimoCapitulo, 100);
+                }
+            } else {
+                console.log("ID no coincide o contenido no cargado");
             }
         } catch (error) {
             console.error("Error en updateLastWatched:", error);
         }
     }
 
-    // Función para verificar si el estado es reciente (últimos 5 minutos)
-    function esEstadoReciente(estado) {
-        const timestamp = estado.timestamp || 0;
-        return (Date.now() - timestamp) < 300000; // 5 minutos
-    }
-
     // Función para verificar estado pendiente al cargar la página
     function verificarEstadoPendiente() {
         try {
-            // Intentar recuperar estado global reciente
-            const estadoGlobal = localStorage.getItem('estado_global_pendiente');
+            console.log("Verificando estado pendiente...");
+            
+            // Primero intentar con el estado global (siempre actualizado)
+            const estadoGlobal = localStorage.getItem('ultimo_capitulo_global');
             if (estadoGlobal) {
                 const estado = JSON.parse(estadoGlobal);
-                console.log("Estado pendiente encontrado:", estado);
+                console.log("Estado global encontrado:", estado);
                 
                 if (contenido && contenido.id === estado.id) {
-                    // Actualizar con el estado pendiente
+                    // Actualizar con el estado global
                     updateLastWatched(estado.id, estado.temporada, estado.capitulo);
-                    // Limpiar estado pendiente
-                    localStorage.removeItem('estado_global_pendiente');
+                    console.log("Actualizado desde estado global");
+                    return;
                 }
             }
             
-            // También verificar timestamp para ver si es reciente
+            // Fallback: verificar estado específico de la serie
             const estadoActual = obtenerEstado();
             if (estadoActual && esEstadoReciente(estadoActual)) {
+                console.log("Estado específico encontrado y es reciente:", estadoActual);
                 actualizarInterfazConUltimoCapitulo();
+            } else {
+                console.log("No hay estado reciente encontrado");
             }
         } catch (error) {
             console.error("Error verificando estado pendiente:", error);
+        }
+    }
+
+    // Función para verificar si el estado es reciente (últimos 5 minutos)
+    function esEstadoReciente(estado) {
+        const timestamp = estado.timestamp || 0;
+        const esReciente = (Date.now() - timestamp) < 300000; // 5 minutos
+        console.log("Estado reciente?:", esReciente, "Timestamp:", timestamp);
+        return esReciente;
+    }
+
+    // Función mejorada para actualizar interfaz
+    function actualizarInterfazConUltimoCapitulo() {
+        try {
+            const estado = obtenerEstado();
+            console.log("Actualizando interfaz con estado:", estado);
+            
+            if (!estado) {
+                console.log("No hay estado para actualizar interfaz");
+                return;
+            }
+            
+            // Quitar marca de último visto de todas las tarjetas
+            const cards = document.querySelectorAll('.card');
+            let removedCount = 0;
+            cards.forEach(card => {
+                if (card.classList.contains('last-watched')) {
+                    card.classList.remove('last-watched');
+                    removedCount++;
+                }
+            });
+            console.log("Marcas removidas:", removedCount);
+            
+            // Si el estado guardado es para la temporada actual
+            if (estado.temporada === temporadaActual) {
+                // Marcar el capítulo correspondiente (convertir de 1-based a índice)
+                if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
+                    const cardIndex = estado.capitulo - 1;
+                    if (focusables[cardIndex]) {
+                        focusables[cardIndex].classList.add('last-watched');
+                        console.log("Capítulo marcado como visto:", estado.capitulo, "Índice:", cardIndex);
+                        
+                        // También buscar por atributos data-* por si acaso
+                        const selector = `[data-serie="${contenido.id}"][data-temp="${temporadaActual}"][data-cap="${estado.capitulo}"]`;
+                        const cardsPorSelector = document.querySelectorAll(selector);
+                        cardsPorSelector.forEach(card => {
+                            if (!card.classList.contains('last-watched')) {
+                                card.classList.add('last-watched');
+                                console.log("Capítulo marcado por selector:", selector);
+                            }
+                        });
+                    } else {
+                        console.log("Focusable no encontrado en índice:", cardIndex);
+                    }
+                } else {
+                    console.log("Capítulo fuera de rango:", estado.capitulo, "Focusables length:", focusables.length);
+                }
+            } else {
+                console.log("Estado no corresponde a temporada actual. Estado:", estado.temporada, "Actual:", temporadaActual);
+            }
+        } catch (error) {
+            console.error("Error actualizando interfaz:", error);
         }
     }
 
@@ -255,312 +332,333 @@
     let focusedIndex = 0;
 
     function storageKey() {
-      return `ultimo_estado_${contenido.id}`;
+        if (!contenido || !contenido.id) {
+            console.error("Contenido no cargado o sin ID");
+            return 'ultimo_estado_unknown';
+        }
+        return `ultimo_estado_${contenido.id}`;
     }
 
     function guardarEstado(temporada, capitulo) {
-      const estado = { temporada, capitulo };
-      localStorage.setItem(storageKey(), JSON.stringify(estado));
+        try {
+            const estado = { 
+                temporada: temporada, 
+                capitulo: capitulo,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(storageKey(), JSON.stringify(estado));
+            console.log("Estado guardado al hacer click:", estado);
+        } catch (error) {
+            console.error("Error guardando estado:", error);
+        }
     }
 
     function obtenerEstado() {
-      const json = localStorage.getItem(storageKey());
-      return json ? JSON.parse(json) : null;
-    }
-
-    function actualizarInterfazConUltimoCapitulo() {
         try {
-            const estado = obtenerEstado();
-            if (!estado) return;
-            
-            console.log("Actualizando interfaz con estado:", estado);
-            
-            // Quitar marca de último visto de todas las tarjetas
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => card.classList.remove('last-watched'));
-            
-            // Si el estado guardado es para la temporada actual
-            if (estado.temporada === temporadaActual) {
-                // Marcar el capítulo correspondiente (convertir de 1-based a índice)
-                if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
-                    const cardIndex = estado.capitulo - 1;
-                    if (focusables[cardIndex]) {
-                        focusables[cardIndex].classList.add('last-watched');
-                        console.log("Capítulo marcado como visto:", estado.capitulo);
-                    }
-                }
+            const json = localStorage.getItem(storageKey());
+            if (!json) {
+                console.log("No se encontró estado en localStorage");
+                return null;
             }
+            const estado = JSON.parse(json);
+            console.log("Estado recuperado:", estado);
+            return estado;
         } catch (error) {
-            console.error("Error actualizando interfaz:", error);
+            console.error("Error obteniendo estado:", error);
+            return null;
         }
     }
 
     function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return output;
+        let output = '';
+        for (let i = 0; i < input.length; i++) {
+            output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }
+        return output;
     }
 
     function decodeBase64(input) {
-      return atob(input);
+        return atob(input);
     }
 
     // Función para crear una tarjeta de capítulo
     function crearTarjetaCapitulo(capNum, url, temp) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.tabIndex = 0;
-      card.setAttribute("data-serie", contenido.id);
-      card.setAttribute("data-temp", temporadaActual);
-      card.setAttribute("data-cap", capNum);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-serie", contenido.id);
+        card.setAttribute("data-temp", temporadaActual);
+        card.setAttribute("data-cap", capNum);
 
-      card.onclick = () => {
-        guardarEstado(temporadaActual, capNum);
+        card.onclick = () => {
+            console.log("Click en capítulo:", capNum);
+            guardarEstado(temporadaActual, capNum);
 
-        // Crear el intent SOLO con los parámetros necesarios
-        const intentParams = new URLSearchParams({
-          titulo: contenido.titulo,
-          tipo: contenido.tipo,
-          id: contenido.id,
-          temporada: temporadaActual.toString(),
-          capitulo: capNum.toString()
+            // Crear el intent SOLO con los parámetros necesarios
+            const intentParams = new URLSearchParams({
+                titulo: contenido.titulo,
+                tipo: contenido.tipo,
+                id: contenido.id,
+                temporada: temporadaActual.toString(),
+                capitulo: capNum.toString()
+            });
+
+            const intentUrl = `advancepelis://player?${intentParams.toString()}`;
+
+            console.log("Enviando datos al reproductor:", {
+                titulo: contenido.titulo,
+                tipo: contenido.tipo,
+                id: contenido.id,
+                temporada: temporadaActual,
+                capitulo: capNum
+            });
+
+            location.href = intentUrl;
+        };
+
+        card.addEventListener("focus", () => {
+            card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
         });
 
-        const intentUrl = `advancepelis://player?${intentParams.toString()}`;
+        const img = document.createElement("img");
+        img.src = contenido.imagen;
+        img.alt = `Capítulo ${capNum}`;
 
-        console.log("Enviando datos al reproductor:", {
-          titulo: contenido.titulo,
-          tipo: contenido.tipo,
-          id: contenido.id,
-          temporada: temporadaActual,
-          capitulo: capNum
-        });
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = `Capítulo ${capNum}`;
 
-        location.href = intentUrl;
-      };
-
-      card.addEventListener("focus", () => {
-        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      });
-
-      const img = document.createElement("img");
-      img.src = contenido.imagen;
-      img.alt = `Capítulo ${capNum}`;
-
-      const title = document.createElement("div");
-      title.className = "card-title";
-      title.textContent = `Capítulo ${capNum}`;
-
-      card.append(img, title);
-      return card;
+        card.append(img, title);
+        return card;
     }
 
     // Función para mostrar los capítulos de la temporada actual
     function mostrarCapitulos() {
-      slidersContainer.innerHTML = "<div class='cargando'>Cargando capítulos...</div>";
-      focusables = [];
-      
-      setTimeout(() => {
-        const temp = contenido.temporadas[temporadaActual];
+        slidersContainer.innerHTML = "<div class='cargando'>Cargando capítulos...</div>";
+        focusables = [];
         
-        // Verificar que la temporada tenga los datos necesarios
-        if (!temp || !temp.urls || !Array.isArray(temp.urls) || temp.urls.length === 0) {
-          console.error("Datos de temporada incompletos:", temp);
-          slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
-          return;
-        }
-        
-        slidersContainer.innerHTML = "";
-        
-        // Crear sliders con 10 capítulos cada uno
-        for (let i = 0; i < temp.urls.length; i += 10) {
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          const row = document.createElement("div");
-          row.className = "slider-row";
+        setTimeout(() => {
+            const temp = contenido.temporadas[temporadaActual];
+            
+            // Verificar que la temporada tenga los datos necesarios
+            if (!temp || !temp.urls || !Array.isArray(temp.urls) || temp.urls.length === 0) {
+                console.error("Datos de temporada incompletos:", temp);
+                slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
+                return;
+            }
+            
+            slidersContainer.innerHTML = "";
+            
+            // Crear sliders con 10 capítulos cada uno
+            for (let i = 0; i < temp.urls.length; i += 10) {
+                const slider = document.createElement("div");
+                slider.className = "slider";
+                const row = document.createElement("div");
+                row.className = "slider-row";
 
-          for (let j = 0; j < 10 && (i + j) < temp.urls.length; j++) {
-            const capNum = i + j + 1;
-            const url = temp.urls[i + j];
+                for (let j = 0; j < 10 && (i + j) < temp.urls.length; j++) {
+                    const capNum = i + j + 1;
+                    const url = temp.urls[i + j];
 
-            const card = crearTarjetaCapitulo(capNum, url, temp);
-            row.appendChild(card);
-            focusables.push(card);
-          }
+                    const card = crearTarjetaCapitulo(capNum, url, temp);
+                    row.appendChild(card);
+                    focusables.push(card);
+                }
 
-          slider.appendChild(row);
-          slidersContainer.appendChild(slider);
-        }
+                slider.appendChild(row);
+                slidersContainer.appendChild(slider);
+            }
 
-        actualizarInterfazConUltimoCapitulo();
-        
-        // Enfocar el primer capítulo o el último visto
-        const estadoGuardado = obtenerEstado();
-        if (estadoGuardado && estadoGuardado.temporada === temporadaActual) {
-          enfocarCapitulo(estadoGuardado.capitulo);
-        } else {
-          focusedIndex = 0;
-          if (focusables.length > 0) focusables[0].focus();
-        }
-      }, 50);
+            console.log("Focusables creados:", focusables.length);
+            actualizarInterfazConUltimoCapitulo();
+            
+            // Enfocar el primer capítulo o el último visto
+            const estadoGuardado = obtenerEstado();
+            if (estadoGuardado && estadoGuardado.temporada === temporadaActual) {
+                console.log("Enfocando capítulo guardado:", estadoGuardado.capitulo);
+                enfocarCapitulo(estadoGuardado.capitulo);
+            } else {
+                focusedIndex = 0;
+                if (focusables.length > 0) {
+                    focusables[0].focus();
+                    console.log("Enfocando primer capítulo");
+                }
+            }
+        }, 50);
     }
 
     function enfocarCapitulo(capNum) {
-      // Recibir número real (1-based) y convertirlo a índice
-      if (capNum >= 1 && capNum <= focusables.length) {
-        focusedIndex = capNum - 1;
-        focusables[focusedIndex].focus();
-      }
+        // Recibir número real (1-based) y convertirlo a índice
+        if (capNum >= 1 && capNum <= focusables.length) {
+            focusedIndex = capNum - 1;
+            focusables[focusedIndex].focus();
+            console.log("Capítulo enfocado:", capNum, "Índice:", focusedIndex);
+        } else {
+            console.log("No se puede enfocar capítulo:", capNum, "Fuera de rango");
+        }
     }
 
     fetch("https://advance-pelis.vercel.app/contenidos.json")
-      .then(r => r.text())
-      .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
-        if (!contenido) return;
+        .then(r => r.text())
+        .then(data => {
+            const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
+            contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
+            if (!contenido) {
+                console.error("Contenido no encontrado:", titulo, tipo);
+                return;
+            }
 
-        imagenDestacada.src = contenido.imagen;
-        tituloSerie.textContent = contenido.titulo;
+            console.log("Contenido cargado:", contenido.titulo, "ID:", contenido.id);
 
-        menuTemporadas.innerHTML = "";
+            imagenDestacada.src = contenido.imagen;
+            tituloSerie.textContent = contenido.titulo;
 
-        contenido.temporadas.forEach((temp, index) => {
-          const btn = document.createElement("button");
-          btn.textContent = temp.temporada;
-          btn.tabIndex = 0;
-          btn.onclick = () => {
-            temporadaActual = index;
+            menuTemporadas.innerHTML = "";
+
+            contenido.temporadas.forEach((temp, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = temp.temporada;
+                btn.tabIndex = 0;
+                btn.onclick = () => {
+                    temporadaActual = index;
+                    updateTemporadaUI();
+                    menuTemporadas.style.display = "none";
+                    botonTemporada.focus();
+                    // Regenerar los capítulos para la nueva temporada
+                    mostrarCapitulos();
+                };
+                menuTemporadas.appendChild(btn);
+            });
+
+            const estadoGuardado = obtenerEstado();
+            if (estadoGuardado) {
+                if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
+                    temporadaActual = estadoGuardado.temporada;
+                    console.log("Temporada actual establecida desde estado:", temporadaActual);
+                }
+            }
+
             updateTemporadaUI();
-            menuTemporadas.style.display = "none";
-            botonTemporada.focus();
-            // Regenerar los capítulos para la nueva temporada
-            mostrarCapitulos();
-          };
-          menuTemporadas.appendChild(btn);
+
+            if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
+                setTimeout(() => {
+                    enfocarCapitulo(estadoGuardado.capitulo);
+                }, 100);
+            }
+
+            // DESPUÉS de cargar todo, verificar si hay estado pendiente
+            setTimeout(() => {
+                verificarEstadoPendiente();
+            }, 500);
+        })
+        .catch(error => {
+            console.error("Error cargando contenido:", error);
+            slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
         });
 
-        const estadoGuardado = obtenerEstado();
-        if (estadoGuardado) {
-          if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
-            temporadaActual = estadoGuardado.temporada;
-          }
-        }
-
-        updateTemporadaUI();
-
-        if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
-          setTimeout(() => {
-            enfocarCapitulo(estadoGuardado.capitulo);
-          }, 100);
-        }
-
-        // DESPUÉS de cargar todo, verificar si hay estado pendiente
-        setTimeout(() => {
-            verificarEstadoPendiente();
-        }, 500);
-      });
-
     function updateTemporadaUI() {
-      const botones = menuTemporadas.querySelectorAll("button");
-      botones.forEach((b, i) => {
-        b.classList.toggle("seleccionada", i === temporadaActual);
-      });
-      botonTemporada.textContent = contenido.temporadas[temporadaActual].temporada;
-      temporadaTitulo.textContent = contenido.temporadas[temporadaActual].temporada;
-      mostrarCapitulos();
+        const botones = menuTemporadas.querySelectorAll("button");
+        botones.forEach((b, i) => {
+            b.classList.toggle("seleccionada", i === temporadaActual);
+        });
+        botonTemporada.textContent = contenido.temporadas[temporadaActual].temporada;
+        temporadaTitulo.textContent = contenido.temporadas[temporadaActual].temporada;
+        mostrarCapitulos();
     }
 
     // === controles ===
     botonTemporada.addEventListener("click", () => {
-      menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
-      if (menuTemporadas.style.display === "flex") {
-        const btns = menuTemporadas.querySelectorAll("button");
-        if (btns.length > 0) btns[temporadaActual].focus();
-      }
+        menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
+        if (menuTemporadas.style.display === "flex") {
+            const btns = menuTemporadas.querySelectorAll("button");
+            if (btns.length > 0) btns[temporadaActual].focus();
+        }
     });
 
     document.addEventListener("click", (e) => {
-      if (!menuTemporadas.contains(e.target) && e.target !== botonTemporada) {
-        menuTemporadas.style.display = "none";
-      }
+        if (!menuTemporadas.contains(e.target) && e.target !== botonTemporada) {
+            menuTemporadas.style.display = "none";
+        }
     });
 
     document.addEventListener("keydown", e => {
-      if (e.key === "Backspace" || e.key === "Escape" || e.key === "4") {
-        e.preventDefault();
-        if (menuTemporadas.style.display === "flex") {
-          menuTemporadas.style.display = "none";
-          botonTemporada.focus();
-          return;
+        if (e.key === "Backspace" || e.key === "Escape" || e.key === "4") {
+            e.preventDefault();
+            if (menuTemporadas.style.display === "flex") {
+                menuTemporadas.style.display = "none";
+                botonTemporada.focus();
+                return;
+            }
+            if (window.history.length > 1) {
+                window.history.back();
+            }
+            return;
         }
-        if (window.history.length > 1) {
-          window.history.back();
-        }
-        return;
-      }
 
-      if (document.activeElement === botonTemporada) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          menuTemporadas.style.display = "flex";
-          const btns = menuTemporadas.querySelectorAll("button");
-          if (btns.length > 0) btns[temporadaActual].focus();
-        } else if (e.key === "ArrowDown") {
-          e.preventDefault();
-          if (focusables.length > 0) focusables[0].focus();
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          imagenDestacada.focus();
-        }
-      } else if (menuTemporadas.contains(document.activeElement)) {
-        const btns = Array.from(menuTemporadas.querySelectorAll("button"));
-        let idx = btns.indexOf(document.activeElement);
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          if (idx < btns.length - 1) btns[idx + 1].focus();
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          if (idx > 0) btns[idx - 1].focus();
-        } else if (e.key === "Enter") {
-          e.preventDefault();
-          btns[idx].click();
-        }
-      } else if (focusables.includes(document.activeElement)) {
-        if (e.key === "ArrowRight" && focusedIndex < focusables.length - 1) {
-          e.preventDefault();
-          focusedIndex++;
-          focusables[focusedIndex].focus();
-          guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
-        } else if (e.key === "ArrowLeft" && focusedIndex > 0) {
-          e.preventDefault();
-          focusedIndex--;
-          focusables[focusedIndex].focus();
-          guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
-        } else if (e.key === "ArrowDown" && focusedIndex + 10 < focusables.length) {
-          e.preventDefault();
-          focusedIndex += 10;
-          focusables[focusedIndex].focus();
-          guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          if (focusedIndex - 10 >= 0) {
-            focusedIndex -= 10;
-            focusables[focusedIndex].focus();
-            guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
-          } else {
+        if (document.activeElement === botonTemporada) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                menuTemporadas.style.display = "flex";
+                const btns = menuTemporadas.querySelectorAll("button");
+                if (btns.length > 0) btns[temporadaActual].focus();
+            } else if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (focusables.length > 0) focusables[0].focus();
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                imagenDestacada.focus();
+            }
+        } else if (menuTemporadas.contains(document.activeElement)) {
+            const btns = Array.from(menuTemporadas.querySelectorAll("button"));
+            let idx = btns.indexOf(document.activeElement);
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (idx < btns.length - 1) btns[idx + 1].focus();
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (idx > 0) btns[idx - 1].focus();
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                btns[idx].click();
+            }
+        } else if (focusables.includes(document.activeElement)) {
+            if (e.key === "ArrowRight" && focusedIndex < focusables.length - 1) {
+                e.preventDefault();
+                focusedIndex++;
+                focusables[focusedIndex].focus();
+                guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+            } else if (e.key === "ArrowLeft" && focusedIndex > 0) {
+                e.preventDefault();
+                focusedIndex--;
+                focusables[focusedIndex].focus();
+                guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+            } else if (e.key === "ArrowDown" && focusedIndex + 10 < focusables.length) {
+                e.preventDefault();
+                focusedIndex += 10;
+                focusables[focusedIndex].focus();
+                guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (focusedIndex - 10 >= 0) {
+                    focusedIndex -= 10;
+                    focusables[focusedIndex].focus();
+                    guardarEstado(temporadaActual, focusedIndex + 1); // Guardar número real (1-based)
+                } else {
+                    botonTemporada.focus();
+                }
+            } else if (e.key === "Enter") {
+                document.activeElement.click();
+            }
+        } else if (document.activeElement === imagenDestacada && e.key === "ArrowDown") {
+            e.preventDefault();
             botonTemporada.focus();
-          }
-        } else if (e.key === "Enter") {
-          document.activeElement.click();
         }
-      } else if (document.activeElement === imagenDestacada && e.key === "ArrowDown") {
-        e.preventDefault();
-        botonTemporada.focus();
-      }
     });
+
+    // Exponer funciones globalmente para que Android pueda llamarlas
+    window.updateLastWatched = updateLastWatched;
+    window.actualizarInterfazConUltimoCapitulo = actualizarInterfazConUltimoCapitulo;
+    console.log("Funciones globales expuestas para Android");
   </script>
 </body>
 </html>
