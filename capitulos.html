@@ -178,59 +178,66 @@
 
   <script>
     // Función global para actualizar el último capítulo visto
-function updateLastWatched(serieId, temporada, capitulo) {
-    console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
-    
-    try {
-        // Solo procesar si es la misma serie
-        if (contenido && contenido.id === serieId) {
-            // Guardar en localStorage (número real 1-based)
-            const estado = { 
-                temporada: parseInt(temporada), 
-                capitulo: parseInt(capitulo) // Mantener como 1-based
-            };
-            localStorage.setItem(storageKey(), JSON.stringify(estado));
-            
-            // Actualizar la interfaz inmediatamente
-            actualizarInterfazConUltimoCapitulo();
-            
-            // Forzar re-render si es necesario
-            if (parseInt(temporada) === temporadaActual) {
-                setTimeout(actualizarInterfazConUltimoCapitulo, 100);
+    function updateLastWatched(serieId, temporada, capitulo) {
+        console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
+        
+        try {
+            if (contenido && contenido.id === serieId) {
+                const estado = { 
+                    temporada: parseInt(temporada), 
+                    capitulo: parseInt(capitulo),
+                    timestamp: Date.now() // Agregar timestamp
+                };
+                localStorage.setItem(storageKey(), JSON.stringify(estado));
+                
+                // También guardar como estado global para recuperación
+                const estadoGlobal = {
+                    id: serieId,
+                    temporada: parseInt(temporada),
+                    capitulo: parseInt(capitulo),
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('estado_global_pendiente', JSON.stringify(estadoGlobal));
+                
+                actualizarInterfazConUltimoCapitulo();
             }
+        } catch (error) {
+            console.error("Error en updateLastWatched:", error);
         }
-    } catch (error) {
-        console.error("Error en updateLastWatched:", error);
     }
-}
 
-// Función mejorada para actualizar interfaz
-function actualizarInterfazConUltimoCapitulo() {
-    try {
-        const estado = obtenerEstado();
-        if (!estado) return;
-        
-        console.log("Actualizando interfaz con estado:", estado);
-        
-        // Quitar marca de último visto de todas las tarjetas
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => card.classList.remove('last-watched'));
-        
-        // Si el estado guardado es para la temporada actual
-        if (estado.temporada === temporadaActual) {
-            // Marcar el capítulo correspondiente (convertir de 1-based a índice)
-            if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
-                const cardIndex = estado.capitulo - 1;
-                if (focusables[cardIndex]) {
-                    focusables[cardIndex].classList.add('last-watched');
-                    console.log("Capítulo marcado como visto:", estado.capitulo);
+    // Función para verificar si el estado es reciente (últimos 5 minutos)
+    function esEstadoReciente(estado) {
+        const timestamp = estado.timestamp || 0;
+        return (Date.now() - timestamp) < 300000; // 5 minutos
+    }
+
+    // Función para verificar estado pendiente al cargar la página
+    function verificarEstadoPendiente() {
+        try {
+            // Intentar recuperar estado global reciente
+            const estadoGlobal = localStorage.getItem('estado_global_pendiente');
+            if (estadoGlobal) {
+                const estado = JSON.parse(estadoGlobal);
+                console.log("Estado pendiente encontrado:", estado);
+                
+                if (contenido && contenido.id === estado.id) {
+                    // Actualizar con el estado pendiente
+                    updateLastWatched(estado.id, estado.temporada, estado.capitulo);
+                    // Limpiar estado pendiente
+                    localStorage.removeItem('estado_global_pendiente');
                 }
             }
+            
+            // También verificar timestamp para ver si es reciente
+            const estadoActual = obtenerEstado();
+            if (estadoActual && esEstadoReciente(estadoActual)) {
+                actualizarInterfazConUltimoCapitulo();
+            }
+        } catch (error) {
+            console.error("Error verificando estado pendiente:", error);
         }
-    } catch (error) {
-        console.error("Error actualizando interfaz:", error);
     }
-}
 
     const params = new URLSearchParams(window.location.search);
     const titulo = params.get('titulo');
@@ -262,20 +269,30 @@ function actualizarInterfazConUltimoCapitulo() {
     }
 
     function actualizarInterfazConUltimoCapitulo() {
-      const estado = obtenerEstado();
-      if (!estado) return;
-      
-      // Quitar marca de último visto de todas las tarjetas
-      const cards = document.querySelectorAll('.card');
-      cards.forEach(card => card.classList.remove('last-watched'));
-      
-      // Si el estado guardado es para la temporada actual
-      if (estado.temporada === temporadaActual) {
-        // Marcar el capítulo correspondiente (convertir de 1-based a índice)
-        if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
-          focusables[estado.capitulo - 1].classList.add('last-watched');
+        try {
+            const estado = obtenerEstado();
+            if (!estado) return;
+            
+            console.log("Actualizando interfaz con estado:", estado);
+            
+            // Quitar marca de último visto de todas las tarjetas
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => card.classList.remove('last-watched'));
+            
+            // Si el estado guardado es para la temporada actual
+            if (estado.temporada === temporadaActual) {
+                // Marcar el capítulo correspondiente (convertir de 1-based a índice)
+                if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
+                    const cardIndex = estado.capitulo - 1;
+                    if (focusables[cardIndex]) {
+                        focusables[cardIndex].classList.add('last-watched');
+                        console.log("Capítulo marcado como visto:", estado.capitulo);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error actualizando interfaz:", error);
         }
-      }
     }
 
     function xorDecrypt(input, key) {
@@ -291,56 +308,54 @@ function actualizarInterfazConUltimoCapitulo() {
     }
 
     // Función para crear una tarjeta de capítulo
-    // Función para crear una tarjeta de capítulo
-function crearTarjetaCapitulo(capNum, url, temp) {
-  const card = document.createElement("div");
-  card.className = "card";
-  card.tabIndex = 0;
-  card.setAttribute("data-serie", contenido.id);
-  card.setAttribute("data-temp", temporadaActual);
-  card.setAttribute("data-cap", capNum);
+    function crearTarjetaCapitulo(capNum, url, temp) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.tabIndex = 0;
+      card.setAttribute("data-serie", contenido.id);
+      card.setAttribute("data-temp", temporadaActual);
+      card.setAttribute("data-cap", capNum);
 
-  card.onclick = () => {
-    guardarEstado(temporadaActual, capNum);
+      card.onclick = () => {
+        guardarEstado(temporadaActual, capNum);
 
-    // Crear el intent SOLO con los parámetros necesarios
-    const intentParams = new URLSearchParams({
-      titulo: contenido.titulo,
-      tipo: contenido.tipo,
-      id: contenido.id,
-      temporada: temporadaActual.toString(),
-      capitulo: capNum.toString()
-    });
+        // Crear el intent SOLO con los parámetros necesarios
+        const intentParams = new URLSearchParams({
+          titulo: contenido.titulo,
+          tipo: contenido.tipo,
+          id: contenido.id,
+          temporada: temporadaActual.toString(),
+          capitulo: capNum.toString()
+        });
 
-    const intentUrl = `advancepelis://player?${intentParams.toString()}`;
+        const intentUrl = `advancepelis://player?${intentParams.toString()}`;
 
-    console.log("Enviando datos al reproductor:", {
-      titulo: contenido.titulo,
-      tipo: contenido.tipo,
-      id: contenido.id,
-      temporada: temporadaActual,
-      capitulo: capNum
-    });
+        console.log("Enviando datos al reproductor:", {
+          titulo: contenido.titulo,
+          tipo: contenido.tipo,
+          id: contenido.id,
+          temporada: temporadaActual,
+          capitulo: capNum
+        });
 
-    location.href = intentUrl;
-  };
+        location.href = intentUrl;
+      };
 
-  card.addEventListener("focus", () => {
-    card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  });
+      card.addEventListener("focus", () => {
+        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
 
-  const img = document.createElement("img");
-  img.src = contenido.imagen;
-  img.alt = `Capítulo ${capNum}`;
+      const img = document.createElement("img");
+      img.src = contenido.imagen;
+      img.alt = `Capítulo ${capNum}`;
 
-  const title = document.createElement("div");
-  title.className = "card-title";
-  title.textContent = `Capítulo ${capNum}`;
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = `Capítulo ${capNum}`;
 
-  card.append(img, title);
-  return card;
-}
-
+      card.append(img, title);
+      return card;
+    }
 
     // Función para mostrar los capítulos de la temporada actual
     function mostrarCapitulos() {
@@ -441,6 +456,11 @@ function crearTarjetaCapitulo(capNum, url, temp) {
             enfocarCapitulo(estadoGuardado.capitulo);
           }, 100);
         }
+
+        // DESPUÉS de cargar todo, verificar si hay estado pendiente
+        setTimeout(() => {
+            verificarEstadoPendiente();
+        }, 500);
       });
 
     function updateTemporadaUI() {
