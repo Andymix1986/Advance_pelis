@@ -254,68 +254,56 @@
     }
 
     // Función para crear una tarjeta de capítulo
-    function crearTarjetaCapitulo(capNum, url, temp) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.tabIndex = 0;
-      card.setAttribute("data-serie", contenido.id);
-      card.setAttribute("data-temp", temporadaActual);
-      card.setAttribute("data-cap", capNum);
+    // Función para crear una tarjeta de capítulo
+function crearTarjetaCapitulo(capNum, url, temp) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.tabIndex = 0;
+  card.setAttribute("data-serie", contenido.id);
+  card.setAttribute("data-temp", temporadaActual);
+  card.setAttribute("data-cap", capNum);
 
-      card.onclick = () => {
-        guardarEstado(temporadaActual, capNum);
-        
-        // Obtener todas las URLs de la temporada actual
-        const videoUrls = temp.urls;
-        // Calcular el índice del capítulo actual (0-based)
-        const currentChapterIndex = capNum - 1;
-        
-        // Crear el intent con TODOS los datos necesarios para el sistema de capítulos
-        const intentParams = new URLSearchParams({
-          url: url,
-          titulo: contenido.titulo + ' - ' + temp.temporada + ' - Capítulo ' + capNum,
-          tipo: contenido.tipo,
-          id: contenido.id,
-          temporada: temporadaActual.toString(),
-          capitulo: capNum.toString(),
-          total: temp.urls.length.toString(),
-          currentChapterIndex: currentChapterIndex.toString(),
-          videoUrls: JSON.stringify(videoUrls),
-          isManualSelection: "true"
-        });
+  card.onclick = () => {
+    guardarEstado(temporadaActual, capNum);
 
-        const intentUrl = `advancepelis://player?${intentParams.toString()}`;
-        
-        console.log("Enviando datos al reproductor:", {
-          url: url,
-          tipo: contenido.tipo,
-          id: contenido.id,
-          temporada: temporadaActual,
-          capitulo: capNum,
-          total: temp.urls.length,
-          currentChapterIndex: currentChapterIndex,
-          videoUrlsCount: videoUrls.length,
-          isManualSelection: true
-        });
-        
-        location.href = intentUrl;
-      };
+    // Crear el intent SOLO con los parámetros necesarios
+    const intentParams = new URLSearchParams({
+      titulo: contenido.titulo,
+      tipo: contenido.tipo,
+      id: contenido.id,
+      temporada: temporadaActual.toString(),
+      capitulo: capNum.toString()
+    });
 
-      card.addEventListener("focus", () => {
-        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      });
+    const intentUrl = `advancepelis://player?${intentParams.toString()}`;
 
-      const img = document.createElement("img");
-      img.src = contenido.imagen;
-      img.alt = `Capítulo ${capNum}`;
-      
-      const title = document.createElement("div");
-      title.className = "card-title";
-      title.textContent = `Capítulo ${capNum}`;
+    console.log("Enviando datos al reproductor:", {
+      titulo: contenido.titulo,
+      tipo: contenido.tipo,
+      id: contenido.id,
+      temporada: temporadaActual,
+      capitulo: capNum
+    });
 
-      card.append(img, title);
-      return card;
-    }
+    location.href = intentUrl;
+  };
+
+  card.addEventListener("focus", () => {
+    card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  });
+
+  const img = document.createElement("img");
+  img.src = contenido.imagen;
+  img.alt = `Capítulo ${capNum}`;
+
+  const title = document.createElement("div");
+  title.className = "card-title";
+  title.textContent = `Capítulo ${capNum}`;
+
+  card.append(img, title);
+  return card;
+}
+
 
     // Función para mostrar los capítulos de la temporada actual
     function mostrarCapitulos() {
