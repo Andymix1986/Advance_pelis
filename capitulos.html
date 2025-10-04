@@ -178,22 +178,59 @@
 
   <script>
     // Función global para actualizar el último capítulo visto
-    function updateLastWatched(serieId, temporada, capitulo) {
-      console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
-      
-      // Solo procesar si es la misma serie
-      if (contenido && contenido.id === serieId) {
-        // Guardar en localStorage (número real 1-based)
-        const estado = { 
-          temporada: parseInt(temporada), 
-          capitulo: parseInt(capitulo) // Mantener como 1-based
-        };
-        localStorage.setItem(storageKey(), JSON.stringify(estado));
-        
-        // Actualizar la interfaz
-        actualizarInterfazConUltimoCapitulo();
-      }
+function updateLastWatched(serieId, temporada, capitulo) {
+    console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
+    
+    try {
+        // Solo procesar si es la misma serie
+        if (contenido && contenido.id === serieId) {
+            // Guardar en localStorage (número real 1-based)
+            const estado = { 
+                temporada: parseInt(temporada), 
+                capitulo: parseInt(capitulo) // Mantener como 1-based
+            };
+            localStorage.setItem(storageKey(), JSON.stringify(estado));
+            
+            // Actualizar la interfaz inmediatamente
+            actualizarInterfazConUltimoCapitulo();
+            
+            // Forzar re-render si es necesario
+            if (parseInt(temporada) === temporadaActual) {
+                setTimeout(actualizarInterfazConUltimoCapitulo, 100);
+            }
+        }
+    } catch (error) {
+        console.error("Error en updateLastWatched:", error);
     }
+}
+
+// Función mejorada para actualizar interfaz
+function actualizarInterfazConUltimoCapitulo() {
+    try {
+        const estado = obtenerEstado();
+        if (!estado) return;
+        
+        console.log("Actualizando interfaz con estado:", estado);
+        
+        // Quitar marca de último visto de todas las tarjetas
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => card.classList.remove('last-watched'));
+        
+        // Si el estado guardado es para la temporada actual
+        if (estado.temporada === temporadaActual) {
+            // Marcar el capítulo correspondiente (convertir de 1-based a índice)
+            if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
+                const cardIndex = estado.capitulo - 1;
+                if (focusables[cardIndex]) {
+                    focusables[cardIndex].classList.add('last-watched');
+                    console.log("Capítulo marcado como visto:", estado.capitulo);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error actualizando interfaz:", error);
+    }
+}
 
     const params = new URLSearchParams(window.location.search);
     const titulo = params.get('titulo');
