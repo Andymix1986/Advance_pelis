@@ -140,12 +140,14 @@
       font-size: 0.9rem;
       padding: 4px;
     }
+    
+    /* NUEVOS ESTILOS PARA CAPÍTULOS VISTOS Y COMPLETADOS */
     .last-watched {
       border: 3px solid #00bfff;
       box-shadow: 0 0 15px 5px rgba(0, 191, 255, 0.7);
     }
     .last-watched::after {
-      content: "✓ Visto";
+      content: "▶ Viendo";
       position: absolute;
       top: 5px;
       right: 5px;
@@ -156,6 +158,39 @@
       border-radius: 5px;
       font-weight: bold;
     }
+    
+    .capitulo-visto {
+      border: 2px solid #00ff88;
+    }
+    .capitulo-visto::after {
+      content: "✓ Visto";
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(0, 255, 136, 0.9);
+      color: #000;
+      font-size: 0.7rem;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    
+    .capitulo-completado {
+      border: 2px solid #ff4444;
+    }
+    .capitulo-completado::after {
+      content: "✓ Completo";
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 68, 68, 0.9);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
     .cargando {
       text-align: center;
       padding: 20px;
@@ -222,6 +257,26 @@
         }
     }
 
+    // NUEVA FUNCIÓN: Marcar capítulo como completado
+    function marcarCapituloCompletado(serieId, temporada, capitulo) {
+        console.log("Marcando capítulo como COMPLETADO:", serieId, temporada, capitulo);
+        
+        try {
+            if (contenido && contenido.id === serieId) {
+                // Guardar en localStorage de capítulos completados
+                const key = `completado_${serieId}_T${temporada}_C${capitulo}`;
+                localStorage.setItem(key, 'true');
+                
+                // Actualizar la interfaz
+                actualizarInterfazConCapitulosCompletados();
+                
+                console.log("Capítulo marcado como completado:", key);
+            }
+        } catch (error) {
+            console.error("Error en marcarCapituloCompletado:", error);
+        }
+    }
+
     // Función para verificar estado pendiente al cargar la página
     function verificarEstadoPendiente() {
         try {
@@ -249,6 +304,9 @@
             } else {
                 console.log("No hay estado reciente encontrado");
             }
+            
+            // Verificar capítulos completados
+            actualizarInterfazConCapitulosCompletados();
         } catch (error) {
             console.error("Error verificando estado pendiente:", error);
         }
@@ -262,7 +320,7 @@
         return esReciente;
     }
 
-    // Función mejorada para actualizar interfaz
+    // Función mejorada para actualizar interfaz con último capítulo visto
     function actualizarInterfazConUltimoCapitulo() {
         try {
             const estado = obtenerEstado();
@@ -282,7 +340,7 @@
                     removedCount++;
                 }
             });
-            console.log("Marcas removidas:", removedCount);
+            console.log("Marcas de último visto removidas:", removedCount);
             
             // Si el estado guardado es para la temporada actual
             if (estado.temporada === temporadaActual) {
@@ -291,7 +349,7 @@
                     const cardIndex = estado.capitulo - 1;
                     if (focusables[cardIndex]) {
                         focusables[cardIndex].classList.add('last-watched');
-                        console.log("Capítulo marcado como visto:", estado.capitulo, "Índice:", cardIndex);
+                        console.log("Capítulo marcado como último visto:", estado.capitulo, "Índice:", cardIndex);
                         
                         // También buscar por atributos data-* por si acaso
                         const selector = `[data-serie="${contenido.id}"][data-temp="${temporadaActual}"][data-cap="${estado.capitulo}"]`;
@@ -313,6 +371,37 @@
             }
         } catch (error) {
             console.error("Error actualizando interfaz:", error);
+        }
+    }
+
+    // NUEVA FUNCIÓN: Actualizar interfaz con capítulos completados
+    function actualizarInterfazConCapitulosCompletados() {
+        try {
+            console.log("Actualizando interfaz con capítulos completados...");
+            
+            // Buscar todos los capítulos completados para esta serie
+            const keys = Object.keys(localStorage);
+            const completados = keys.filter(key => 
+                key.startsWith(`completado_${contenido.id}_T${temporadaActual}_C`)
+            );
+            
+            console.log("Capítulos completados encontrados:", completados);
+            
+            // Marcar cada capítulo completado
+            completados.forEach(key => {
+                const partes = key.split('_');
+                const capituloNum = parseInt(partes[4].substring(1)); // Extraer número después de "C"
+                
+                if (capituloNum >= 1 && capituloNum <= focusables.length) {
+                    const cardIndex = capituloNum - 1;
+                    if (focusables[cardIndex]) {
+                        focusables[cardIndex].classList.add('capitulo-completado');
+                        console.log("Capítulo marcado como completado:", capituloNum);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error actualizando capítulos completados:", error);
         }
     }
 
@@ -471,6 +560,7 @@
 
             console.log("Focusables creados:", focusables.length);
             actualizarInterfazConUltimoCapitulo();
+            actualizarInterfazConCapitulosCompletados();
             
             // Enfocar el primer capítulo o el último visto
             const estadoGuardado = obtenerEstado();
@@ -657,7 +747,9 @@
 
     // Exponer funciones globalmente para que Android pueda llamarlas
     window.updateLastWatched = updateLastWatched;
+    window.marcarCapituloCompletado = marcarCapituloCompletado;
     window.actualizarInterfazConUltimoCapitulo = actualizarInterfazConUltimoCapitulo;
+    window.actualizarInterfazConCapitulosCompletados = actualizarInterfazConCapitulosCompletados;
     console.log("Funciones globales expuestas para Android");
   </script>
 </body>
