@@ -177,27 +177,35 @@
   <div id="slidersContainer"></div>
 
   <script>
-    // ========== SISTEMA SIMPLIFICADO DE GESTIÓN DE ESTADO ==========
+    // ========== SISTEMA SIMPLIFICADO SIN LOCALSTORAGE ==========
 
-    // Función para actualizar el último capítulo visto
+    // Estado global para el último capítulo visto
+    let ultimoCapituloVisto = {
+        temporada: -1,
+        capitulo: -1,
+        serieId: null
+    };
+
+    // Función para actualizar el último capítulo visto desde Android
     function updateLastWatched(serieId, temporada, capitulo) {
-        console.log("Actualizando último capítulo visto:", serieId, temporada, capitulo);
+        console.log("Actualizando último capítulo visto desde Android:", serieId, temporada, capitulo);
         
         try {
             // Solo procesar si es la misma serie
             if (contenido && contenido.id === serieId) {
-                // Guardar en localStorage
-                const estado = { 
-                    temporada: parseInt(temporada), 
-                    capitulo: parseInt(capitulo),
-                    timestamp: Date.now()
+                // Actualizar estado global
+                ultimoCapituloVisto = {
+                    serieId: serieId,
+                    temporada: parseInt(temporada),
+                    capitulo: parseInt(capitulo)
                 };
                 
-                localStorage.setItem(storageKey(), JSON.stringify(estado));
-                console.log("Estado guardado:", estado);
+                console.log("Estado actualizado desde Android:", ultimoCapituloVisto);
                 
-                // Actualizar la interfaz
+                // Actualizar la interfaz inmediatamente
                 actualizarInterfazConUltimoCapitulo();
+            } else {
+                console.log("ID no coincide - Actual:", contenido?.id, "Recibido:", serieId);
             }
         } catch (error) {
             console.error("Error en updateLastWatched:", error);
@@ -207,31 +215,51 @@
     // Función para actualizar interfaz con el último capítulo visto
     function actualizarInterfazConUltimoCapitulo() {
         try {
-            const estado = obtenerEstado();
-            console.log("Actualizando interfaz con estado:", estado);
+            console.log("Actualizando interfaz con estado:", ultimoCapituloVisto);
             
-            if (!estado) return;
+            // Verificar si tenemos datos válidos
+            if (!ultimoCapituloVisto || ultimoCapituloVisto.temporada === -1 || ultimoCapituloVisto.capitulo === -1) {
+                console.log("No hay datos válidos para actualizar interfaz");
+                return;
+            }
             
             // Quitar marca de último visto de todas las tarjetas
             const cards = document.querySelectorAll('.card');
+            let removedCount = 0;
             cards.forEach(card => {
-                card.classList.remove('last-watched');
+                if (card.classList.contains('last-watched')) {
+                    card.classList.remove('last-watched');
+                    removedCount++;
+                }
             });
+            console.log("Marcas de último visto removidas:", removedCount);
             
             // Si el estado guardado es para la temporada actual
-            if (estado.temporada === temporadaActual) {
+            if (ultimoCapituloVisto.temporada === temporadaActual) {
                 // Marcar el capítulo correspondiente
-                if (estado.capitulo >= 1 && estado.capitulo <= focusables.length) {
-                    const cardIndex = estado.capitulo - 1;
+                if (ultimoCapituloVisto.capitulo >= 1 && ultimoCapituloVisto.capitulo <= focusables.length) {
+                    const cardIndex = ultimoCapituloVisto.capitulo - 1;
                     if (focusables[cardIndex]) {
                         focusables[cardIndex].classList.add('last-watched');
-                        console.log("Capítulo marcado como visto:", estado.capitulo);
+                        console.log("Capítulo marcado como visto:", ultimoCapituloVisto.capitulo, "Índice:", cardIndex);
+                    } else {
+                        console.log("Focusable no encontrado en índice:", cardIndex);
                     }
+                } else {
+                    console.log("Capítulo fuera de rango:", ultimoCapituloVisto.capitulo, "Focusables length:", focusables.length);
                 }
+            } else {
+                console.log("Estado no corresponde a temporada actual. Estado:", ultimoCapituloVisto.temporada, "Actual:", temporadaActual);
             }
         } catch (error) {
             console.error("Error actualizando interfaz:", error);
         }
+    }
+
+    // Función para obtener el último capítulo enfocado (basado en navegación)
+    function obtenerUltimoEnfocado() {
+        // Simplemente retorna el índice actual enfocado
+        return focusedIndex + 1;
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -249,48 +277,6 @@
     let focusables = [];
     let focusedIndex = 0;
 
-    function storageKey() {
-        if (!contenido || !contenido.id) return 'ultimo_estado_unknown';
-        return `ultimo_estado_${contenido.id}`;
-    }
-
-    function guardarEstado(temporada, capitulo) {
-        try {
-            const estado = { 
-                temporada: temporada, 
-                capitulo: capitulo,
-                timestamp: Date.now()
-            };
-            localStorage.setItem(storageKey(), JSON.stringify(estado));
-            console.log("Estado guardado al hacer click:", estado);
-        } catch (error) {
-            console.error("Error guardando estado:", error);
-        }
-    }
-
-    function obtenerEstado() {
-        try {
-            const json = localStorage.getItem(storageKey());
-            if (!json) return null;
-            return JSON.parse(json);
-        } catch (error) {
-            console.error("Error obteniendo estado:", error);
-            return null;
-        }
-    }
-
-    function xorDecrypt(input, key) {
-        let output = '';
-        for (let i = 0; i < input.length; i++) {
-            output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-        }
-        return output;
-    }
-
-    function decodeBase64(input) {
-        return atob(input);
-    }
-
     // Función para crear una tarjeta de capítulo
     function crearTarjetaCapitulo(capNum, url, temp) {
         const card = document.createElement("div");
@@ -302,7 +288,8 @@
 
         card.onclick = () => {
             console.log("Click en capítulo:", capNum);
-            guardarEstado(temporadaActual, capNum);
+            
+            // NOTA: Ya no guardamos en localStorage, el estado se maneja desde Android
 
             // Crear el intent
             const intentParams = new URLSearchParams({
@@ -314,6 +301,15 @@
             });
 
             const intentUrl = `advancepelis://player?${intentParams.toString()}`;
+            
+            console.log("Enviando datos al reproductor:", {
+                titulo: contenido.titulo,
+                tipo: contenido.tipo,
+                id: contenido.id,
+                temporada: temporadaActual,
+                capitulo: capNum
+            });
+
             location.href = intentUrl;
         };
 
@@ -342,6 +338,7 @@
             const temp = contenido.temporadas[temporadaActual];
             
             if (!temp || !temp.urls || !Array.isArray(temp.urls) || temp.urls.length === 0) {
+                console.error("Datos de temporada incompletos:", temp);
                 slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
                 return;
             }
@@ -369,15 +366,15 @@
             }
 
             console.log("Focusables creados:", focusables.length);
+            
+            // Actualizar interfaz con el último capítulo visto
             actualizarInterfazConUltimoCapitulo();
             
-            // Enfocar el primer capítulo o el último visto
-            const estadoGuardado = obtenerEstado();
-            if (estadoGuardado && estadoGuardado.temporada === temporadaActual) {
-                enfocarCapitulo(estadoGuardado.capitulo);
-            } else {
-                focusedIndex = 0;
-                if (focusables.length > 0) focusables[0].focus();
+            // Enfocar el primer capítulo
+            focusedIndex = 0;
+            if (focusables.length > 0) {
+                focusables[0].focus();
+                console.log("Enfocando primer capítulo");
             }
         }, 50);
     }
@@ -386,6 +383,9 @@
         if (capNum >= 1 && capNum <= focusables.length) {
             focusedIndex = capNum - 1;
             focusables[focusedIndex].focus();
+            console.log("Capítulo enfocado:", capNum, "Índice:", focusedIndex);
+        } else {
+            console.log("No se puede enfocar capítulo:", capNum, "Fuera de rango");
         }
     }
 
@@ -396,6 +396,7 @@
             contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
             if (!contenido) {
                 console.error("Contenido no encontrado:", titulo, tipo);
+                slidersContainer.innerHTML = "<div class='cargando'>Contenido no encontrado</div>";
                 return;
             }
 
@@ -415,25 +416,26 @@
                     updateTemporadaUI();
                     menuTemporadas.style.display = "none";
                     botonTemporada.focus();
+                    // Regenerar los capítulos para la nueva temporada
                     mostrarCapitulos();
                 };
                 menuTemporadas.appendChild(btn);
             });
 
-            const estadoGuardado = obtenerEstado();
-            if (estadoGuardado) {
-                if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
-                    temporadaActual = estadoGuardado.temporada;
-                }
-            }
+            // Inicializar con la primera temporada
+            temporadaActual = 0;
+            console.log("Temporada actual establecida por defecto:", temporadaActual);
 
             updateTemporadaUI();
 
-            if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
-                setTimeout(() => {
-                    enfocarCapitulo(estadoGuardado.capitulo);
-                }, 100);
-            }
+            // Enfocar el primer capítulo después de un breve delay
+            setTimeout(() => {
+                if (focusables.length > 0) {
+                    focusables[0].focus();
+                    console.log("Primer capítulo enfocado al cargar");
+                }
+            }, 200);
+
         })
         .catch(error => {
             console.error("Error cargando contenido:", error);
@@ -448,6 +450,12 @@
         botonTemporada.textContent = contenido.temporadas[temporadaActual].temporada;
         temporadaTitulo.textContent = contenido.temporadas[temporadaActual].temporada;
         mostrarCapitulos();
+    }
+
+    // Función para guardar estado temporal durante navegación (solo en memoria)
+    function guardarEstadoTemporal(temporada, capitulo) {
+        // Solo actualizamos el índice enfocado, no guardamos en almacenamiento persistente
+        console.log("Estado temporal - Temporada:", temporada, "Capítulo:", capitulo);
     }
 
     // === controles ===
@@ -510,23 +518,23 @@
                 e.preventDefault();
                 focusedIndex++;
                 focusables[focusedIndex].focus();
-                guardarEstado(temporadaActual, focusedIndex + 1);
+                guardarEstadoTemporal(temporadaActual, focusedIndex + 1);
             } else if (e.key === "ArrowLeft" && focusedIndex > 0) {
                 e.preventDefault();
                 focusedIndex--;
                 focusables[focusedIndex].focus();
-                guardarEstado(temporadaActual, focusedIndex + 1);
+                guardarEstadoTemporal(temporadaActual, focusedIndex + 1);
             } else if (e.key === "ArrowDown" && focusedIndex + 10 < focusables.length) {
                 e.preventDefault();
                 focusedIndex += 10;
                 focusables[focusedIndex].focus();
-                guardarEstado(temporadaActual, focusedIndex + 1);
+                guardarEstadoTemporal(temporadaActual, focusedIndex + 1);
             } else if (e.key === "ArrowUp") {
                 e.preventDefault();
                 if (focusedIndex - 10 >= 0) {
                     focusedIndex -= 10;
                     focusables[focusedIndex].focus();
-                    guardarEstado(temporadaActual, focusedIndex + 1);
+                    guardarEstadoTemporal(temporadaActual, focusedIndex + 1);
                 } else {
                     botonTemporada.focus();
                 }
@@ -539,9 +547,26 @@
         }
     });
 
-    // Exponer funciones globalmente
+    function xorDecrypt(input, key) {
+        let output = '';
+        for (let i = 0; i < input.length; i++) {
+            output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }
+        return output;
+    }
+
+    function decodeBase64(input) {
+        return atob(input);
+    }
+
+    // Exponer funciones globalmente para que Android pueda llamarlas
     window.updateLastWatched = updateLastWatched;
     window.actualizarInterfazConUltimoCapitulo = actualizarInterfazConUltimoCapitulo;
+    
+    console.log("Sistema HTML cargado - Esperando notificaciones de Android");
+
+    // Solicitar estado actual a Android al cargar
+    console.log("Solicitando estado actual a Android...");
   </script>
 </body>
 </html>
