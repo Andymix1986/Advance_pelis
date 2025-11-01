@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>King Play - Películas</title>
+  <title>Advance Pelis - TV en Vivo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
      * {
@@ -205,6 +205,20 @@
       box-shadow: 0 0 25px 6px #00bfff;
       z-index: 3;
     }
+
+    .loading-message {
+      text-align: center;
+      color: #00bfff;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
+
+    .error-message {
+      text-align: center;
+      color: #ff4444;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
   </style>
 </head>
 <body>
@@ -220,7 +234,7 @@
     <button onclick="location.href='https://advance-pelis.vercel.app/index.html'" tabindex="0">Películas</button>
     <button onclick="location.href='https://advance-pelis.vercel.app/index_series.html'" tabindex="0">Series</button>
     <button onclick="location.href='https://advance-pelis.vercel.app/index_animes.html'" tabindex="0">Animes</button>
-<button onclick="location.href='https://advance-pelis.vercel.app/index_tv.html'" tabindex="0">TV en Vivo</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_tv.html'" tabindex="0">TV en Vivo</button>
     <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
@@ -234,83 +248,144 @@
     </div>
   </div>
 
-  <div id="sliders"></div>
+  <div id="sliders">
+    <div class="loading-message" id="loadingMessage">
+      Cargando canales de TV desde la aplicación...
+    </div>
+  </div>
 
   <script>
-    const JSON_URL = "https://advance-pelis.vercel.app/contenidos.json";
     const ORIGEN = "Tv";
+    let appData = null;
+    let dataLoaded = false;
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    // Función para procesar los datos y crear la interfaz
+    function processData(json) {
+      console.log('Datos recibidos en processData para TV:', json);
+      
+      if (!json || !json.contenidos) {
+        showError('Datos inválidos recibidos');
+        return;
       }
-      return output;
-    }
 
-    function decodeBase64(input) {
-      return atob(input);
-    }
+      appData = json;
+      dataLoaded = true;
+      
+      // Ocultar mensaje de carga
+      const loadingMessage = document.getElementById('loadingMessage');
+      if (loadingMessage) {
+        loadingMessage.style.display = 'none';
+      }
 
-    fetch(JSON_URL)
-      .then(r => r.text())
-      .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        const pelis = json.contenidos.filter(p => p.tipo === ORIGEN).reverse();
-        const container = document.getElementById("sliders");
+      const canales = json.contenidos.filter(p => p.tipo === ORIGEN).reverse();
+      const container = document.getElementById("sliders");
 
-        const categorias = {};
-        pelis.forEach(p => {
-          const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
-          tags.forEach(cat => {
-            if (!categorias[cat]) categorias[cat] = [];
-            categorias[cat].push(p);
-          });
+      // Limpiar contenedor
+      container.innerHTML = '';
+
+      if (canales.length === 0) {
+        container.innerHTML = '<div class="error-message">No hay canales de TV disponibles</div>';
+        return;
+      }
+
+      // Organizar por categorías
+      const categorias = {};
+      canales.forEach(p => {
+        const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
+        tags.forEach(cat => {
+          if (!categorias[cat]) categorias[cat] = [];
+          categorias[cat].push(p);
         });
+      });
 
-        Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
-
-        function createSlider(titulo, lista) {
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          slider.innerHTML = `<h2>${titulo}</h2>`;
-          const row = document.createElement("div");
-          row.className = "slider-row";
-
-          lista.slice(0, 7).forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-            card.setAttribute("data-titulo", p.titulo);
-            card.setAttribute("data-url", p.url);
-
-            const img = document.createElement("img");
-            img.src = p.imagen;
-
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-
-            card.append(img, title);
-            row.appendChild(card);
-          });
-
-          const verMas = document.createElement("div");
-          verMas.className = "card ver-mas";
-          verMas.tabIndex = 0;
-          verMas.textContent = "Ver más";
-          verMas.onclick = () => {
-            location.href = titulo === "Estrenos"
-               ? "https://advance-pelis.vercel.app/ver_categoria.html?estreno=1"
-              : `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=Tv&origen=tv`;
-};
-          
-
-          row.appendChild(verMas);
-          slider.appendChild(row);
-          container.appendChild(slider);
+      // Crear sliders por categoría
+      Object.entries(categorias).forEach(([cat, lista]) => {
+        if (lista.length > 0) {
+          createSlider(cat, lista);
         }
       });
+
+      // Reinicializar navegación después de crear los sliders
+      setTimeout(() => {
+        sliders = Array.from(document.querySelectorAll(".slider-row"));
+        if (sliders.length > 0) {
+          currentSliderIndex = 0;
+          currentCardIndex = 0;
+        }
+      }, 100);
+    }
+
+    function createSlider(titulo, lista) {
+      const slider = document.createElement("div");
+      slider.className = "slider";
+      slider.innerHTML = `<h2>${titulo}</h2>`;
+      const row = document.createElement("div");
+      row.className = "slider-row";
+
+      // Limitar a 7 elementos + "Ver más"
+      lista.slice(0, 7).forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-titulo", p.titulo);
+        card.setAttribute("data-url", p.url);
+
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+        img.onerror = function() {
+          this.src = 'https://via.placeholder.com/160x240/222/00bfff?text=Canal+TV';
+        };
+
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+
+        card.append(img, title);
+        row.appendChild(card);
+      });
+
+      // Botón "Ver más"
+      const verMas = document.createElement("div");
+      verMas.className = "card ver-mas";
+      verMas.tabIndex = 0;
+      verMas.textContent = "Ver más";
+      verMas.onclick = () => {
+        location.href = `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}&tipo=Tv&origen=tv`;
+      };
+
+      row.appendChild(verMas);
+      slider.appendChild(row);
+      document.getElementById("sliders").appendChild(slider);
+    }
+
+    function showError(message) {
+      const container = document.getElementById("sliders");
+      container.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    // ===== FUNCIÓN GLOBAL PARA RECIBIR DATOS DE LA APP =====
+    window.onAppDataReceived = function(jsonData) {
+      console.log('Datos recibidos desde Android para TV:', jsonData);
+      processData(jsonData);
+    };
+
+    // Verificar si los datos ya están disponibles
+    if (window.appData) {
+      console.log('Datos ya disponibles en window.appData para TV');
+      processData(window.appData);
+    } else {
+      console.log('Esperando datos de la aplicación para TV...');
+      
+      // Timeout de seguridad por si no llegan los datos
+      setTimeout(() => {
+        if (!dataLoaded) {
+          showError('No se pudieron cargar los canales de TV. Reinicie la aplicación.');
+        }
+      }, 10000);
+    }
+
+    // ===== CÓDIGO EXISTENTE (MANTENIDO CON AJUSTES MENORES) =====
 
     // Carrusel
     const images = document.querySelectorAll(".carousel-image");
@@ -420,18 +495,17 @@
     });
 
     document.addEventListener("click", e => {
-  const card = e.target.closest('.card');
-  if (card && !card.classList.contains("ver-mas")) {
-    const url = card.getAttribute("data-url");
-    const titulo = card.getAttribute("data-titulo");
-    
-    if (url && titulo) {
-      // Enviar la URL al esquema personalizado para Android, incluyendo el type con el valor de ORIGEN
-      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&type=${ORIGEN}`;
-    }
-  }
-});
-
+      const card = e.target.closest('.card');
+      if (card && !card.classList.contains("ver-mas")) {
+        const url = card.getAttribute("data-url");
+        const titulo = card.getAttribute("data-titulo");
+        
+        if (url && titulo) {
+          // Enviar la URL al esquema personalizado para Android, incluyendo el tipo con el valor de ORIGEN
+          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${ORIGEN}`;
+        }
+      }
+    });
 
     // Búsqueda
     document.querySelector(".search-button").addEventListener("click", () => {
