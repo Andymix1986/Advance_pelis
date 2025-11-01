@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>King Play - Resultados de búsqueda</title>
+<title>Advance Pelis - Resultados de búsqueda</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
 body {
@@ -88,6 +88,18 @@ body {
   margin-top: 40px;
   font-size: 1.2rem;
 }
+.loading-message {
+  text-align: center;
+  color: #00bfff;
+  font-size: 1.2rem;
+  margin: 40px 0;
+}
+.error-message {
+  text-align: center;
+  color: #ff4444;
+  font-size: 1.2rem;
+  margin: 40px 0;
+}
 </style>
 </head>
 <body>
@@ -95,20 +107,14 @@ body {
 <h2 id="tituloResultados"></h2>
 <button id="btnVolver" tabindex="0">Volver al inicio</button>
 
-<div class="resultados-container" id="resultadosContainer" tabindex="0"></div>
+<div class="resultados-container" id="resultadosContainer" tabindex="0">
+  <div class="loading-message" id="loadingMessage">
+    Buscando resultados desde la aplicación...
+  </div>
+</div>
 
 <script>
-function xorDecrypt(input, key) {
-  let output = '';
-  for (let i = 0; i < input.length; i++) {
-    output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-  }
-  return output;
-}
-function decodeBase64(input) {
-  return atob(input);
-}
-
+// CONSTANTES ESPECÍFICAS
 const urlParams = new URLSearchParams(window.location.search);
 const query = urlParams.get('q') || '';
 let origen = urlParams.get('origen') || 'peliculas';
@@ -120,8 +126,13 @@ else if (origen === 'animes') tipo = 'Anime';
 else if (origen === 'tv') tipo = 'Tv';
 else tipo = 'Pelicula';
 
+let appData = null;
+let dataLoaded = false;
+
+// Configurar título
 document.getElementById('tituloResultados').textContent = `Resultados para: "${query}"`;
 
+// Configurar botón volver
 const btnVolver = document.getElementById('btnVolver');
 btnVolver.onclick = () => {
   if (origen === 'series') {
@@ -135,162 +146,206 @@ btnVolver.onclick = () => {
   }
 };
 
+// Función para procesar los datos y crear la interfaz
+function processData(json) {
+  console.log('Datos recibidos en resultados:', json);
+  
+  if (!json || !json.contenidos) {
+    showError('Datos inválidos recibidos');
+    return;
+  }
 
-fetch("https://advance-pelis.vercel.app/contenidos.json")
-  .then(r => r.text())
-  .then(data => {
-    const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-    const resultados = json.contenidos.filter(item => {
-      return item.tipo === tipo && item.titulo.toLowerCase().includes(query.toLowerCase());
-    });
+  appData = json;
+  dataLoaded = true;
+  
+  // Ocultar mensaje de carga
+  const loadingMessage = document.getElementById('loadingMessage');
+  if (loadingMessage) {
+    loadingMessage.style.display = 'none';
+  }
 
-    const contenedor = document.getElementById('resultadosContainer');
-    contenedor.innerHTML = '';
+  // Filtrar resultados
+  const resultados = json.contenidos.filter(item => {
+    return item.tipo === tipo && item.titulo.toLowerCase().includes(query.toLowerCase());
+  });
 
-    if (resultados.length === 0) {
-      contenedor.innerHTML = '<p class="no-results">No se encontraron resultados.</p>';
+  const contenedor = document.getElementById('resultadosContainer');
+  contenedor.innerHTML = '';
+
+  if (resultados.length === 0) {
+    contenedor.innerHTML = '<p class="no-results">No se encontraron resultados.</p>';
+    return;
+  }
+
+  // Crear cards de resultados
+  resultados.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.tabIndex = -1;
+    card.setAttribute('data-url', p.url);
+    card.setAttribute('data-titulo', p.titulo);
+
+    const img = document.createElement('img');
+    img.src = p.imagen;
+    img.alt = p.titulo;
+    img.loading = "lazy";
+    img.onerror = function() {
+      this.src = 'https://via.placeholder.com/160x240/222/00bfff?text=Imagen+No+Disponible';
+    };
+
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = p.titulo;
+
+    card.append(img, title);
+    contenedor.appendChild(card);
+  });
+
+  // Configurar navegación por teclado
+  setupKeyboardNavigation();
+}
+
+function setupKeyboardNavigation() {
+  const cards = Array.from(document.querySelectorAll('.card'));
+  let focusedIndex = 0;
+  let focusOnVolver = false;
+
+  if (cards.length > 0) {
+    cards[0].tabIndex = 0;
+    cards[0].focus();
+  } else {
+    btnVolver.focus();
+    focusOnVolver = true;
+  }
+
+  function focusCard(index) {
+    if (index < 0 || index >= cards.length) return;
+    cards[focusedIndex].tabIndex = -1;
+    focusedIndex = index;
+    cards[focusedIndex].tabIndex = 0;
+    cards[focusedIndex].focus();
+    focusOnVolver = false;
+  }
+
+  function calcularColumnas() {
+    if (cards.length < 2) return 1;
+    const cardRect = cards[0].getBoundingClientRect();
+    const nextCardRect = cards[1].getBoundingClientRect();
+    const gap = 16;
+    const totalWidth = nextCardRect.left - cardRect.left;
+    return Math.round(totalWidth / (cardRect.width + gap));
+  }
+
+  let cols = calcularColumnas();
+  if (!cols || cols < 1) cols = 1;
+
+  document.addEventListener('keydown', e => {
+    if (focusOnVolver) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (cards.length > 0) {
+          focusCard(0);
+        }
+      } else if (e.key === 'Enter' || e.key === 'OK') {
+        e.preventDefault();
+        btnVolver.click();
+      }
       return;
     }
 
-    resultados.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.tabIndex = -1;
-      card.setAttribute('data-url', p.url);
-      card.setAttribute('data-titulo', p.titulo);
-
-      const img = document.createElement('img');
-      img.src = p.imagen;
-      img.alt = p.titulo;
-      img.loading = "lazy";
-
-      const title = document.createElement('div');
-      title.className = 'card-title';
-      title.textContent = p.titulo;
-
-      card.append(img, title);
-      contenedor.appendChild(card);
-    });
-
-    const cards = Array.from(document.querySelectorAll('.card'));
-    let focusedIndex = 0;
-    let focusOnVolver = false;
-
-    if (cards.length > 0) {
-      cards[0].tabIndex = 0;
-      cards[0].focus();
-    } else {
-      btnVolver.focus();
-      focusOnVolver = true;
-    }
-
-    function focusCard(index) {
-      if (index < 0 || index >= cards.length) return;
-      cards[focusedIndex].tabIndex = -1;
-      focusedIndex = index;
-      cards[focusedIndex].tabIndex = 0;
-      cards[focusedIndex].focus();
-      focusOnVolver = false;
-    }
-
-    function calcularColumnas() {
-      if (cards.length < 2) return 1;
-      const cardRect = cards[0].getBoundingClientRect();
-      const nextCardRect = cards[1].getBoundingClientRect();
-      const gap = 16;
-      const totalWidth = nextCardRect.left - cardRect.left;
-      return Math.round(totalWidth / (cardRect.width + gap));
-    }
-
-    let cols = calcularColumnas();
-    if (!cols || cols < 1) cols = 1;
-
-    document.addEventListener('keydown', e => {
-      if (focusOnVolver) {
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-          e.preventDefault();
-          if (cards.length > 0) {
-            focusCard(0);
-          }
-        } else if (e.key === 'Enter' || e.key === 'OK') {
-          e.preventDefault();
-          btnVolver.click();
+    switch (e.key) {
+      case 'ArrowRight':
+        e.preventDefault();
+        if (focusedIndex < cards.length - 1) {
+          focusCard(focusedIndex + 1);
         }
-        return;
-      }
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (focusedIndex > 0) {
+          focusCard(focusedIndex - 1);
+        }
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        const next = focusedIndex + cols;
+        if (next < cards.length) {
+          focusCard(next);
+        }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        const prev = focusedIndex - cols;
+        if (prev >= 0) {
+          focusCard(prev);
+        } else {
+          cards[focusedIndex].tabIndex = -1;
+          btnVolver.tabIndex = 0;
+          btnVolver.focus();
+          focusOnVolver = true;
+        }
+        break;
+      case 'Enter':
+      case 'OK':
+        e.preventDefault();
+        const card = cards[focusedIndex];
+        const url = card.getAttribute('data-url');
+        const titulo = card.getAttribute('data-titulo');
 
-      switch (e.key) {
-        case 'ArrowRight':
-          e.preventDefault();
-          if (focusedIndex < cards.length - 1) {
-            focusCard(focusedIndex + 1);
-          }
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          if (focusedIndex > 0) {
-            focusCard(focusedIndex - 1);
-          }
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          const next = focusedIndex + cols;
-          if (next < cards.length) {
-            focusCard(next);
-          }
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          const prev = focusedIndex - cols;
-          if (prev >= 0) {
-            focusCard(prev);
-          } else {
-            cards[focusedIndex].tabIndex = -1;
-            btnVolver.tabIndex = 0;
-            btnVolver.focus();
-            focusOnVolver = true;
-          }
-          break;
-        case 'Enter':
-case 'OK':
-  e.preventDefault();
-  const card = cards[focusedIndex];
-  const url = card.getAttribute('data-url');
-  const titulo = card.getAttribute('data-titulo');
+        if (tipo === "Serie" || tipo === "Anime") {
+          location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+        } else if (tipo === "Tv") {
+          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+        } else {
+          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
+        }
+        break;
+    }
+  });
+}
 
-  if (origen === "Serie" || origen === "Anime") {
-    location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
-  } else if (origen === "Tv") {
-    // Abrir LivePlayerActivity con VLC
-    location.href = `advancepelis://liveplayer?tipo=${encodeURIComponent(tipo)}&url=${encodeURIComponent(url)}`;
-  } else {
-    // Películas (u otros): usa esquema personalizado
-    location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
-  }
-
-          break;
-      }
-    });
-
-    contenedor.addEventListener('click', e => {
+// Configurar event listeners para clicks
+document.addEventListener('click', e => {
   const card = e.target.closest('.card');
   if (card) {
     const url = card.getAttribute('data-url');
     const titulo = card.getAttribute('data-titulo');
 
-    if (origen === "Serie" || origen === "Anime") {
+    if (tipo === "Serie" || tipo === "Anime") {
       location.href = `capitulos.html?titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
-    } else if (origen === "Tv") {
-      location.href = `advancepelis://liveplayer?tipo=${encodeURIComponent(tipo)}&url=${encodeURIComponent(url)}`;
+    } else if (tipo === "Tv") {
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
     } else {
-      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}`;
+      location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(tipo)}`;
     }
   }
 });
 
+function showError(message) {
+  const container = document.getElementById("resultadosContainer");
+  container.innerHTML = `<div class="error-message">${message}</div>`;
+}
 
-  })
-  .catch(console.error);
+// ===== FUNCIÓN GLOBAL PARA RECIBIR DATOS DE LA APP =====
+window.onAppDataReceived = function(jsonData) {
+  console.log('Datos recibidos desde Android en resultados:', jsonData);
+  processData(jsonData);
+};
+
+// Verificar si los datos ya están disponibles
+if (window.appData) {
+  console.log('Datos ya disponibles en window.appData para resultados');
+  processData(window.appData);
+} else {
+  console.log('Esperando datos de la aplicación para resultados...');
+  
+  // Timeout de seguridad por si no llegan los datos
+  setTimeout(() => {
+    if (!dataLoaded) {
+      showError('No se pudieron cargar los resultados. Reinicie la aplicación.');
+    }
+  }, 10000);
+}
 </script>
 
 </body>
