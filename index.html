@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -206,6 +205,20 @@
       box-shadow: 0 0 25px 6px #00bfff;
       z-index: 3;
     }
+
+    .loading-message {
+      text-align: center;
+      color: #00bfff;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
+
+    .error-message {
+      text-align: center;
+      color: #ff4444;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
   </style>
 </head>
 <body>
@@ -218,10 +231,10 @@
   </div>
 
   <div class="menu-bar">
-    <button onclick="location.href='index.html'" tabindex="0">Películas</button>
-    <button onclick="location.href='index_series.html'" tabindex="0">Series</button>
-    <button onclick="location.href='index_animes.html'" tabindex="0">Animes</button>
-    <button onclick="location.href='index_tv.html'" tabindex="0">TV en Vivo</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index.html'" tabindex="0">Películas</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_series.html'" tabindex="0">Series</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_animes.html'" tabindex="0">Animes</button>
+    <button onclick="location.href='https://advance-pelis.vercel.app/index_tv.html'" tabindex="0">TV en Vivo</button>
     <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
@@ -235,38 +248,53 @@
     </div>
   </div>
 
-  <div id="sliders"></div>
+  <div id="sliders">
+    <div class="loading-message" id="loadingMessage">
+      Cargando datos desde la aplicación...
+    </div>
+  </div>
 
   <script>
-    const JSON_URL = "https://generator.andyluxor2025.store/api/get_data.php";
     const ORIGEN = "Pelicula";
+    let appData = null;
+    let dataLoaded = false;
 
-    // --- Nueva lógica de carga segura ---
-    async function loadData() {
-      try {
-        // Si la app inyectó los datos, los usamos directamente
-        if (window.appData) {
-          console.log("Usando datos locales inyectados por la app");
-          renderData(window.appData);
-        } else {
-          console.log("Descargando JSON desde el servidor seguro...");
-          const response = await fetch(JSON_URL);
-          const json = await response.json();
-          renderData(json);
-        }
-      } catch (err) {
-        console.error("Error al cargar datos:", err);
+    // Función para procesar los datos y crear la interfaz
+    function processData(json) {
+      console.log('Datos recibidos en processData:', json);
+      
+      if (!json || !json.contenidos) {
+        showError('Datos inválidos recibidos');
+        return;
       }
-    }
 
-    // --- Renderizado del contenido ---
-    function renderData(json) {
+      appData = json;
+      dataLoaded = true;
+      
+      // Ocultar mensaje de carga
+      const loadingMessage = document.getElementById('loadingMessage');
+      if (loadingMessage) {
+        loadingMessage.style.display = 'none';
+      }
+
       const pelis = json.contenidos.filter(p => p.tipo === ORIGEN).reverse();
       const container = document.getElementById("sliders");
 
-      const estrenos = pelis.filter(p => p.estreno === "Estreno");
-      if (estrenos.length > 0) createSlider("Estrenos", estrenos);
+      // Limpiar contenedor
+      container.innerHTML = '';
 
+      if (pelis.length === 0) {
+        container.innerHTML = '<div class="error-message">No hay películas disponibles</div>';
+        return;
+      }
+
+      // Crear slider de estrenos
+      const estrenos = pelis.filter(p => p.estreno === "Estreno");
+      if (estrenos.length > 0) {
+        createSlider("Estrenos", estrenos);
+      }
+
+      // Organizar por categorías
       const categorias = {};
       pelis.forEach(p => {
         const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
@@ -276,49 +304,97 @@
         });
       });
 
-      Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
+      // Crear sliders por categoría
+      Object.entries(categorias).forEach(([cat, lista]) => {
+        if (lista.length > 0) {
+          createSlider(cat, lista);
+        }
+      });
 
-      function createSlider(titulo, lista) {
-        const slider = document.createElement("div");
-        slider.className = "slider";
-        slider.innerHTML = `<h2>${titulo}</h2>`;
-        const row = document.createElement("div");
-        row.className = "slider-row";
+      // Reinicializar navegación después de crear los sliders
+      setTimeout(() => {
+        sliders = Array.from(document.querySelectorAll(".slider-row"));
+        if (sliders.length > 0) {
+          currentSliderIndex = 0;
+          currentCardIndex = 0;
+        }
+      }, 100);
+    }
 
-        lista.slice(0, 7).forEach(p => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.tabIndex = 0;
-          card.setAttribute("data-titulo", p.titulo);
-          card.setAttribute("data-url", p.url);
+    function createSlider(titulo, lista) {
+      const slider = document.createElement("div");
+      slider.className = "slider";
+      slider.innerHTML = `<h2>${titulo}</h2>`;
+      const row = document.createElement("div");
+      row.className = "slider-row";
 
-          const img = document.createElement("img");
-          img.src = p.imagen;
+      // Limitar a 7 elementos + "Ver más"
+      lista.slice(0, 7).forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-titulo", p.titulo);
+        card.setAttribute("data-url", p.url);
 
-          const title = document.createElement("div");
-          title.className = "card-title";
-          title.textContent = p.titulo;
-
-          card.append(img, title);
-          row.appendChild(card);
-        });
-
-        const verMas = document.createElement("div");
-        verMas.className = "card ver-mas";
-        verMas.tabIndex = 0;
-        verMas.textContent = "Ver más";
-        verMas.onclick = () => {
-          const baseUrl = titulo === "Estrenos"
-            ? "ver_categoria.html?estreno=1"
-            : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
-          location.href = `${baseUrl}&tipo=${encodeURIComponent(ORIGEN)}`;
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+        img.onerror = function() {
+          this.src = 'https://via.placeholder.com/160x240/222/00bfff?text=Imagen+No+Disponible';
         };
 
-        row.appendChild(verMas);
-        slider.appendChild(row);
-        container.appendChild(slider);
-      }
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+
+        card.append(img, title);
+        row.appendChild(card);
+      });
+
+      // Botón "Ver más"
+      const verMas = document.createElement("div");
+      verMas.className = "card ver-mas";
+      verMas.tabIndex = 0;
+      verMas.textContent = "Ver más";
+      verMas.onclick = () => {
+        const baseUrl = titulo === "Estrenos"
+          ? "https://advance-pelis.vercel.app/ver_categoria.html?estreno=1"
+          : `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
+        location.href = `${baseUrl}&tipo=${encodeURIComponent(ORIGEN)}`;
+      };
+
+      row.appendChild(verMas);
+      slider.appendChild(row);
+      document.getElementById("sliders").appendChild(slider);
     }
+
+    function showError(message) {
+      const container = document.getElementById("sliders");
+      container.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    // ===== FUNCIÓN GLOBAL PARA RECIBIR DATOS DE LA APP =====
+    window.onAppDataReceived = function(jsonData) {
+      console.log('Datos recibidos desde Android:', jsonData);
+      processData(jsonData);
+    };
+
+    // Verificar si los datos ya están disponibles (por si la app los inyectó antes de cargar esta función)
+    if (window.appData) {
+      console.log('Datos ya disponibles en window.appData');
+      processData(window.appData);
+    } else {
+      console.log('Esperando datos de la aplicación...');
+      
+      // Timeout de seguridad por si no llegan los datos
+      setTimeout(() => {
+        if (!dataLoaded) {
+          showError('No se pudieron cargar los datos. Reinicie la aplicación.');
+        }
+      }, 10000);
+    }
+
+    // ===== CÓDIGO EXISTENTE (MANTENIDO SIN CAMBIOS) =====
 
     // Carrusel
     const images = document.querySelectorAll(".carousel-image");
@@ -329,7 +405,7 @@
       images[current].classList.add("active");
     }, 4000);
 
-    // --- Navegación, búsqueda, controles remotos (sin cambios) ---
+    // Navegación con control remoto
     let sliders = [];
     let currentSliderIndex = 0;
     let currentCardIndex = 0;
@@ -432,7 +508,9 @@
       if (card && !card.classList.contains("ver-mas")) {
         const url = card.getAttribute("data-url");
         const titulo = card.getAttribute("data-titulo");
-        location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(ORIGEN)}`;
+        if (url && titulo) {
+          location.href = `advancepelis://player?url=${encodeURIComponent(url)}&titulo=${encodeURIComponent(titulo)}&tipo=${encodeURIComponent(ORIGEN)}`;
+        }
       }
     });
 
@@ -461,13 +539,12 @@
     function submitSearch() {
       const query = document.getElementById("searchInput").value.trim();
       if (query) {
-        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
+        window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
       }
     }
 
     window.onload = () => {
       document.getElementById("carousel-container").focus();
-      loadData(); // 🔹 Cargar el JSON (desde app o VPS)
     };
   </script>
 </body>
