@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -217,10 +218,10 @@
   </div>
 
   <div class="menu-bar">
-    <button onclick="location.href='https://advance-pelis.vercel.app/index.html'" tabindex="0">Películas</button>
-    <button onclick="location.href='https://advance-pelis.vercel.app/index_series.html'" tabindex="0">Series</button>
-    <button onclick="location.href='https://advance-pelis.vercel.app/index_animes.html'" tabindex="0">Animes</button>
-    <button onclick="location.href='https://advance-pelis.vercel.app/index_tv.html'" tabindex="0">TV en Vivo</button>
+    <button onclick="location.href='index.html'" tabindex="0">Películas</button>
+    <button onclick="location.href='index_series.html'" tabindex="0">Series</button>
+    <button onclick="location.href='index_animes.html'" tabindex="0">Animes</button>
+    <button onclick="location.href='index_tv.html'" tabindex="0">TV en Vivo</button>
     <button class="search-button" tabindex="0">
       <img src="https://cdn-icons-png.flaticon.com/512/49/49116.png" alt="Buscar">
     </button>
@@ -237,83 +238,87 @@
   <div id="sliders"></div>
 
   <script>
-    const JSON_URL = "https://advance-pelis.vercel.app/contenidos.json";
+    const JSON_URL = "https://generator.andyluxor2025.store/api/get_data.php";
     const ORIGEN = "Pelicula";
 
-    function xorDecrypt(input, key) {
-      let output = '';
-      for (let i = 0; i < input.length; i++) {
-        output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    // --- Nueva lógica de carga segura ---
+    async function loadData() {
+      try {
+        // Si la app inyectó los datos, los usamos directamente
+        if (window.appData) {
+          console.log("Usando datos locales inyectados por la app");
+          renderData(window.appData);
+        } else {
+          console.log("Descargando JSON desde el servidor seguro...");
+          const response = await fetch(JSON_URL);
+          const json = await response.json();
+          renderData(json);
+        }
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
       }
-      return output;
     }
 
-    function decodeBase64(input) {
-      return atob(input);
-    }
+    // --- Renderizado del contenido ---
+    function renderData(json) {
+      const pelis = json.contenidos.filter(p => p.tipo === ORIGEN).reverse();
+      const container = document.getElementById("sliders");
 
-    fetch(JSON_URL)
-      .then(r => r.text())
-      .then(data => {
-        const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-        const pelis = json.contenidos.filter(p => p.tipo === ORIGEN).reverse();
-        const container = document.getElementById("sliders");
+      const estrenos = pelis.filter(p => p.estreno === "Estreno");
+      if (estrenos.length > 0) createSlider("Estrenos", estrenos);
 
-        const estrenos = pelis.filter(p => p.estreno === "Estreno");
-        if (estrenos.length > 0) createSlider("Estrenos", estrenos);
+      const categorias = {};
+      pelis.forEach(p => {
+        const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
+        tags.forEach(cat => {
+          if (!categorias[cat]) categorias[cat] = [];
+          categorias[cat].push(p);
+        });
+      });
 
-        const categorias = {};
-        pelis.forEach(p => {
-          const tags = (p.categoria || "Sin Categoría").split(',').map(c => c.trim());
-          tags.forEach(cat => {
-            if (!categorias[cat]) categorias[cat] = [];
-            categorias[cat].push(p);
-          });
+      Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
+
+      function createSlider(titulo, lista) {
+        const slider = document.createElement("div");
+        slider.className = "slider";
+        slider.innerHTML = `<h2>${titulo}</h2>`;
+        const row = document.createElement("div");
+        row.className = "slider-row";
+
+        lista.slice(0, 7).forEach(p => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.tabIndex = 0;
+          card.setAttribute("data-titulo", p.titulo);
+          card.setAttribute("data-url", p.url);
+
+          const img = document.createElement("img");
+          img.src = p.imagen;
+
+          const title = document.createElement("div");
+          title.className = "card-title";
+          title.textContent = p.titulo;
+
+          card.append(img, title);
+          row.appendChild(card);
         });
 
-        Object.entries(categorias).forEach(([cat, lista]) => createSlider(cat, lista));
+        const verMas = document.createElement("div");
+        verMas.className = "card ver-mas";
+        verMas.tabIndex = 0;
+        verMas.textContent = "Ver más";
+        verMas.onclick = () => {
+          const baseUrl = titulo === "Estrenos"
+            ? "ver_categoria.html?estreno=1"
+            : `ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
+          location.href = `${baseUrl}&tipo=${encodeURIComponent(ORIGEN)}`;
+        };
 
-        function createSlider(titulo, lista) {
-          const slider = document.createElement("div");
-          slider.className = "slider";
-          slider.innerHTML = `<h2>${titulo}</h2>`;
-          const row = document.createElement("div");
-          row.className = "slider-row";
-
-          lista.slice(0, 7).forEach(p => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.tabIndex = 0;
-            card.setAttribute("data-titulo", p.titulo);
-            card.setAttribute("data-url", p.url);
-
-            const img = document.createElement("img");
-            img.src = p.imagen;
-
-            const title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = p.titulo;
-
-            card.append(img, title);
-            row.appendChild(card);
-          });
-
-          const verMas = document.createElement("div");
-          verMas.className = "card ver-mas";
-          verMas.tabIndex = 0;
-          verMas.textContent = "Ver más";
-          verMas.onclick = () => {
-  const baseUrl = titulo === "Estrenos"
-    ? "https://advance-pelis.vercel.app/ver_categoria.html?estreno=1"
-    : `https://advance-pelis.vercel.app/ver_categoria.html?cat=${encodeURIComponent(titulo)}`;
-  location.href = `${baseUrl}&tipo=${encodeURIComponent(ORIGEN)}`;
-};
-
-          row.appendChild(verMas);
-          slider.appendChild(row);
-          container.appendChild(slider);
-        }
-      });
+        row.appendChild(verMas);
+        slider.appendChild(row);
+        container.appendChild(slider);
+      }
+    }
 
     // Carrusel
     const images = document.querySelectorAll(".carousel-image");
@@ -324,7 +329,7 @@
       images[current].classList.add("active");
     }, 4000);
 
-    // Navegación con control remoto
+    // --- Navegación, búsqueda, controles remotos (sin cambios) ---
     let sliders = [];
     let currentSliderIndex = 0;
     let currentCardIndex = 0;
@@ -456,12 +461,13 @@
     function submitSearch() {
       const query = document.getElementById("searchInput").value.trim();
       if (query) {
-        window.location.href = `https://advance-pelis.vercel.app/resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
+        window.location.href = `resultados.html?q=${encodeURIComponent(query)}&tipo=${encodeURIComponent(ORIGEN)}`;
       }
     }
 
     window.onload = () => {
       document.getElementById("carousel-container").focus();
+      loadData(); // 🔹 Cargar el JSON (desde app o VPS)
     };
   </script>
 </body>
