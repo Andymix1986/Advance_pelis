@@ -162,6 +162,18 @@
       color: #00bfff;
       font-size: 1.2rem;
     }
+    .loading-message {
+      text-align: center;
+      color: #00bfff;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
+    .error-message {
+      text-align: center;
+      color: #ff4444;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
   </style>
 </head>
 <body>
@@ -174,10 +186,106 @@
     <div class="menu-temporadas" id="menuTemporadas"></div>
   </div>
   <h2 id="temporadaTitulo"></h2>
-  <div id="slidersContainer"></div>
+  <div id="slidersContainer">
+    <div class="loading-message" id="loadingMessage">
+      Cargando capítulos desde la aplicación...
+    </div>
+  </div>
 
   <script>
-    // ========== SISTEMA SIMPLIFICADO CON LOCALSTORAGE POR SERIE ==========
+    // ========== SISTEMA CON JSON INYECTADO ==========
+    const params = new URLSearchParams(window.location.search);
+    const titulo = params.get('titulo');
+    const tipo = params.get('tipo');
+    const imagenDestacada = document.getElementById("imagenDestacada");
+    const tituloSerie = document.getElementById("tituloSerie");
+    const botonTemporada = document.getElementById("botonTemporada");
+    const menuTemporadas = document.getElementById("menuTemporadas");
+    const slidersContainer = document.getElementById("slidersContainer");
+    const temporadaTitulo = document.getElementById("temporadaTitulo");
+    const loadingMessage = document.getElementById("loadingMessage");
+
+    let appData = null;
+    let dataLoaded = false;
+    let contenido = null;
+    let temporadaActual = 0;
+    let focusables = [];
+    let focusedIndex = 0;
+
+    // Función para procesar los datos y crear la interfaz
+    function processData(json) {
+      console.log('Datos recibidos en capitulos:', json);
+      
+      if (!json || !json.contenidos) {
+        showError('Datos inválidos recibidos');
+        return;
+      }
+
+      appData = json;
+      dataLoaded = true;
+      
+      // Buscar el contenido específico
+      contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
+      if (!contenido) {
+        console.error("Contenido no encontrado:", titulo, tipo);
+        showError('Serie no encontrada');
+        return;
+      }
+
+      console.log("Contenido cargado:", contenido.titulo, "ID:", contenido.id);
+
+      // Ocultar mensaje de carga
+      if (loadingMessage) {
+        loadingMessage.style.display = 'none';
+      }
+
+      // Configurar interfaz
+      imagenDestacada.src = contenido.imagen;
+      imagenDestacada.onerror = function() {
+        this.src = 'https://via.placeholder.com/600x400/222/00bfff?text=Imagen+No+Disponible';
+      };
+      tituloSerie.textContent = contenido.titulo;
+
+      // Configurar menú de temporadas
+      menuTemporadas.innerHTML = "";
+      if (contenido.temporadas && contenido.temporadas.length > 0) {
+        contenido.temporadas.forEach((temp, index) => {
+          const btn = document.createElement("button");
+          btn.textContent = temp.temporada || `Temporada ${index + 1}`;
+          btn.tabIndex = 0;
+          btn.onclick = () => {
+            temporadaActual = index;
+            updateTemporadaUI();
+            menuTemporadas.style.display = "none";
+            botonTemporada.focus();
+            mostrarCapitulos();
+          };
+          menuTemporadas.appendChild(btn);
+        });
+
+        // Establecer temporada actual desde localStorage si existe
+        const estadoGuardado = obtenerEstadoLocal();
+        if (estadoGuardado) {
+          if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
+            temporadaActual = estadoGuardado.temporada;
+            console.log("Temporada actual establecida desde localStorage:", temporadaActual);
+          }
+        }
+
+        updateTemporadaUI();
+
+        // Enfocar capítulo guardado después de un breve delay
+        if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
+          setTimeout(() => {
+            enfocarCapitulo(estadoGuardado.capitulo);
+          }, 100);
+        }
+      } else {
+        showError('No hay temporadas disponibles para esta serie');
+      }
+    }
+
+    // ========== SISTEMA DE CAPÍTULOS VISTOS ==========
 
     // Función para actualizar el último capítulo visto desde Android
     function updateLastWatched(serieId, temporada, capitulo) {
@@ -294,33 +402,6 @@
         }
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const titulo = params.get('titulo');
-    const tipo = params.get('tipo');
-    const imagenDestacada = document.getElementById("imagenDestacada");
-    const tituloSerie = document.getElementById("tituloSerie");
-    const botonTemporada = document.getElementById("botonTemporada");
-    const menuTemporadas = document.getElementById("menuTemporadas");
-    const slidersContainer = document.getElementById("slidersContainer");
-    const temporadaTitulo = document.getElementById("temporadaTitulo");
-
-    let contenido = null;
-    let temporadaActual = 0;
-    let focusables = [];
-    let focusedIndex = 0;
-
-    function xorDecrypt(input, key) {
-        let output = '';
-        for (let i = 0; i < input.length; i++) {
-            output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-        }
-        return output;
-    }
-
-    function decodeBase64(input) {
-        return atob(input);
-    }
-
     // Función para crear una tarjeta de capítulo
     function crearTarjetaCapitulo(capNum, url, temp) {
         const card = document.createElement("div");
@@ -342,7 +423,8 @@
                 tipo: contenido.tipo,
                 id: contenido.id,
                 temporada: temporadaActual.toString(),
-                capitulo: capNum.toString()
+                capitulo: capNum.toString(),
+                total: focusables.length.toString()
             });
 
             const intentUrl = `advancepelis://player?${intentParams.toString()}`;
@@ -352,7 +434,8 @@
                 tipo: contenido.tipo,
                 id: contenido.id,
                 temporada: temporadaActual,
-                capitulo: capNum
+                capitulo: capNum,
+                total: focusables.length
             });
 
             location.href = intentUrl;
@@ -365,6 +448,9 @@
         const img = document.createElement("img");
         img.src = contenido.imagen;
         img.alt = `Capítulo ${capNum}`;
+        img.onerror = function() {
+          this.src = 'https://via.placeholder.com/160x240/222/00bfff?text=Capítulo+' + capNum;
+        };
 
         const title = document.createElement("div");
         title.className = "card-title";
@@ -380,11 +466,17 @@
         focusables = [];
         
         setTimeout(() => {
+            if (!contenido.temporadas || !contenido.temporadas[temporadaActual]) {
+                console.error("Temporada no disponible:", temporadaActual);
+                slidersContainer.innerHTML = "<div class='error-message'>Temporada no disponible</div>";
+                return;
+            }
+
             const temp = contenido.temporadas[temporadaActual];
             
-            if (!temp || !temp.urls || !Array.isArray(temp.urls) || temp.urls.length === 0) {
+            if (!temp.urls || !Array.isArray(temp.urls) || temp.urls.length === 0) {
                 console.error("Datos de temporada incompletos:", temp);
-                slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
+                slidersContainer.innerHTML = "<div class='error-message'>No hay capítulos en esta temporada</div>";
                 return;
             }
             
@@ -441,73 +533,44 @@
         }
     }
 
-    fetch("https://advance-pelis.vercel.app/contenidos.json")
-        .then(r => r.text())
-        .then(data => {
-            const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-            contenido = json.contenidos.find(p => p.titulo === titulo && p.tipo === tipo);
-            if (!contenido) {
-                console.error("Contenido no encontrado:", titulo, tipo);
-                slidersContainer.innerHTML = "<div class='cargando'>Contenido no encontrado</div>";
-                return;
-            }
-
-            console.log("Contenido cargado:", contenido.titulo, "ID:", contenido.id);
-
-            imagenDestacada.src = contenido.imagen;
-            tituloSerie.textContent = contenido.titulo;
-
-            menuTemporadas.innerHTML = "";
-
-            contenido.temporadas.forEach((temp, index) => {
-                const btn = document.createElement("button");
-                btn.textContent = temp.temporada;
-                btn.tabIndex = 0;
-                btn.onclick = () => {
-                    temporadaActual = index;
-                    updateTemporadaUI();
-                    menuTemporadas.style.display = "none";
-                    botonTemporada.focus();
-                    // Regenerar los capítulos para la nueva temporada
-                    mostrarCapitulos();
-                };
-                menuTemporadas.appendChild(btn);
-            });
-
-            // Establecer temporada actual desde localStorage si existe
-            const estadoGuardado = obtenerEstadoLocal();
-            if (estadoGuardado) {
-                if (estadoGuardado.temporada >= 0 && estadoGuardado.temporada < contenido.temporadas.length) {
-                    temporadaActual = estadoGuardado.temporada;
-                    console.log("Temporada actual establecida desde localStorage:", temporadaActual);
-                }
-            }
-
-            updateTemporadaUI();
-
-            // Enfocar capítulo guardado después de un breve delay
-            if (estadoGuardado && typeof estadoGuardado.capitulo === "number") {
-                setTimeout(() => {
-                    enfocarCapitulo(estadoGuardado.capitulo);
-                }, 100);
-            }
-        })
-        .catch(error => {
-            console.error("Error cargando contenido:", error);
-            slidersContainer.innerHTML = "<div class='cargando'>Error al cargar los capítulos</div>";
-        });
-
     function updateTemporadaUI() {
         const botones = menuTemporadas.querySelectorAll("button");
         botones.forEach((b, i) => {
             b.classList.toggle("seleccionada", i === temporadaActual);
         });
-        botonTemporada.textContent = contenido.temporadas[temporadaActual].temporada;
-        temporadaTitulo.textContent = contenido.temporadas[temporadaActual].temporada;
+        botonTemporada.textContent = contenido.temporadas[temporadaActual].temporada || `Temporada ${temporadaActual + 1}`;
+        temporadaTitulo.textContent = contenido.temporadas[temporadaActual].temporada || `Temporada ${temporadaActual + 1}`;
         mostrarCapitulos();
     }
 
-    // === controles ===
+    function showError(message) {
+        slidersContainer.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    // ===== FUNCIÓN GLOBAL PARA RECIBIR DATOS DE LA APP =====
+    window.onAppDataReceived = function(jsonData) {
+        console.log('Datos recibidos desde Android en capitulos:', jsonData);
+        processData(jsonData);
+    };
+
+    // Verificar si los datos ya están disponibles
+    if (window.appData) {
+        console.log('Datos ya disponibles en window.appData para capitulos');
+        processData(window.appData);
+    } else {
+        console.log('Esperando datos de la aplicación para capitulos...');
+        
+        // Timeout de seguridad por si no llegan los datos
+        setTimeout(() => {
+            if (!dataLoaded) {
+                showError('No se pudieron cargar los capítulos. Reinicie la aplicación.');
+            }
+        }, 10000);
+    }
+
+    // ===== NAVEGACIÓN Y CONTROLES =====
+
+    // Controles del menú de temporadas
     botonTemporada.addEventListener("click", () => {
         menuTemporadas.style.display = menuTemporadas.style.display === "flex" ? "none" : "flex";
         if (menuTemporadas.style.display === "flex") {
@@ -522,6 +585,7 @@
         }
     });
 
+    // Navegación por teclado
     document.addEventListener("keydown", e => {
         if (e.key === "Backspace" || e.key === "Escape" || e.key === "4") {
             e.preventDefault();
@@ -600,7 +664,7 @@
     window.updateLastWatched = updateLastWatched;
     window.actualizarInterfazConUltimoCapitulo = actualizarInterfazConUltimoCapitulo;
     
-    console.log("Sistema HTML cargado - Usando localStorage individual por serie");
+    console.log("Sistema HTML cargado - Esperando datos inyectados");
 
     // Verificar estado actual al cargar
     console.log("Estado inicial verificado desde localStorage");
