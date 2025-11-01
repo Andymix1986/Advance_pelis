@@ -148,7 +148,6 @@
   display: none; /* Chrome, Safari */
 }
 
-
     .slider-row .card {
       flex: 0 0 auto;
       width: 160px;
@@ -210,6 +209,20 @@
       outline: none;
     }
 
+    .loading-message {
+      text-align: center;
+      color: #00bfff;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
+
+    .error-message {
+      text-align: center;
+      color: #ff4444;
+      font-size: 1.2rem;
+      margin: 40px 0;
+    }
+
   </style>
 </head>
 <body>
@@ -232,17 +245,132 @@
   </div>
 
   <div class="search-popup" id="searchPopup">
-    <input type="text" id="searchInput" placeholder="Buscar series..." />
+    <input type="text" id="searchInput" placeholder="Buscar animes..." />
     <div class="buttons-row">
       <button id="searchBtn">Buscar</button>
       <button id="closeSearch">Cerrar</button>
     </div>
   </div>
 
-  <div id="sliders"></div>
+  <div id="sliders">
+    <div class="loading-message" id="loadingMessage">
+      Cargando animes desde la aplicación...
+    </div>
+  </div>
 
   <script>
   const ORIGEN = "animes";
+  let appData = null;
+  let dataLoaded = false;
+
+  // Función para procesar los datos y crear la interfaz
+  function processData(json) {
+    console.log('Datos recibidos en processData para animes:', json);
+    
+    if (!json || !json.contenidos) {
+      showError('Datos inválidos recibidos');
+      return;
+    }
+
+    appData = json;
+    dataLoaded = true;
+    
+    // Ocultar mensaje de carga
+    const loadingMessage = document.getElementById('loadingMessage');
+    if (loadingMessage) {
+      loadingMessage.style.display = 'none';
+    }
+
+    const animes = json.contenidos.filter(p => p.tipo === "Anime");
+    const container = document.getElementById("sliders");
+
+    // Limpiar contenedor
+    container.innerHTML = '';
+
+    if (animes.length === 0) {
+      container.innerHTML = '<div class="error-message">No hay animes disponibles</div>';
+      return;
+    }
+
+    // Crear sliders en grupos de 7
+    const cardsPerSlider = 7;
+    for (let i = 0; i < animes.length; i += cardsPerSlider) {
+      const slice = animes.slice(i, i + cardsPerSlider);
+      const slider = document.createElement("div");
+      slider.className = "slider";
+      slider.innerHTML = `<h2>Animes</h2>`;
+      const row = document.createElement("div");
+      row.className = "slider-row";
+      
+      slice.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.tabIndex = 0;
+        card.setAttribute("data-titulo", p.titulo);
+        card.setAttribute("data-url", p.url);
+        
+        const img = document.createElement("img");
+        img.src = p.imagen;
+        img.alt = p.titulo;
+        img.onerror = function() {
+          this.src = 'https://via.placeholder.com/160x240/222/00bfff?text=Imagen+No+Disponible';
+        };
+        
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = p.titulo;
+        
+        card.append(img, title);
+        row.appendChild(card);
+      });
+      
+      slider.appendChild(row);
+      container.appendChild(slider);
+    }
+
+    // Botón "Ver más"
+    const verMas = document.createElement("div");
+    verMas.className = "card ver-mas";
+    verMas.tabIndex = 0;
+    verMas.textContent = "Ver más";
+    verMas.onclick = () => {
+      location.href = `https://advance-pelis.vercel.app/ver_categoria.html?tipo=Anime&origen=${ORIGEN}`;
+    };
+    container.appendChild(verMas);
+
+    // Reinicializar navegación después de crear los sliders
+    setTimeout(() => {
+      initNavigation();
+    }, 100);
+  }
+
+  function showError(message) {
+    const container = document.getElementById("sliders");
+    container.innerHTML = `<div class="error-message">${message}</div>`;
+  }
+
+  // ===== FUNCIÓN GLOBAL PARA RECIBIR DATOS DE LA APP =====
+  window.onAppDataReceived = function(jsonData) {
+    console.log('Datos recibidos desde Android para animes:', jsonData);
+    processData(jsonData);
+  };
+
+  // Verificar si los datos ya están disponibles
+  if (window.appData) {
+    console.log('Datos ya disponibles en window.appData para animes');
+    processData(window.appData);
+  } else {
+    console.log('Esperando datos de la aplicación para animes...');
+    
+    // Timeout de seguridad por si no llegan los datos
+    setTimeout(() => {
+      if (!dataLoaded) {
+        showError('No se pudieron cargar los animes. Reinicie la aplicación.');
+      }
+    }, 10000);
+  }
+
+  // ===== CÓDIGO EXISTENTE (MANTENIDO CON AJUSTES MENORES) =====
 
   // Carrusel - cambio automático de imágenes
   const images = document.querySelectorAll(".carousel-image");
@@ -265,10 +393,9 @@
   }
 
   document.querySelector(".search-button").addEventListener("click", () => {
-  searchPopup.style.display = "flex";
-  setTimeout(() => searchInput.focus(), 100);
-});
-
+    searchPopup.style.display = "flex";
+    setTimeout(() => searchInput.focus(), 100);
+  });
 
   document.getElementById("closeSearch").addEventListener("click", () => {
     searchPopup.style.display = "none";
@@ -278,62 +405,6 @@
   searchInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter") submitSearch();
   });
-
-  // Descifrado XOR y Base64
-  function xorDecrypt(input, key) {
-    let output = '';
-    for (let i = 0; i < input.length; i++) {
-      output += String.fromCharCode(input.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return output;
-  }
-  function decodeBase64(input) {
-    return atob(input);
-  }
-
-  // Cargar JSON y crear sliders con tarjetas
-  const JSON_URL = "https://advance-pelis.vercel.app/contenidos.json";
-
-  fetch(JSON_URL)
-    .then(r => r.text())
-    .then(data => {
-      const json = JSON.parse(xorDecrypt(decodeBase64(data), "andymix1986"));
-      const animes = json.contenidos.filter(p => p.tipo === "Anime");
-      const container = document.getElementById("sliders");
-      const cardsPerSlider = 7;
-      for (let i = 0; i < animes.length; i += cardsPerSlider) {
-        const slice = animes.slice(i, i + cardsPerSlider);
-        const slider = document.createElement("div");
-        slider.className = "slider";
-        slider.innerHTML = `<h2>Animes</h2>`;
-        const row = document.createElement("div");
-        row.className = "slider-row";
-        slice.forEach(p => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.tabIndex = 0;
-          card.setAttribute("data-titulo", p.titulo);
-          const img = document.createElement("img");
-          img.src = p.imagen;
-          const title = document.createElement("div");
-          title.className = "card-title";
-          title.textContent = p.titulo;
-          card.append(img, title);
-          row.appendChild(card);
-        });
-        slider.appendChild(row);
-        container.appendChild(slider);
-      }
-
-      const verMas = document.createElement("div");
-      verMas.className = "card ver-mas";
-      verMas.tabIndex = 0;
-      verMas.textContent = "Ver más";
-      verMas.onclick = () => {
-        location.href = `https://advance-pelis.vercel.app/ver_categoria.html?tipo=Anime&origen=${ORIGEN}`;
-      };
-      container.appendChild(verMas);
-    });
 
   // Auto-scroll slider al enfocar tarjeta
   document.addEventListener("focusin", (e) => {
@@ -360,6 +431,10 @@
   });
 
   // CONTROL REMOTO Y NAVEGACION TECLADO CON FOCOS PERSONALIZADOS
+  function initNavigation() {
+    // Esta función se llama después de que los datos se cargan y se renderizan los sliders
+  }
+
   document.addEventListener("keydown", function (e) {
     const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40, KEY_ENTER = 13;
 
